@@ -1,17 +1,37 @@
-import React from "react";
-import { Formik } from "formik";
-import { View } from "react-native";
-import Input from "@/components/ui/Input";
-import { Link } from "expo-router";
-import Checkbox from "expo-checkbox";
-import { Text } from "react-native";
+import { useSignInMutation } from "@/api/services/authApi";
 import Button from "@/components/ui/Button";
+import Input from "@/components/ui/Input";
+import Checkbox from "expo-checkbox";
+import { Link } from "expo-router";
+import { Formik } from "formik";
+import React, { useCallback } from "react";
+import { Text, View } from "react-native";
+import * as yup from "yup";
+
+const loginSchema = yup.object({
+  email: yup
+    .string()
+    .email("Invalid email address")
+    .required("Email is required"),
+  password: yup.string().required("Password is required"),
+  rememberMe: yup.boolean(),
+});
 
 function LoginForm() {
+  const [loginUser] = useSignInMutation();
+
+  const handleLogin = useCallback(
+    async (values: { email: string; password: string }) => {
+      await loginUser(values);
+    },
+    []
+  );
+
   return (
     <Formik
       initialValues={{ email: "", password: "", rememberMe: false }}
-      onSubmit={(values) => console.log(values)}
+      onSubmit={handleLogin}
+      validationSchema={loginSchema}
     >
       {({ handleChange, handleBlur, handleSubmit, values, setFieldValue }) => (
         <View>
@@ -53,7 +73,7 @@ function LoginForm() {
             />
             <Text className="text-sm  ml-2">Keep me logged in</Text>
           </View>
-          <Button onPress={() => handleSubmit()} className="mt-6">
+          <Button onPress={(e) => handleSubmit(e as any)} className="mt-6">
             Login
           </Button>
         </View>

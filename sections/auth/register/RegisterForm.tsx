@@ -29,7 +29,7 @@ function RegisterForm() {
   const handleSubmit = useCallback(
     async (values: { email: string; password: string }) => {
       const { email, password } = values;
-      await registerUser({ email, password }).unwrap();
+      await registerUser({ email, password });
     },
     []
   );

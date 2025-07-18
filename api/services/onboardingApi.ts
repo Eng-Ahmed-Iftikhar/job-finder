@@ -9,8 +9,8 @@ import { baseQueryWithReAuth } from "./baseApi";
 
 const auth = getAuth();
 
-export const authApi = createApi({
-  reducerPath: "authApi",
+export const onboardingApi = createApi({
+  reducerPath: "onboardingApi",
   baseQuery: baseQueryWithReAuth,
   endpoints: (builder) => ({
     // sign in
@@ -68,4 +68,4 @@ export const authApi = createApi({
   }),
 });
 
-export const { useSignInMutation, useSignUpMutation } = authApi;
+export const { useSignInMutation, useSignUpMutation } = onboardingApi;

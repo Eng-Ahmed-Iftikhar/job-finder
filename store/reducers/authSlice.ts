@@ -1,17 +1,14 @@
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-
-import { User } from "@/types/api/auth";
 import { RootState } from ".";
+import { authApi } from "@/api/services/authApi";
+import { FirebaseAuthTypes } from "@react-native-firebase/auth";
 
 // Define a type for the slice state
 interface AuthState {
-  user: User | null;
+  user: FirebaseAuthTypes.User | null;
   isLoggedIn: boolean;
-  token?: {
-    accessToken: string;
-    expiresAt: string;
-  };
+  token?: string;
 }
 
 // Define the initial state using that type
@@ -26,16 +23,11 @@ export const authSlice = createSlice({
   // `createSlice` will infer the state type from the `initialState` argument
   initialState,
   reducers: {
-    setUser: (state, action: PayloadAction<User | null>) => {
+    setUser: (state, action: PayloadAction<FirebaseAuthTypes.User | null>) => {
       state.user = action.payload;
       state.isLoggedIn = !!action.payload;
     },
-    setToken: (
-      state,
-      action: PayloadAction<
-        { accessToken: string; expiresAt: string } | undefined
-      >
-    ) => {
+    setToken: (state, action: PayloadAction<string>) => {
       state.token = action.payload;
     },
     logout: (state) => {
@@ -44,11 +36,36 @@ export const authSlice = createSlice({
       state.token = undefined;
     },
   },
+  extraReducers: (builder) => {
+    builder
+      .addMatcher(authApi.endpoints.signIn.matchFulfilled, (state, action) => {
+        const { user, token } = action.payload;
+        state.isLoggedIn = true;
+        state.token = token;
+        state.user = user;
+      })
+      .addMatcher(authApi.endpoints.signIn.matchRejected, (state) => {
+        state.isLoggedIn = false;
+        state.user = null;
+        state.token = undefined;
+      })
+      .addMatcher(authApi.endpoints.signUp.matchFulfilled, (state, action) => {
+        const { user, token } = action.payload;
+        state.isLoggedIn = true;
+        state.token = token;
+        state.user = user;
+      })
+      .addMatcher(authApi.endpoints.signUp.matchRejected, (state) => {
+        state.isLoggedIn = false;
+        state.user = null;
+        state.token = undefined;
+      });
+  },
 });
 
 export const { setToken, setUser, logout } = authSlice.actions;
 
 // Other code such as selectors can use the imported `RootState` type
-export const selectUser = (state: RootState) => state.auth;
+export const selectAuth = (state: RootState) => state.auth;
 
 export default authSlice.reducer;

@@ -1,9 +1,20 @@
-import { Stack } from "expo-router";
-import React from "react";
+import { Stack, useRouter } from "expo-router";
+import React, { useEffect } from "react";
 import { Image, View } from "react-native";
 import Logo from "@/assets/logo.png";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectAuth } from "@/store/reducers/authSlice";
 
 export default function AuthLayout() {
+  const router = useRouter();
+  const { isLoggedIn } = useAppSelector(selectAuth);
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      // router.replace("/(dashboard)/");
+    }
+  }, []);
+
   return (
     <View className="flex-1 bg-white">
       <View className="h-[56px] items-center justify-center ">

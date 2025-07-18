@@ -1,23 +1,25 @@
-export type User = {
-  id: number;
-  email: string;
-  username: string;
-  is_active: boolean;
-  is_verified: boolean;
-  role: string;
-  created_at: string;
-  updated_at: string;
-  profile: UserProfile;
+type UserGeneralInfo = {
+  firstName: string;
+  lastName: string;
 };
-export type UserProfile = {
-  id: number;
-  first_name: string;
-  last_name: string;
-  phone_number: string;
-  address: string;
+
+type UserLocation = {
   city: string;
   state: string;
   country: string;
-  postal_code: string;
-  user_id: number;
+  address: string;
+};
+
+type UserPhoneNumber = {
+  countryCode: string;
+  number: string;
+  isVerified: boolean;
+};
+
+export type UserProfile = {
+  generalInfo: UserGeneralInfo;
+  location: UserLocation;
+  phoneNumber: UserPhoneNumber;
+  pictureUrl?: string;
+  resumeUrl?: string;
 };
