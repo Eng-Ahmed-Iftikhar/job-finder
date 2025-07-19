@@ -61,7 +61,7 @@ export default function Input({
   }, [passwordVisible, props, type]);
 
   return (
-    <View>
+    <View className=" flex-1">
       <Text className="text-sm text-gray-600 mb-1">{label}</Text>
       {input}
       {isError && <Text className="text-red-500 text-xs mt-1">{error}</Text>}

@@ -17,9 +17,9 @@ type UserPhoneNumber = {
 };
 
 export type UserProfile = {
-  generalInfo: UserGeneralInfo;
-  location: UserLocation;
-  phoneNumber: UserPhoneNumber;
+  generalInfo?: UserGeneralInfo;
+  location?: UserLocation;
+  phoneNumber?: UserPhoneNumber;
   pictureUrl?: string;
   resumeUrl?: string;
 };

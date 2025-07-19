@@ -8,8 +8,6 @@ function Dashboard() {
     router.replace("/(onboarding)");
   }, [router]);
 
-  console.log("sdfsadf");
-
   return <AppLoader />;
 }
 
