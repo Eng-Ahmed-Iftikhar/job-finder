@@ -13,7 +13,7 @@ export default function AuthLayout() {
     if (isLoggedIn) {
       router.replace("/(dashboard)/");
     }
-  }, []);
+  }, [isLoggedIn, router]);
 
   return (
     <View className="flex-1 bg-white">

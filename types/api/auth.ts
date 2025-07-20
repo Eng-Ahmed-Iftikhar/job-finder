@@ -12,7 +12,7 @@ type UserLocation = {
 
 type UserPhoneNumber = {
   countryCode: string;
-  number: string;
+  number: number;
   isVerified: boolean;
 };
 

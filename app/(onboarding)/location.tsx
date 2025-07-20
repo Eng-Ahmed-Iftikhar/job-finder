@@ -11,18 +11,9 @@ import { ScrollView, View } from "react-native";
 import * as yup from "yup";
 
 const formSchema = yup.object({
-  country: yup
-    .string()
-    .required("Country is required")
-    .min(2, "Country must be at least 2 characters"),
-  city: yup
-    .string()
-    .required("City is required")
-    .min(4, "City must be at least 4 characters"),
-  state: yup
-    .string()
-    .required("State is required")
-    .min(2, "State must be at least 2 characters"),
+  country: yup.string().required("Country is required"),
+  city: yup.string().required("City is required"),
+  state: yup.string().required("State is required"),
   address: yup
     .string()
     .required("Address is required")
@@ -46,9 +37,9 @@ function Location() {
     async (values: FormValues) => {
       handleUserProfile({ location: values });
       handleChangeCurrentStep(OnboardingSteps.PHONE_NUMBER);
-      router.push("/(onboarding)/location");
+      router.push("/(onboarding)/phone-number");
     },
-    [handleUserProfile]
+    [handleUserProfile, handleChangeCurrentStep, router]
   );
 
   useEffect(() => {
@@ -135,6 +126,10 @@ function Location() {
                 numberOfLines={4}
                 label="Address"
                 type="text"
+                style={{
+                  textAlignVertical: "top",
+                }}
+                className="h-16 border border-gray-300 rounded-md  "
                 placeholder="Enter your address"
                 onChangeText={handleChange("address")}
                 onBlur={handleBlur("address")}

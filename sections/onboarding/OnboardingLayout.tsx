@@ -62,6 +62,7 @@ function OnboardingLayout() {
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="general-info" options={{ headerShown: false }} />
         <Stack.Screen name="location" options={{ headerShown: false }} />
+        <Stack.Screen name="phone-number" options={{ headerShown: false }} />
       </Stack>
     </View>
   );

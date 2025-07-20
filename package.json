@@ -30,6 +30,7 @@
     "expo-system-ui": "^5.0.10",
     "formik": "^2.4.6",
     "i": "^0.3.7",
+    "libphonenumber-js": "^1.12.10",
     "nativewind": "^4.1.23",
     "npm": "^11.4.2",
     "react": "19.0.0",
