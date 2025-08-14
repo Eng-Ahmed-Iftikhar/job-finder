@@ -1,69 +1,43 @@
-import {
-  createUserWithEmailAndPassword,
-  FirebaseAuthTypes,
-  getAuth,
-  signInWithEmailAndPassword,
-} from "@react-native-firebase/auth";
 import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQueryWithReAuth } from "./baseApi";
+import { baseQuery } from "./baseApi";
+import API_ROUTES from "@/api/routes";
+import { User } from "@/types/api/auth";
 
-const auth = getAuth();
+// Define the server auth response
+export interface AuthResponse {
+  user: User;
+  access_token: string;
+}
 
 export const authApi = createApi({
   reducerPath: "authApi",
-  baseQuery: baseQueryWithReAuth,
+  baseQuery,
   endpoints: (builder) => ({
     // sign in
-    signIn: builder.mutation<
-      { user: FirebaseAuthTypes.User; token: string },
-      { email: string; password: string }
-    >({
-      queryFn: async (body) => {
-        const { email, password } = body;
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
-        const user = userCredential.user;
-
-        const { token = "" } = (await user.getIdTokenResult()) || "";
-
-        if (user) {
-          return {
-            data: { user, token },
-          };
-        } else {
-          return { error: { status: 401, data: "Authentication failed" } };
-        }
-      },
-    }),
+    signIn: builder.mutation<AuthResponse, { email: string; password: string }>(
+      {
+        query: (body) => ({
+          url: API_ROUTES.auth.sign_in,
+          method: "POST",
+          body,
+        }),
+      }
+    ),
     // sign up
     signUp: builder.mutation<
-      { user: FirebaseAuthTypes.User; token: string },
+      AuthResponse,
       {
         email: string;
         password: string;
+        firstName?: string;
+        lastName?: string;
       }
     >({
-      queryFn: async (body) => {
-        const { email, password } = body;
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-        const user = userCredential.user;
-        const { token = "" } = (await user.getIdTokenResult()) || "";
-        if (user) {
-          return {
-            data: { user, token },
-          };
-        } else {
-          return { error: { status: 401, data: "Authentication failed" } };
-        }
-      },
+      query: (body) => ({
+        url: API_ROUTES.auth.sign_up,
+        method: "POST",
+        body,
+      }),
     }),
   }),
 });

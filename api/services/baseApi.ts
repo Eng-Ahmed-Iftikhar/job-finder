@@ -5,6 +5,7 @@ import type {
   FetchBaseQueryError,
 } from "@reduxjs/toolkit/query";
 import Constants from "expo-constants";
+import { router } from "expo-router";
 
 import { SIGN_IN_PATH } from "@/config";
 import { RootState } from "@/store/reducers";
@@ -22,9 +23,9 @@ const baseQueryWithAuth = fetchBaseQuery({
   baseUrl: BASE_URL,
   prepareHeaders: async (headers, { getState }) => {
     const session = (await getState()) as RootState;
-    const accessToken = session?.auth?.token?.accessToken;
-    if (accessToken) {
-      headers.set("Authorization", `Bearer ${accessToken}`);
+    const access_token = session?.auth?.access_token;
+    if (access_token) {
+      headers.set("Authorization", `Bearer ${access_token}`);
     }
     return headers;
   },
@@ -37,14 +38,9 @@ const baseQueryWithReAuth: BaseQueryFn<
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
   const result = await baseQueryWithAuth(args, api, extraOptions);
-  if (
-    result.error &&
-    result.error.status === 401 &&
-    !window.location.href.includes("/sign-in")
-  ) {
+  if (result.error && result.error.status === 401) {
     // Redirect to sign-in
-    // await signOut({ redirect: false });
-    window.location.pathname = SIGN_IN_PATH;
+    router.replace("/(auth)/login");
   }
   return result;
 };

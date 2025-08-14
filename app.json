@@ -22,8 +22,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.jobfinder.app",
-      "googleServicesFile": "./google-services.json"
+      "package": "com.jobfinder.app"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -31,8 +30,6 @@
     },
     "plugins": [
       "expo-router",
-      "@react-native-firebase/app",
-      "@react-native-firebase/auth",
       [
         "expo-build-properties",
         {
@@ -43,7 +40,7 @@
       ]
     ],
     "extra": {
-      "BASE_URL": "https://api.example.com",
+      "BASE_URL": "$EXPO_PUBLIC_BASE_URL",
       "router": {},
       "eas": {
         "projectId": "0a558cc7-d57a-4ceb-894a-455b11b95442"

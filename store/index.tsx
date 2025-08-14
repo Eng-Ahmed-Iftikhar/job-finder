@@ -4,26 +4,17 @@ import "react-native-get-random-values";
 import reducers, { RootState } from "./reducers";
 
 // third-party
-import React from "react";
-import Constants from "expo-constants";
 import { configureStore } from "@reduxjs/toolkit";
+import Constants from "expo-constants";
+import React from "react";
 import { Provider } from "react-redux";
-import {
-  FLUSH,
-  PAUSE,
-  PERSIST,
-  persistReducer,
-  persistStore,
-  PURGE,
-  REGISTER,
-  REHYDRATE,
-} from "redux-persist";
+import { persistReducer, persistStore } from "redux-persist";
 
-import { encryptTransform } from "redux-persist-transform-encrypt";
-import { setupListeners } from "@reduxjs/toolkit/query";
-import { apiMiddlewares } from "../api/services";
-import { Persistor } from "redux-persist/es/types";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { setupListeners } from "@reduxjs/toolkit/query";
+import { encryptTransform } from "redux-persist-transform-encrypt";
+import { Persistor } from "redux-persist/es/types";
+import { apiMiddlewares } from "../api/services";
 
 // ==============================|| REDUX PERSIST For Next.js SSR ||============================== //
 import { PersistGate } from "redux-persist/integration/react";
@@ -84,4 +75,4 @@ const ReduxPersisted = ({ children }: ReduxPersistedProps) => {
   );
 };
 
-export { store, dispatch, ReduxPersisted };
+export { dispatch, ReduxPersisted, store };

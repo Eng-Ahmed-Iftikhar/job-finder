@@ -74,9 +74,8 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (user) {
-      const { displayName = "" } = user;
-      const firstName = displayName?.split(" ")[0] || "";
-      const lastName = displayName?.split(" ")[1] || "";
+      const firstName = user.firstName || "";
+      const lastName = user.lastName || "";
 
       setUserProfile({
         generalInfo: {
@@ -85,7 +84,7 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
         },
       });
     }
-  }, []);
+  }, [user]);
 
   return (
     <Provider
