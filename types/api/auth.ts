@@ -1,3 +1,11 @@
+export enum SocialProvider {
+  EMAIL = 'EMAIL',
+  GOOGLE = 'GOOGLE',
+  FACEBOOK = 'FACEBOOK',
+  LINKEDIN = 'LINKEDIN',
+  GITHUB = 'GITHUB',
+}
+
 type UserGeneralInfo = {
   firstName: string;
   lastName: string;
@@ -15,6 +23,7 @@ type UserPhoneNumber = {
   number: number;
   isVerified: boolean;
 };
+
 export enum UserRole {
   USER = "USER",
   ADMIN = "ADMIN",
@@ -26,12 +35,14 @@ export type User = {
   id: string;
   email: string;
   username: string;
-  password: string;
+  password?: string; // Optional for social login
   firstName: string | null;
   lastName: string | null;
   isActive: boolean;
   isEmailVerified: boolean;
   role: UserRole;
+  provider: SocialProvider;
+  profileImage?: string;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -43,3 +54,12 @@ export type UserProfile = {
   pictureUrl?: string;
   resumeUrl?: string;
 };
+
+// Google login response type
+export interface GoogleUserInfo {
+  id: string;
+  email: string;
+  firstName: string;
+  lastName: string;
+  profileImage?: string;
+}

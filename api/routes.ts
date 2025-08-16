@@ -1,7 +1,11 @@
 const API_ROUTES = {
   auth: {
-    sign_in: "/auth/sign-in",
-    sign_up: "/auth/sign-up",
+    sign_in: "/auth/login",
+    sign_up: "/auth/register",
+    social_login: "/auth/social-login",
+    logout: "/auth/logout",
+    me: "/auth/me",
+    refresh: "/auth/refresh",
     profile: "/auth/profile?withPopulate=true",
   },
   file: {

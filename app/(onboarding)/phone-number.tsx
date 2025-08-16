@@ -8,7 +8,7 @@ import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import { isValidPhoneNumber } from "libphonenumber-js";
 import React, { useCallback, useEffect, useMemo } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, KeyboardAvoidingView, Platform } from "react-native";
 import * as yup from "yup";
 
 const formSchema = yup.object({
@@ -35,6 +35,7 @@ const formSchema = yup.object({
                 { value, code },
                 isValidPhoneNumber(`+${value}`, code as any)
               );
+              console.log({ value, code });
 
               return isValidPhoneNumber(`+${value}`, code as any);
             }
@@ -132,49 +133,59 @@ function PhoneNumber() {
         touched,
         isSubmitting,
       }) => (
-        <ScrollView className=" flex-1 p-4  bg-white">
-          <View className="flex-1 ">
-            {console.log({ values })}
-            <View className="  mt-4  gap-6 ">
-              <PhoneNumberInput
-                selectCodeProps={{
-                  onValueChange: handleChange("countryCode"),
-                  value: values.countryCode,
-                  items: countryOptions,
-                }}
-                inputNumberProps={{
-                  maxLength: 10,
-                  onChangeText: handleChange("number"),
-                  onBlur: handleBlur("number"),
-                  value: values.number as any,
-                  placeholder: "Enter your phone number",
-                  keyboardType: "phone-pad",
-                  style: {
-                    paddingVertical: 10,
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+        >
+          <ScrollView
+            className="flex-1 p-4 bg-white"
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+          >
+            <View className="flex-1 ">
+              <View className="  mt-4  gap-6 ">
+                <PhoneNumberInput
+                  selectCodeProps={{
+                    onValueChange: handleChange("countryCode"),
+                    value: values.countryCode,
+                    items: countryOptions,
+                  }}
+                  inputNumberProps={{
+                    maxLength: 10,
+                    onChangeText: handleChange("number"),
+                    onBlur: handleBlur("number"),
+                    value: values.number as any,
+                    placeholder: "Enter your phone number",
+                    keyboardType: "phone-pad",
+                    style: {
+                      paddingVertical: 10,
 
-                    fontSize: 12,
-                    lineHeight: 22,
+                      fontSize: 12,
+                      lineHeight: 22,
 
-                    textAlignVertical: "center", // for Android only
-                    color: "#000",
-                  },
-                }}
-                error={errors.number}
-                isError={!!errors.number && touched.number}
-                label="Phone number"
-              />
+                      textAlignVertical: "center", // for Android only
+                      color: "#000",
+                    },
+                  }}
+                  error={errors.number}
+                  isError={!!errors.number && touched.number}
+                  label="Phone number"
+                />
+              </View>
+
+              <Button
+                disabled={isSubmitting}
+                loading={isSubmitting}
+                onPress={(e) => handleSubmit(e as any)}
+                className="my-6"
+              >
+                Next
+              </Button>
             </View>
-
-            <Button
-              disabled={isSubmitting}
-              loading={isSubmitting}
-              onPress={(e) => handleSubmit(e as any)}
-              className="my-6"
-            >
-              Next
-            </Button>
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </KeyboardAvoidingView>
       )}
     </Formik>
   );

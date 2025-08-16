@@ -14,7 +14,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.jobfinderoffical.app"
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.jobfinder.app"
+      "package": "com.jobfinderoffical.app"
     },
     "web": {
       "favicon": "./assets/favicon.png",
@@ -37,10 +38,14 @@
             "useFrameworks": "static"
           }
         }
-      ]
+      ],
+      "@react-native-google-signin/google-signin"
     ],
     "extra": {
-      "BASE_URL": "$EXPO_PUBLIC_BASE_URL",
+      "BASE_URL": "https://4c5de12fa468.ngrok-free.app/api",
+      "GOOGLE_OAUTH": {
+        "EXPO_CLIENT_ID": "597892577631-56tsuva8i2q7kfbpahf1gnkptd8625j1.apps.googleusercontent.com"
+      },
       "router": {},
       "eas": {
         "projectId": "0a558cc7-d57a-4ceb-894a-455b11b95442"

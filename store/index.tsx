@@ -23,6 +23,41 @@ import { PersistGate } from "redux-persist/integration/react";
 
 const APP_NAME = Constants.expoConfig?.extra?.APP_NAME || "MyApp";
 
+// Custom transform to only persist access_token
+const tokenOnlyTransform = {
+  in: (state: any) => {
+    console.log("Redux Persist: Restoring state", state);
+    if (state && state.auth) {
+      const transformedState = {
+        ...state,
+        auth: {
+          access_token: state.auth.access_token,
+          user: null,
+          isLoggedIn: false,
+        },
+      };
+      console.log("Redux Persist: Transformed state (in)", transformedState);
+      return transformedState;
+    }
+    return state;
+  },
+  out: (state: any) => {
+    if (state && state.auth) {
+      const transformedState = {
+        ...state,
+        auth: {
+          access_token: state.auth.access_token,
+          user: null,
+          isLoggedIn: false,
+        },
+      };
+      console.log("Redux Persist: Transformed state (out)", transformedState);
+      return transformedState;
+    }
+    return state;
+  },
+};
+
 const persistConfig = {
   keyPrefix: APP_NAME.replaceAll(" ", "-").toLowerCase() + "-",
   key: "store",
@@ -35,9 +70,11 @@ const persistConfig = {
         console.log("Error during encryption", error);
       },
     }),
+    // Custom transform to only persist access_token
+    tokenOnlyTransform,
   ],
-  // whitelist : ["amount"],
-  // blacklist : ["users"],
+  // Only persist the auth slice
+  whitelist: ["auth"],
 };
 
 // Persist All reducers

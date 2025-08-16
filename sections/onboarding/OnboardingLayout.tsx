@@ -1,13 +1,17 @@
 import Logo from "@/assets/logo.png";
 import useOnboarding from "@/hooks/useOnboarding";
 import StepIndicator from "@/sections/onboarding/StepIndicator";
+import { useLogoutMutation } from "@/api/services/authApi";
 import { Stack, useRouter } from "expo-router";
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/AntDesign";
+import ConfirmationModal from "@/components/ConfirmationModal";
 
 function OnboardingLayout() {
   const router = useRouter();
+  const [logoutApi, { isLoading: isLoggingOut }] = useLogoutMutation();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const {
     currentStep = "",
     onboardingSteps,
@@ -28,6 +32,22 @@ function OnboardingLayout() {
     router.back();
   }, []);
 
+  const handleLogout = useCallback(() => {
+    setShowLogoutModal(true);
+  }, []);
+
+  const handleConfirmLogout = useCallback(async () => {
+    try {
+      await logoutApi().unwrap();
+      // The auth slice matcher will automatically clear the state
+      // and the auth layout will redirect to auth screens
+    } catch (error) {
+      console.error("Logout API error:", error);
+      // Even if API fails, we should still logout locally
+      // The auth slice matcher will handle this
+    }
+  }, [logoutApi]);
+
   const isShowBackIcon = useMemo(() => {
     return currentIdx > 1;
   }, [currentIdx]);
@@ -44,9 +64,11 @@ function OnboardingLayout() {
         </View>
 
         <Image source={Logo} className="h-[40px] w-[76px]" />
-        <TouchableOpacity>
-          <Text className="text-sm text-azure-radiance-500 font-semibold ">
-            Logout
+        <TouchableOpacity onPress={handleLogout} disabled={isLoggingOut}>
+          <Text
+            className={`text-sm font-semibold ${isLoggingOut ? "text-gray-400" : "text-azure-radiance-500"}`}
+          >
+            {isLoggingOut ? "Logging out..." : "Logout"}
           </Text>
         </TouchableOpacity>
       </View>
@@ -64,6 +86,20 @@ function OnboardingLayout() {
         <Stack.Screen name="location" options={{ headerShown: false }} />
         <Stack.Screen name="phone-number" options={{ headerShown: false }} />
       </Stack>
+
+      {/* Logout Confirmation Modal */}
+      <ConfirmationModal
+        visible={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleConfirmLogout}
+        title="Logout"
+        message="Are you sure you want to logout? You will need to sign in again to access your account."
+        confirmText="Logout"
+        cancelText="Cancel"
+        confirmButtonColor="bg-red-500"
+        icon="logout"
+        iconColor="#EF4444"
+      />
     </View>
   );
 }

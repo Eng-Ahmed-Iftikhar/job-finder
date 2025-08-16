@@ -1,11 +1,13 @@
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 import { OnboardingSteps } from "@/context/OnboardingContext";
+import { useAppSelector } from "@/hooks/useAppSelector";
 import useOnboarding from "@/hooks/useOnboarding";
+import { selectAuth } from "@/store/reducers/authSlice";
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import React, { useCallback, useEffect } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, KeyboardAvoidingView, Platform } from "react-native";
 import * as yup from "yup";
 
 const formSchema = yup.object({
@@ -29,6 +31,7 @@ function GeneralInfo() {
     userProfile,
   } = useOnboarding();
   const router = useRouter();
+  const { user } = useAppSelector(selectAuth);
 
   const handleSubmit = useCallback(
     async (values: FormValues) => {
@@ -47,7 +50,19 @@ function GeneralInfo() {
     });
   }, [handleChangeStepHeader]);
 
-  console.log(userProfile);
+  useEffect(() => {
+    if (user) {
+      const firstName = user.firstName || "";
+      const lastName = user.lastName || "";
+
+      handleUserProfile({
+        generalInfo: {
+          firstName,
+          lastName,
+        },
+      });
+    }
+  }, [user, handleUserProfile]);
 
   return (
     <Formik
@@ -55,6 +70,7 @@ function GeneralInfo() {
         firstName: userProfile?.generalInfo?.firstName || "",
         lastName: userProfile?.generalInfo?.lastName || "",
       }}
+      enableReinitialize
       onSubmit={handleSubmit}
       validationSchema={formSchema}
     >
@@ -67,41 +83,52 @@ function GeneralInfo() {
         touched,
         isSubmitting,
       }) => (
-        <ScrollView className=" flex-1 p-4  bg-white">
-          <View className="flex-1 ">
-            <View className="  mt-4  gap-6 ">
-              <Input
-                label="First name"
-                type="text"
-                placeholder="Enter your name"
-                onChangeText={handleChange("firstName")}
-                onBlur={handleBlur("firstName")}
-                value={values.firstName}
-                error={errors.firstName}
-                isError={!!errors.firstName && touched.firstName}
-              />
-              <Input
-                label="Last name"
-                type="text"
-                placeholder="Enter your name"
-                onChangeText={handleChange("lastName")}
-                onBlur={handleBlur("lastName")}
-                value={values.lastName}
-                error={errors.lastName}
-                isError={!!errors.lastName && touched.lastName}
-              />
-            </View>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+        >
+          <ScrollView
+            className="flex-1 p-4 bg-white"
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+          >
+            <View className="flex-1 ">
+              <View className="  mt-4  gap-6 ">
+                <Input
+                  label="First name"
+                  type="text"
+                  placeholder="Enter your name"
+                  onChangeText={handleChange("firstName")}
+                  onBlur={handleBlur("firstName")}
+                  value={values.firstName}
+                  error={errors.firstName}
+                  isError={!!errors.firstName && touched.firstName}
+                />
+                <Input
+                  label="Last name"
+                  type="text"
+                  placeholder="Enter your name"
+                  onChangeText={handleChange("lastName")}
+                  onBlur={handleBlur("lastName")}
+                  value={values.lastName}
+                  error={errors.lastName}
+                  isError={!!errors.lastName && touched.lastName}
+                />
+              </View>
 
-            <Button
-              disabled={isSubmitting}
-              loading={isSubmitting}
-              onPress={(e) => handleSubmit(e as any)}
-              className="my-6"
-            >
-              Next
-            </Button>
-          </View>
-        </ScrollView>
+              <Button
+                disabled={isSubmitting}
+                loading={isSubmitting}
+                onPress={(e) => handleSubmit(e as any)}
+                className="my-6"
+              >
+                Next
+              </Button>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
       )}
     </Formik>
   );

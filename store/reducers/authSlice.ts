@@ -59,6 +59,44 @@ export const authSlice = createSlice({
         state.isLoggedIn = false;
         state.user = null;
         state.access_token = undefined;
+      })
+      .addMatcher(
+        authApi.endpoints.socialLogin.matchFulfilled,
+        (state, action) => {
+          const { user, access_token } = action.payload;
+          state.isLoggedIn = true;
+          state.access_token = access_token;
+          state.user = user;
+        }
+      )
+      .addMatcher(authApi.endpoints.socialLogin.matchRejected, (state) => {
+        state.isLoggedIn = false;
+        state.user = null;
+        state.access_token = undefined;
+      })
+      .addMatcher(authApi.endpoints.logout.matchFulfilled, (state) => {
+        state.isLoggedIn = false;
+        state.user = null;
+        state.access_token = undefined;
+      })
+      .addMatcher(authApi.endpoints.logout.matchRejected, (state) => {
+        // Even if logout API fails, we should still clear local state
+        state.isLoggedIn = false;
+        state.user = null;
+        state.access_token = undefined;
+      })
+      .addMatcher(authApi.endpoints.me.matchFulfilled, (state, action) => {
+        // User data fetched successfully, restore session
+        console.log("Auth slice: /me endpoint succeeded, setting user and isLoggedIn");
+        state.user = action.payload;
+        state.isLoggedIn = true;
+      })
+      .addMatcher(authApi.endpoints.me.matchRejected, (state) => {
+        // Failed to fetch user data, clear session
+        console.log("Auth slice: /me endpoint failed, clearing session");
+        state.isLoggedIn = false;
+        state.user = null;
+        state.access_token = undefined;
       });
   },
 });

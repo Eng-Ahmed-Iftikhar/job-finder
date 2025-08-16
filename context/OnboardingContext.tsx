@@ -1,7 +1,5 @@
-import { useAppSelector } from "@/hooks/useAppSelector";
-import { selectAuth } from "@/store/reducers/authSlice";
 import { UserProfile } from "@/types/api/auth";
-import React, { createContext, useCallback, useEffect, useState } from "react";
+import React, { createContext, useCallback, useState } from "react";
 
 export enum OnboardingSteps {
   GENERAL_INFO = "generalInfo",
@@ -40,7 +38,6 @@ type StepHeaderType = {
 
 function OnboardingProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const { user } = useAppSelector(selectAuth);
 
   const [currentStep, setCurrentStep] = useState<string>(
     OnboardingSteps.GENERAL_INFO
@@ -52,6 +49,7 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
   });
 
   const handleUserProfile = useCallback((profile: UserProfile) => {
+    console.log({ profile });
     setUserProfile((prev) => {
       return {
         ...prev,
@@ -71,20 +69,6 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
   const handleChangeStepHeader = useCallback((stepHeader: StepHeaderType) => {
     setStepHeader((prev) => ({ ...prev, ...stepHeader }));
   }, []);
-
-  useEffect(() => {
-    if (user) {
-      const firstName = user.firstName || "";
-      const lastName = user.lastName || "";
-
-      setUserProfile({
-        generalInfo: {
-          firstName,
-          lastName,
-        },
-      });
-    }
-  }, [user]);
 
   return (
     <Provider

@@ -7,7 +7,7 @@ import { City, Country, State } from "country-state-city";
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import React, { useCallback, useEffect } from "react";
-import { ScrollView, View } from "react-native";
+import { ScrollView, View, KeyboardAvoidingView, Platform } from "react-native";
 import * as yup from "yup";
 
 const formSchema = yup.object({
@@ -74,7 +74,17 @@ function Location() {
         touched,
         isSubmitting,
       }) => (
-        <ScrollView className=" flex-1 p-4  bg-white">
+        <KeyboardAvoidingView 
+          style={{ flex: 1 }} 
+          behavior={Platform.OS === "ios" ? "padding" : "height"}
+          keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
+        >
+          <ScrollView 
+            className="flex-1 p-4 bg-white"
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+          >
           <View className="flex-1 ">
             <View className="  mt-4  gap-6 ">
               <Select
@@ -148,7 +158,8 @@ function Location() {
               Next
             </Button>
           </View>
-        </ScrollView>
+          </ScrollView>
+        </KeyboardAvoidingView>
       )}
     </Formik>
   );
