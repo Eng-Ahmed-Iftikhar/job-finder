@@ -1,5 +1,4 @@
-import { useAppSelector } from "@/hooks/useAppSelector";
-import { selectAuth } from "@/store/reducers/authSlice";
+import { useUser } from "@/hooks/useUser";
 import { useLogoutMutation } from "@/api/services/authApi";
 import { useRouter } from "expo-router";
 import React, { useCallback, useState } from "react";
@@ -9,7 +8,7 @@ import ConfirmationModal from "@/components/ConfirmationModal";
 
 function Dashboard() {
   const router = useRouter();
-  const { user } = useAppSelector(selectAuth);
+  const { user } = useUser();
   const [logoutApi, { isLoading: isLoggingOut }] = useLogoutMutation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 

@@ -1,11 +1,10 @@
+import { useUser } from "@/hooks/useUser";
 import { Stack, useRouter } from "expo-router";
 import React, { useEffect } from "react";
-import { useAppSelector } from "@/hooks/useAppSelector";
-import { selectAuth } from "@/store/reducers/authSlice";
 
 function DashboardLayout() {
   const router = useRouter();
-  const { isLoggedIn } = useAppSelector(selectAuth);
+  const { isLoggedIn } = useUser();
 
   useEffect(() => {
     if (!isLoggedIn) {

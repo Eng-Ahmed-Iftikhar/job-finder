@@ -2,22 +2,22 @@ import Logo from "@/assets/logo.png";
 import useOnboarding from "@/hooks/useOnboarding";
 import StepIndicator from "@/sections/onboarding/StepIndicator";
 import { useLogoutMutation } from "@/api/services/authApi";
-import { Stack, useRouter } from "expo-router";
+import { Stack } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/AntDesign";
 import ConfirmationModal from "@/components/ConfirmationModal";
 
 function OnboardingLayout() {
-  const router = useRouter();
   const [logoutApi, { isLoading: isLoggingOut }] = useLogoutMutation();
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const {
     currentStep = "",
     onboardingSteps,
     stepHeader,
-    handleChangeCurrentStep,
+    handleGoBack,
   } = useOnboarding();
+
   const currentIdx = useMemo(() => {
     return (
       onboardingSteps.findIndex(
@@ -28,9 +28,8 @@ function OnboardingLayout() {
 
   const { title = "", description = "" } = stepHeader || {};
   const handleClickBack = useCallback(() => {
-    handleChangeCurrentStep(onboardingSteps[currentIdx - 2]);
-    router.back();
-  }, []);
+    handleGoBack();
+  }, [handleGoBack]);
 
   const handleLogout = useCallback(() => {
     setShowLogoutModal(true);
@@ -85,6 +84,12 @@ function OnboardingLayout() {
         <Stack.Screen name="general-info" options={{ headerShown: false }} />
         <Stack.Screen name="location" options={{ headerShown: false }} />
         <Stack.Screen name="phone-number" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="phone-verification"
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen name="profile-image" options={{ headerShown: false }} />
+        <Stack.Screen name="upload-cv" options={{ headerShown: false }} />
       </Stack>
 
       {/* Logout Confirmation Modal */}

@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import "@/globals.css"; // Ensure this is the correct path to your global styles
 import { ReduxPersisted } from "@/store";
+import AuthGuard from "@/components/AuthGuard";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -27,12 +28,17 @@ export default function RootLayout() {
     <ReduxPersisted>
       <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
         <StatusBar style="dark" />
-        <Stack>
-          <Stack.Screen name="index" options={{ headerShown: false }} />
-          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-          <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
-          <Stack.Screen name="(onboarding)" options={{ headerShown: false }} />
-        </Stack>
+        <AuthGuard>
+          <Stack>
+            <Stack.Screen name="index" options={{ headerShown: false }} />
+            <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+            <Stack.Screen name="(dashboard)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="(onboarding)"
+              options={{ headerShown: false }}
+            />
+          </Stack>
+        </AuthGuard>
       </SafeAreaView>
     </ReduxPersisted>
   );

@@ -1,9 +1,9 @@
 export enum SocialProvider {
-  EMAIL = 'EMAIL',
-  GOOGLE = 'GOOGLE',
-  FACEBOOK = 'FACEBOOK',
-  LINKEDIN = 'LINKEDIN',
-  GITHUB = 'GITHUB',
+  EMAIL = "EMAIL",
+  GOOGLE = "GOOGLE",
+  FACEBOOK = "FACEBOOK",
+  LINKEDIN = "LINKEDIN",
+  GITHUB = "GITHUB",
 }
 
 type UserGeneralInfo = {
@@ -42,7 +42,7 @@ export type User = {
   isEmailVerified: boolean;
   role: UserRole;
   provider: SocialProvider;
-  profileImage?: string;
+  profile?: UserProfile;
   createdAt: Date;
   updatedAt: Date;
 };

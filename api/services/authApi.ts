@@ -79,6 +79,28 @@ export const authApi = createApi({
         method: "GET",
       }),
     }),
+    // send phone verification code (no auth required)
+    sendPhoneVerification: builder.mutation<
+      { message: string },
+      { phone: string; countryCode: string }
+    >({
+      query: (body) => ({
+        url: API_ROUTES.auth.send_phone_verification,
+        method: "POST",
+        body,
+      }),
+    }),
+    // verify phone verification code (no auth required)
+    verifyPhoneCode: builder.mutation<
+      { message: string; verified: boolean },
+      { phone: string; countryCode: string; verificationCode: string }
+    >({
+      query: (body) => ({
+        url: API_ROUTES.auth.verify_phone_code,
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -88,4 +110,7 @@ export const {
   useSocialLoginMutation,
   useLogoutMutation,
   useMeQuery,
+  useLazyMeQuery,
+  useSendPhoneVerificationMutation,
+  useVerifyPhoneCodeMutation,
 } = authApi;
