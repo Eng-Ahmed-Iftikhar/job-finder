@@ -87,6 +87,14 @@ function ProfileImageForm() {
   );
 
   const handleSubmit = async (values: FormValues) => {
+    // If pictureUrl exists but no new image selected, skip upload and move to next step
+    if (values.pictureUrl && !selectedImage) {
+      handleUserProfile({ pictureUrl: values.pictureUrl });
+      handleChangeCurrentStep(OnboardingSteps.RESUME_URL);
+      router.push("/(onboarding)/upload-cv");
+      return;
+    }
+
     if (!values.pictureUrl) {
       Alert.alert("No image selected", "Please select a profile image first");
       return;
@@ -114,17 +122,30 @@ function ProfileImageForm() {
         }
       };
 
+      // Create FormData for file upload
+      const formData = new FormData();
+
+      // For React Native, FormData expects specific structure
+      const fileObj = {
+        uri: selectedImage.uri,
+        type: getMimeType(selectedImage.name),
+        name: selectedImage.name,
+      };
+
+      console.log("File object to upload:", fileObj);
+
+      // Append file - React Native expects this structure
+      formData.append("file", fileObj as any);
+      formData.append("fileType", "image");
+      formData.append("folderPath", "profile-images");
+      formData.append("customFilename", `profile-${Date.now()}`);
+
+      console.log("FormData prepared, uploading...");
+
       // First upload the image to get the URL
-      const fileUploadResponse = await uploadFile({
-        file: {
-          uri: selectedImage.uri,
-          type: getMimeType(selectedImage.name),
-          name: selectedImage.name,
-        },
-        fileType: "image",
-        folderPath: "profile-images", // Organize profile images in a folder
-        customFilename: `profile-${Date.now()}`, // Generate unique filename
-      }).unwrap();
+      const fileUploadResponse = await uploadFile(formData).unwrap();
+
+      console.log("Upload successful:", fileUploadResponse);
 
       // Then update the profile with the uploaded image URL
       await updateProfilePicture({
@@ -135,9 +156,24 @@ function ProfileImageForm() {
       handleUserProfile({ pictureUrl: fileUploadResponse.url });
       handleChangeCurrentStep(OnboardingSteps.RESUME_URL);
       router.push("/(onboarding)/upload-cv");
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to upload image:", error);
-      Alert.alert("Error", "Failed to upload image. Please try again.");
+      console.error("Error details:", JSON.stringify(error, null, 2));
+
+      // Extract error message
+      let errorMessage = "Failed to upload image. Please try again.";
+
+      if (error?.data?.message) {
+        if (Array.isArray(error.data.message)) {
+          errorMessage = error.data.message[0];
+        } else {
+          errorMessage = error.data.message;
+        }
+      } else if (error?.error) {
+        errorMessage = error.error;
+      }
+
+      Alert.alert("Upload Error", errorMessage);
     }
   };
 

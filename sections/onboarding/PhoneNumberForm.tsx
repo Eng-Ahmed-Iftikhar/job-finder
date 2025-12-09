@@ -59,6 +59,9 @@ function PhoneNumberForm() {
   ]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [verificationError, setVerificationError] = useState<string | null>(
+    null
+  );
 
   const countryOptions = useCountryOptions();
 
@@ -93,8 +96,8 @@ function PhoneNumberForm() {
 
         // Save to context and navigate
         handleUserProfile({ phoneNumber: values });
-        handleChangeCurrentStep(OnboardingSteps.PICTURE_URL);
-        router.push("/(onboarding)/profile-image");
+        handleChangeCurrentStep(OnboardingSteps.PHONE_VERIFICATION);
+        router.push("/(onboarding)/phone-verification");
       } catch (error) {
         console.error("Failed to update phone number:", error);
         // Handle error - you might want to show a toast
@@ -133,6 +136,7 @@ function PhoneNumberForm() {
   const handleBackToPhoneInput = () => {
     setShowVerification(false);
     setVerificationCode(["", "", "", "", ""]);
+    setVerificationError(null);
   };
 
   return (
@@ -159,6 +163,7 @@ function PhoneNumberForm() {
       }) => {
         const handleVerificationSubmit = async () => {
           setIsVerifying(true);
+          setVerificationError(null);
 
           try {
             // Call API to verify the code
@@ -168,14 +173,28 @@ function PhoneNumberForm() {
               countryCode: values.countryCode,
               verificationCode: verificationCodeString,
             }).unwrap();
+            console.log("verifed");
 
             // Verification successful
-            setFieldValue("isVerified", true);
+            await setFieldValue("isVerified", true);
             // Submit the form after verification
-            submitForm();
-          } catch (error) {
+            await submitForm();
+          } catch (error: any) {
             console.error("Failed to verify code:", error);
-            // Handle error - you might want to show a toast or error message
+
+            // Handle server-side error
+            let errorMessage = "Invalid verification code";
+
+            if (error?.data?.message) {
+              // Handle array of error messages from server
+              if (Array.isArray(error.data.message)) {
+                errorMessage = error.data.message[0];
+              } else {
+                errorMessage = error.data.message;
+              }
+            }
+
+            setVerificationError(errorMessage);
             setIsVerifying(false);
           }
         };
@@ -212,10 +231,18 @@ function PhoneNumberForm() {
                   countryCode={values.countryCode}
                   phoneNumber={values.number}
                   verificationCode={verificationCode}
-                  onVerificationCodeChange={setVerificationCode}
+                  onVerificationCodeChange={(code) => {
+                    setVerificationCode(code);
+                    // Clear error when user starts typing
+                    if (verificationError) {
+                      setVerificationError(null);
+                    }
+                  }}
                   onResendCode={() =>
                     handleResendCode(values.number, values.countryCode)
                   }
+                  error={verificationError}
+                  isError={!!verificationError}
                 />
               )}
 

@@ -56,42 +56,99 @@ function UploadCVForm() {
             return;
           }
 
-          setSelectedFile({
+          const fileData = {
             name: file.name,
             size: file.size || 0,
             uri: file.uri,
-          });
+          };
 
-          // Set the Formik value to the file URI
-          setFieldValue("resumeUrl", file.uri);
-
-          // Simulate upload process
+          setSelectedFile(fileData);
           setUploadState("uploading");
           setUploadProgress(0);
 
-          // Simulate upload progress
-          const interval = setInterval(() => {
-            setUploadProgress((prev) => {
-              if (prev >= 100) {
-                clearInterval(interval);
-                setUploadState("ready");
-                return 100;
+          try {
+            // Determine MIME type based on file extension
+            const getMimeType = (fileName: string) => {
+              const extension = fileName.split(".").pop()?.toLowerCase();
+              switch (extension) {
+                case "pdf":
+                  return "application/pdf";
+                case "doc":
+                  return "application/msword";
+                case "docx":
+                  return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+                default:
+                  return "application/pdf";
               }
-              return prev + 10;
-            });
-          }, 200);
+            };
 
-          // Cleanup interval after 2 seconds
-          setTimeout(() => {
-            clearInterval(interval);
-          }, 2000);
+            // Create FormData for file upload
+            const formData = new FormData();
+
+            const fileObj = {
+              uri: fileData.uri,
+              type: getMimeType(fileData.name),
+              name: fileData.name,
+            };
+
+            console.log("Resume file to upload:", fileObj);
+
+            formData.append("file", fileObj as any);
+            formData.append("fileType", "document");
+            formData.append("folderPath", "resumes");
+            formData.append(
+              "customFilename",
+              `resume-${Date.now()}-${fileData.name}`
+            );
+
+            console.log("FormData prepared, uploading resume...");
+
+            // Simulate progress update
+            setUploadProgress(20);
+
+            // Upload the file to get the URL
+            const fileUploadResponse = await uploadFile(formData).unwrap();
+
+            console.log("Resume upload successful:", fileUploadResponse);
+
+            // Set the uploaded URL in Formik
+            setFieldValue("resumeUrl", fileUploadResponse.url);
+
+            // Update progress and state
+            setUploadProgress(100);
+            setUploadState("ready");
+          } catch (error: any) {
+            console.error("Failed to upload resume:", error);
+            console.error("Error details:", JSON.stringify(error, null, 2));
+
+            // Extract error message
+            let errorMessage = "Failed to upload resume. Please try again.";
+
+            if (error?.data?.message) {
+              if (Array.isArray(error.data.message)) {
+                errorMessage = error.data.message[0];
+              } else {
+                errorMessage = error.data.message;
+              }
+            } else if (error?.error) {
+              errorMessage = error.error;
+            }
+
+            Alert.alert("Upload Error", errorMessage);
+
+            // Reset state on error
+            setSelectedFile(null);
+            setUploadState("initial");
+            setUploadProgress(0);
+            setFieldValue("resumeUrl", "");
+          }
         }
       } catch (error) {
         console.error("Error picking document:", error);
         Alert.alert("Error", "Failed to pick document");
       }
     },
-    []
+    [uploadFile]
   );
 
   const handleRemoveFile = useCallback(
@@ -117,52 +174,42 @@ function UploadCVForm() {
       }
 
       try {
-        // Determine MIME type based on file extension
-        const getMimeType = (fileName: string) => {
-          const extension = fileName.split(".").pop()?.toLowerCase();
-          switch (extension) {
-            case "pdf":
-              return "application/pdf";
-            case "doc":
-              return "application/msword";
-            case "docx":
-              return "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-            default:
-              return "application/pdf";
-          }
-        };
+        console.log("Updating profile with resume URL:", values.resumeUrl);
 
-        // First upload the file to get the URL
-        const fileUploadResponse = await uploadFile({
-          file: {
-            uri: selectedFile.uri,
-            type: getMimeType(selectedFile.name),
-            name: selectedFile.name,
-          },
-          fileType: "document",
-          folderPath: "resumes", // Organize resumes in a folder
-          customFilename: `resume-${Date.now()}-${selectedFile.name}`, // Generate unique filename
-        }).unwrap();
-
-        // Then update the resume with the uploaded file URL
+        // Update the profile with the uploaded file URL
         await updateResume({
-          resumeUrl: fileUploadResponse.url,
+          resumeUrl: values.resumeUrl,
           fileName: selectedFile.name,
         }).unwrap();
 
         // Save to context
         handleUserProfile({
-          resumeUrl: fileUploadResponse.url,
+          resumeUrl: values.resumeUrl,
         });
 
         // Navigate to dashboard
         router.replace("/(dashboard)");
-      } catch (error) {
-        console.error("Failed to upload resume:", error);
-        Alert.alert("Error", "Failed to upload resume. Please try again.");
+      } catch (error: any) {
+        console.error("Failed to update resume:", error);
+        console.error("Error details:", JSON.stringify(error, null, 2));
+
+        // Extract error message
+        let errorMessage = "Failed to update resume. Please try again.";
+
+        if (error?.data?.message) {
+          if (Array.isArray(error.data.message)) {
+            errorMessage = error.data.message[0];
+          } else {
+            errorMessage = error.data.message;
+          }
+        } else if (error?.error) {
+          errorMessage = error.error;
+        }
+
+        Alert.alert("Update Error", errorMessage);
       }
     },
-    [selectedFile, uploadFile, updateResume, handleUserProfile, router]
+    [selectedFile, updateResume, handleUserProfile, router]
   );
 
   const formatFileSize = (bytes: number) => {

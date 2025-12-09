@@ -61,8 +61,11 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
 
   const handleGoBack = useCallback(() => {
     const previousStep = getPreviousStep(currentStep as OnboardingSteps);
+    console.log({ previousStep });
+
     if (previousStep !== currentStep) {
       setCurrentStep(previousStep);
+
       // The useEffect will handle the redirect and header update
     }
   }, [currentStep]);
@@ -90,11 +93,6 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
         // Set current step based on profile completion
         const currentStepFromProfile = getCurrentStepFromProfile(profile);
         setCurrentStep(currentStepFromProfile);
-
-        console.log(
-          "Profile loaded, current step set to:",
-          currentStepFromProfile
-        );
       }
     }
   }, [user, handleUserProfile, getCurrentStepFromProfile]);
@@ -102,6 +100,8 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
   // Auto-redirect and set headers based on current step
   useEffect(() => {
     if (!currentStep) return;
+
+    console.log("current step ", currentStep);
 
     // Set step header based on current step
     switch (currentStep) {

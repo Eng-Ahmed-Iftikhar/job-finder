@@ -56,7 +56,8 @@ function Dashboard() {
         {user && (
           <View className="bg-gray-50 rounded-lg p-4 mb-6">
             <Text className="text-lg font-semibold text-gray-800 mb-2">
-              {user.firstName} {user.lastName}
+              {user.profile?.generalInfo?.firstName}{" "}
+              {user.profile?.generalInfo?.lastName}
             </Text>
             <Text className="text-gray-600">{user.email}</Text>
           </View>

@@ -34,13 +34,8 @@ export enum UserRole {
 export type User = {
   id: string;
   email: string;
-  username: string;
-  password?: string; // Optional for social login
-  firstName: string | null;
-  lastName: string | null;
+  password?: string; // Optional for social logins
   isActive: boolean;
-  isEmailVerified: boolean;
-  role: UserRole;
   provider: SocialProvider;
   profile?: UserProfile;
   createdAt: Date;
@@ -53,6 +48,8 @@ export type UserProfile = {
   phoneNumber?: UserPhoneNumber;
   pictureUrl?: string;
   resumeUrl?: string;
+  role?: UserRole;
+  isEmailVerified?: boolean;
 };
 
 // Google login response type

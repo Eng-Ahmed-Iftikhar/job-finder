@@ -8,6 +8,8 @@ interface PhoneVerificationStepProps {
   verificationCode: string[];
   onVerificationCodeChange: (code: string[]) => void;
   onResendCode: () => void;
+  error?: string | null;
+  isError?: boolean;
 }
 
 function PhoneVerificationStep({
@@ -16,6 +18,8 @@ function PhoneVerificationStep({
   verificationCode,
   onVerificationCodeChange,
   onResendCode,
+  error = null,
+  isError = false,
 }: PhoneVerificationStepProps) {
   return (
     <View className="mt-4 gap-6">
@@ -31,8 +35,8 @@ function PhoneVerificationStep({
           length={5}
           value={verificationCode}
           onChange={onVerificationCodeChange}
-          error=""
-          isError={false}
+          error={error || ""}
+          isError={isError}
         />
 
         <TouchableOpacity onPress={onResendCode} className="mt-4">

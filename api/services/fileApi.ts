@@ -1,6 +1,7 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQueryWithReAuth } from "./baseApi";
 import API_ROUTES from "@/api/routes";
+import { RootState } from "@/store/reducers";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import { BASE_URL } from "./baseApi";
 
 // Define the file upload request payload
 export interface FileUploadRequest {
@@ -23,52 +24,43 @@ export interface FileUploadResponse {
   uploadedBy: string;
 }
 
+// Custom base query for file uploads
+const fileUploadBaseQuery = fetchBaseQuery({
+  baseUrl: BASE_URL,
+  prepareHeaders: async (headers, { getState }) => {
+    // DO NOT set Content-Type for FormData - let fetch handle it
+    // Only set Authorization header
+    const session = getState() as RootState;
+    const access_token = session?.auth?.access_token;
+
+    if (access_token) {
+      headers.set("Authorization", `Bearer ${access_token}`);
+    }
+
+    // Add ngrok-skip-browser-warning header for ngrok URLs
+    if (BASE_URL?.includes("ngrok")) {
+      headers.set("ngrok-skip-browser-warning", "any");
+      headers.set("User-Agent", "ReactNative");
+    }
+    return headers;
+  },
+});
+
 export const fileApi = createApi({
   reducerPath: "fileApi",
-  baseQuery: baseQueryWithReAuth,
+  baseQuery: fileUploadBaseQuery,
   endpoints: (builder) => ({
     // Upload file (requires auth)
-    uploadFile: builder.mutation<FileUploadResponse, FileUploadRequest>({
-      query: (body) => {
-        // Create FormData for multipart/form-data
-        const formData = new FormData();
-
-        // Create a file object from the URI if needed
-        let fileToUpload = body.file;
-
-        // If it's a URI string, create a file object
-        if (typeof body.file === "string") {
-          // For React Native, we need to create a file object
-          const fileName = body.file.split("/").pop() || "file";
-          const fileType =
-            body.fileType === "image" ? "image/jpeg" : "application/pdf";
-
-          // Create a file object that can be sent
-          fileToUpload = {
-            uri: body.file,
-            type: fileType,
-            name: fileName,
-          };
-        }
-
-        formData.append("file", fileToUpload);
-        formData.append("fileType", body.fileType);
-
-        // Add optional fields if provided
-        if (body.folderPath) {
-          formData.append("folderPath", body.folderPath);
-        }
-        if (body.customFilename) {
-          formData.append("customFilename", body.customFilename);
-        }
+    uploadFile: builder.mutation<FileUploadResponse, FormData>({
+      query: (formData) => {
+        console.log("=== Starting file upload ===");
+        console.log("Upload URL:", API_ROUTES.file.upload);
+        console.log("FormData:", formData);
 
         return {
           url: API_ROUTES.file.upload,
           method: "POST",
           body: formData,
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
         };
       },
     }),

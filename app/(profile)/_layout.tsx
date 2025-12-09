@@ -4,13 +4,13 @@ import { Stack, useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { Image, View } from "react-native";
 
-export default function AuthLayout() {
+export default function ProfileLayout() {
   const router = useRouter();
   const { isLoggedIn } = useUser();
 
   useEffect(() => {
-    if (isLoggedIn) {
-      router.replace("/(dashboard)/");
+    if (!isLoggedIn) {
+      router.replace("/(auth)/");
     }
   }, [isLoggedIn, router]);
 
@@ -19,11 +19,9 @@ export default function AuthLayout() {
       <View className="h-[56px] items-center justify-center ">
         <Image source={Logo} className="h-[40px] w-[76px]" />
       </View>
-
       <Stack>
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="register" options={{ headerShown: false }} />
+        <Stack.Screen name="verify-email" options={{ headerShown: false }} />
       </Stack>
     </View>
   );

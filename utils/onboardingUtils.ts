@@ -80,7 +80,7 @@ export const getPreviousStep = (
     case OnboardingSteps.PHONE_VERIFICATION:
       return OnboardingSteps.PHONE_NUMBER;
     case OnboardingSteps.PICTURE_URL:
-      return OnboardingSteps.PHONE_VERIFICATION;
+      return OnboardingSteps.PHONE_NUMBER;
     case OnboardingSteps.RESUME_URL:
       return OnboardingSteps.PICTURE_URL;
     default:

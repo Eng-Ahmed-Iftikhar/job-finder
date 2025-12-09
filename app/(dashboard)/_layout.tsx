@@ -4,13 +4,15 @@ import React, { useEffect } from "react";
 
 function DashboardLayout() {
   const router = useRouter();
-  const { isLoggedIn } = useUser();
+  const { isLoggedIn, user } = useUser();
 
   useEffect(() => {
     if (!isLoggedIn) {
-      router.replace("/(auth)/");
+      router.replace("/(auth)/login");
+    } else if (user && user.profile && !user.profile.isEmailVerified) {
+      router.replace("/(profile)/verify-email");
     }
-  }, [isLoggedIn, router]);
+  }, [isLoggedIn, user, router]);
 
   return (
     <Stack screenOptions={{ headerShown: false }}>

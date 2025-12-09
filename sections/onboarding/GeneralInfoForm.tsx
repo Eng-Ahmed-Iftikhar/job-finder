@@ -26,6 +26,7 @@ type FormValues = yup.InferType<typeof formSchema>;
 function GeneralInfoForm() {
   const { handleUserProfile, handleChangeCurrentStep, userProfile } =
     useOnboarding();
+  console.log("User Profile in GeneralInfoForm:", userProfile);
   const router = useRouter();
   const [updateGeneralInfo, { isLoading: isUpdatingGeneralInfo }] =
     useUpdateGeneralInfoMutation();

@@ -9,6 +9,8 @@ const API_ROUTES = {
     profile: "/auth/profile?withPopulate=true",
     send_phone_verification: "/auth/send-phone-verification",
     verify_phone_code: "/auth/verify-phone-code",
+    send_email_verification: "/auth/resend-verification",
+    verify_email_code: "/auth/verify-email",
   },
   file: {
     post: "/save",

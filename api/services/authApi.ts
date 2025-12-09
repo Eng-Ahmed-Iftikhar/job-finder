@@ -1,7 +1,7 @@
-import { createApi } from "@reduxjs/toolkit/query/react";
-import { baseQuery, baseQueryWithReAuth } from "./baseApi";
 import API_ROUTES from "@/api/routes";
-import { User, SocialProvider, GoogleUserInfo } from "@/types/api/auth";
+import { SocialProvider, User } from "@/types/api/auth";
+import { createApi } from "@reduxjs/toolkit/query/react";
+import { baseQueryWithReAuth } from "./baseApi";
 
 // Define the server auth response
 export interface AuthResponse {
@@ -101,6 +101,24 @@ export const authApi = createApi({
         body,
       }),
     }),
+    // send email verification code (requires auth)
+    sendEmailVerification: builder.mutation<{ message: string }, void>({
+      query: () => ({
+        url: API_ROUTES.auth.send_email_verification,
+        method: "POST",
+      }),
+    }),
+    // verify email code (requires auth)
+    verifyEmailCode: builder.mutation<
+      { message: string; verified: boolean },
+      { verificationCode: string }
+    >({
+      query: (body) => ({
+        url: API_ROUTES.auth.verify_email_code,
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -113,4 +131,6 @@ export const {
   useLazyMeQuery,
   useSendPhoneVerificationMutation,
   useVerifyPhoneCodeMutation,
+  useSendEmailVerificationMutation,
+  useVerifyEmailCodeMutation,
 } = authApi;

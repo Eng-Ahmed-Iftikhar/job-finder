@@ -18,7 +18,7 @@ function Button({
     <TouchableOpacity
       disabled={disabled}
       className={
-        " bg-azure-radiance-500 flex items-center justify-center rounded-lg h-10 w-full" +
+        " bg-azure-radiance-500 flex items-center justify-center rounded-lg h-12 w-full" +
         (disabled ? " bg-gray-300" : "bg-azure-radiance-500") +
         (className ? ` ${className}` : "")
       }
@@ -31,7 +31,7 @@ function Button({
       )}
 
       {!loading && (
-        <Text className="text-white font-semibold text-base">{children}</Text>
+        <Text className="text-white font-semibold  text-lg">{children}</Text>
       )}
     </TouchableOpacity>
   );

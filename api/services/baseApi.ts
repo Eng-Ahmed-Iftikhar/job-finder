@@ -36,6 +36,7 @@ const baseQueryWithAuth = fetchBaseQuery({
   baseUrl: BASE_URL,
   prepareHeaders: async (headers, { getState }) => {
     // Set common headers
+    // Note: Content-Type will be automatically removed for FormData in the query function
     headers.set("Content-Type", "application/json");
     headers.set("Accept", "application/json");
 
