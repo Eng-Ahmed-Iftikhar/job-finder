@@ -49,6 +49,7 @@ export type UserProfile = {
   pictureUrl?: string;
   resumeUrl?: string;
   role?: UserRole;
+  isOnboarded?: boolean;
   isEmailVerified?: boolean;
 };
 

@@ -64,6 +64,23 @@ function PhoneNumberForm() {
   );
 
   const countryOptions = useCountryOptions();
+  const updateProfilePhoneNumber = useCallback(
+    async (values: FormValues) => {
+      try {
+        // Update profile via API
+        await updatePhoneNumber(values);
+
+        // Save to context and navigate
+        handleUserProfile({ phoneNumber: values });
+        handleChangeCurrentStep(OnboardingSteps.PHONE_VERIFICATION);
+        router.push("/(onboarding)/phone-verification");
+      } catch (error) {
+        console.error("Failed to update phone number:", error);
+        // Handle error - you might want to show a toast
+      }
+    },
+    [updatePhoneNumber]
+  );
 
   const handleSubmit = useCallback(
     async (values: FormValues) => {
@@ -82,26 +99,18 @@ function PhoneNumberForm() {
         } catch (error: any) {
           console.error("Failed to send verification code:", error);
           // Set API error for display
-          if (error?.data?.message?.[0]) {
+          if (Array.isArray(error?.data?.message)) {
             setApiError(error.data.message[0]);
+          } else {
+            setApiError(
+              error?.data?.message || "Failed to send verification code"
+            );
           }
           return;
         }
         return;
       }
-
-      try {
-        // Update profile via API
-        await updatePhoneNumber(values);
-
-        // Save to context and navigate
-        handleUserProfile({ phoneNumber: values });
-        handleChangeCurrentStep(OnboardingSteps.PHONE_VERIFICATION);
-        router.push("/(onboarding)/phone-verification");
-      } catch (error) {
-        console.error("Failed to update phone number:", error);
-        // Handle error - you might want to show a toast
-      }
+      await updateProfilePhoneNumber(values);
     },
     [
       handleUserProfile,
@@ -159,9 +168,9 @@ function PhoneNumberForm() {
         touched,
         isSubmitting,
         setFieldValue,
-        submitForm,
       }) => {
         const handleVerificationSubmit = async () => {
+          if (values.isVerified) return await updateProfilePhoneNumber(values);
           setIsVerifying(true);
           setVerificationError(null);
 
@@ -173,12 +182,14 @@ function PhoneNumberForm() {
               countryCode: values.countryCode,
               verificationCode: verificationCodeString,
             }).unwrap();
-            console.log("verifed");
 
             // Verification successful
             await setFieldValue("isVerified", true);
+            setIsVerifying(false);
+            handleUserProfile({ phoneNumber: values });
+            handleChangeCurrentStep(OnboardingSteps.PHONE_VERIFICATION);
+            router.push("/(onboarding)/phone-verification");
             // Submit the form after verification
-            await submitForm();
           } catch (error: any) {
             console.error("Failed to verify code:", error);
 

@@ -10,9 +10,9 @@ type SelectProps = {
 
 function Select({ label = "label", isError, error, ...props }: SelectProps) {
   return (
-    <View>
+    <View className="flex-1">
       <Text className="text-sm text-gray-600 mb-1">{label}</Text>
-      <View className="border h-9 border-gray-300 rounded-lg  text-base">
+      <View className="border h-12 border-gray-300 rounded-lg  text-base">
         <RNPickerSelect
           style={{
             viewContainer: {
@@ -20,7 +20,7 @@ function Select({ label = "label", isError, error, ...props }: SelectProps) {
             },
 
             placeholder: {
-              marginTop: -10,
+              marginTop: -8,
               fontSize: 12,
               fontWeight: "400",
               color: "#6B7280",

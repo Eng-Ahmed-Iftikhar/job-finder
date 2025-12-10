@@ -65,11 +65,14 @@ function Dashboard() {
 
         <View className="space-y-4">
           <TouchableOpacity
+            disabled={user?.profile?.isOnboarded}
             className="bg-azure-radiance-500 p-4 rounded-lg"
             onPress={handleGoToOnboarding}
           >
             <Text className="text-white text-center font-semibold text-lg">
-              Complete Onboarding
+              {user?.profile?.isOnboarded
+                ? "Onboarding Completed"
+                : "Complete Onboarding"}
             </Text>
           </TouchableOpacity>
 

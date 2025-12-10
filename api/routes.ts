@@ -31,6 +31,10 @@ const API_ROUTES = {
     phoneNumber: "/users/me/phone-number",
     resume: "/users/me/resume",
   },
+  skills: {
+    all: "/skills/all",
+    create: "/skills",
+  },
 };
 
 export default API_ROUTES;

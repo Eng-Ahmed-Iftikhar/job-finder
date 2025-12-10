@@ -39,7 +39,7 @@ function PhoneNumberInputStep({
           keyboardType: "phone-pad",
           style: {
             paddingVertical: 10,
-            fontSize: 12,
+            fontSize: 13,
             lineHeight: 22,
             textAlignVertical: "center", // for Android only
             color: "#000",

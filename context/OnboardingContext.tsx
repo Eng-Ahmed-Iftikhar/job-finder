@@ -81,6 +81,8 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user) {
       const profile = user.profile;
+
+      console.log(profile?.isOnboarded, "sdfsdf");
       if (profile) {
         handleUserProfile({
           generalInfo: profile.generalInfo,

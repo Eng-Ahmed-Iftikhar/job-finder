@@ -1,6 +1,6 @@
 import Button from "@/components/ui/Button";
-import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
+import TextArea from "@/components/ui/TextArea";
 
 import useOnboarding from "@/hooks/useOnboarding";
 import { useUpdateLocationMutation } from "@/api/services/userApi";
@@ -57,6 +57,45 @@ function LocationForm() {
     }));
   }, []);
 
+  // Memoize state options based on selected country
+  const getStateOptions = useCallback((countryName: string) => {
+    if (!countryName) return [];
+    const selectedCountry = Country.getAllCountries().find(
+      (c) => c.name === countryName
+    );
+    if (!selectedCountry) return [];
+
+    return State.getStatesOfCountry(selectedCountry.isoCode).map((state) => ({
+      label: state.name,
+      value: state.name,
+    }));
+  }, []);
+
+  // Memoize city options based on selected country and state
+  const getCityOptions = useCallback(
+    (countryName: string, stateName: string) => {
+      if (!countryName || !stateName) return [];
+      const selectedCountry = Country.getAllCountries().find(
+        (c) => c.name === countryName
+      );
+      if (!selectedCountry) return [];
+
+      const selectedState = State.getStatesOfCountry(
+        selectedCountry.isoCode
+      ).find((s) => s.name === stateName);
+      if (!selectedState) return [];
+
+      return City.getCitiesOfState(
+        selectedCountry.isoCode,
+        selectedState.isoCode
+      ).map((city) => ({
+        label: city.name,
+        value: city.name,
+      }));
+    },
+    []
+  );
+
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
@@ -83,108 +122,77 @@ function LocationForm() {
           errors,
           touched,
           isSubmitting,
-        }) => (
-          <View className="flex-1">
-            <View className="mt-4 gap-6">
-              <Select
-                placeholder={{ label: "Select country" }}
-                items={countryOptions}
-                value={values.country}
-                onValueChange={(value) => {
-                  setFieldValue("country", value);
-                  // Reset state and city when country changes
-                  setFieldValue("state", "");
-                  setFieldValue("city", "");
-                }}
-                error={errors.country as string}
-                isError={!!errors.country && (touched.country as boolean)}
-                label="Country"
-              />
+        }) => {
+          const stateOptions = getStateOptions(values.country);
+          const cityOptions = getCityOptions(values.country, values.state);
 
-              <Select
-                placeholder={{ label: "Select state" }}
-                items={(() => {
-                  if (!values.country) return [];
-                  // Find country by name to get isoCode for state lookup
-                  const selectedCountry = Country.getAllCountries().find(
-                    (c) => c.name === values.country
-                  );
-                  if (!selectedCountry) return [];
+          return (
+            <View className="flex-1">
+              <View className="mt-4 gap-6">
+                <Select
+                  placeholder={{ label: "Select country" }}
+                  items={countryOptions}
+                  value={values.country}
+                  onValueChange={(value) => {
+                    setFieldValue("country", value);
+                    // Reset state and city when country changes
+                    setFieldValue("state", "");
+                    setFieldValue("city", "");
+                  }}
+                  error={errors.country as string}
+                  isError={!!errors.country && (touched.country as boolean)}
+                  label="Country"
+                />
 
-                  return State.getStatesOfCountry(selectedCountry.isoCode).map(
-                    (state) => ({
-                      label: state.name,
-                      value: state.name, // Use full name instead of isoCode
-                    })
-                  );
-                })()}
-                value={values.state}
-                onValueChange={(value) => {
-                  setFieldValue("state", value);
-                  // Reset city when state changes
-                  setFieldValue("city", "");
-                }}
-                error={errors.state as string}
-                isError={!!errors.state && (touched.state as boolean)}
-                label="State"
-                disabled={!values.country}
-              />
+                <Select
+                  placeholder={{ label: "Select state" }}
+                  items={stateOptions}
+                  value={values.state}
+                  onValueChange={(value) => {
+                    setFieldValue("state", value);
+                    // Reset city when state changes
+                    setFieldValue("city", "");
+                  }}
+                  error={errors.state as string}
+                  isError={!!errors.state && (touched.state as boolean)}
+                  label="State"
+                  disabled={!values.country}
+                />
 
-              <Select
-                placeholder={{ label: "Select city" }}
-                items={(() => {
-                  if (!values.country || !values.state) return [];
-                  // Find country by name to get isoCode for city lookup
-                  const selectedCountry = Country.getAllCountries().find(
-                    (c) => c.name === values.country
-                  );
-                  if (!selectedCountry) return [];
+                <Select
+                  placeholder={{ label: "Select city" }}
+                  items={cityOptions}
+                  value={values.city}
+                  onValueChange={(value) => setFieldValue("city", value)}
+                  error={errors.city as string}
+                  isError={!!errors.city && (touched.city as boolean)}
+                  label="City"
+                  disabled={!values.country || !values.state}
+                />
 
-                  // Find state by name to get isoCode for city lookup
-                  const selectedState = State.getStatesOfCountry(
-                    selectedCountry.isoCode
-                  ).find((s) => s.name === values.state);
-                  if (!selectedState) return [];
+                <TextArea
+                  label="Address"
+                  placeholder="Enter your full address"
+                  value={values.address}
+                  onChangeText={handleChange("address")}
+                  onBlur={handleBlur("address")}
+                  error={errors.address as string}
+                  isError={!!errors.address && (touched.address as boolean)}
+                  numberOfLines={3}
+                />
+              </View>
 
-                  return City.getCitiesOfState(
-                    selectedCountry.isoCode,
-                    selectedState.isoCode
-                  ).map((city) => ({
-                    label: city.name,
-                    value: city.name,
-                  }));
-                })()}
-                value={values.city}
-                onValueChange={(value) => setFieldValue("city", value)}
-                error={errors.city as string}
-                isError={!!errors.city && (touched.city as boolean)}
-                label="City"
-                disabled={!values.country || !values.state}
-              />
-
-              <Input
-                label="Address"
-                placeholder="Enter your full address"
-                value={values.address}
-                onChangeText={handleChange("address")}
-                onBlur={handleBlur("address")}
-                error={errors.address as string}
-                isError={!!errors.address && (touched.address as boolean)}
-                multiline
-                numberOfLines={3}
-              />
+              <Button
+                disabled={isSubmitting || isUpdatingLocation}
+                loading={isSubmitting || isUpdatingLocation}
+                onPress={(e) => handleSubmit(e as any)}
+                className="mt-8"
+              >
+                Next
+              </Button>
             </View>
-
-            <Button
-              disabled={isSubmitting || isUpdatingLocation}
-              loading={isSubmitting || isUpdatingLocation}
-              onPress={(e) => handleSubmit(e as any)}
-              className="mt-8"
-            >
-              Next
-            </Button>
-          </View>
-        )}
+          );
+        }}
       </Formik>
     </KeyboardAvoidingView>
   );

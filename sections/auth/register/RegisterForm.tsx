@@ -92,118 +92,108 @@ function RegisterForm() {
   );
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
-    >
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
+    <View style={{ flex: 1 }}>
+      <Formik
+        initialValues={{
+          firstName: "",
+          lastName: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        }}
+        onSubmit={handleSubmit}
+        validationSchema={registerSchema}
       >
-        <Formik
-          initialValues={{
-            firstName: "",
-            lastName: "",
-            email: "",
-            password: "",
-            confirmPassword: "",
-          }}
-          onSubmit={handleSubmit}
-          validationSchema={registerSchema}
-        >
-          {({
-            handleChange,
-            handleBlur,
-            handleSubmit,
-            values,
-            errors,
-            touched,
-            setFieldError,
-          }) => (
-            <View>
-              <View className=" flex gap-6 ">
-                <Input
-                  label="First Name"
-                  type="text"
-                  placeholder="Enter your first name"
-                  onChangeText={handleChange("firstName")}
-                  onBlur={handleBlur("firstName")}
-                  value={values.firstName}
-                  error={errors.firstName}
-                  isError={!!errors.firstName && touched.firstName}
-                />
-                <Input
-                  label="Last Name"
-                  type="text"
-                  placeholder="Enter your last name"
-                  onChangeText={handleChange("lastName")}
-                  onBlur={handleBlur("lastName")}
-                  value={values.lastName}
-                  error={errors.lastName}
-                  isError={!!errors.lastName && touched.lastName}
-                />
-                <Input
-                  label="Email"
-                  type="text"
-                  placeholder="Enter your email"
-                  keyboardType="email-address"
-                  onChangeText={handleChange("email")}
-                  onBlur={handleBlur("email")}
-                  value={values.email}
-                  error={errors.email}
-                  isError={!!errors.email && touched.email}
-                />
-                <Input
-                  label="Password"
-                  type="password"
-                  placeholder="Enter your password"
-                  onChangeText={handleChange("password")}
-                  onBlur={handleBlur("password")}
-                  value={values.password}
-                  error={errors.password}
-                  isError={!!errors.password && touched.password}
-                />
-                <Input
-                  label="Confirm Password"
-                  type="password"
-                  placeholder="Confirm your password"
-                  onChangeText={handleChange("confirmPassword")}
-                  onBlur={handleBlur("confirmPassword")}
-                  value={values.confirmPassword}
-                  error={errors.confirmPassword}
-                  isError={!!errors.confirmPassword && touched.confirmPassword}
-                />
-              </View>
-
-              <View className=" mt-6">
-                <Text className="text-sm text-gray-500">
-                  By signing up, you confirm that you agree to{" "}
-                  <Link
-                    href="/terms-and-conditions"
-                    className="text-azure-radiance-500 text-sm"
-                  >
-                    Terms & Conditions
-                  </Link>{" "}
-                  and{" "}
-                  <Link
-                    href="/privacy-policy"
-                    className="text-azure-radiance-500 text-sm"
-                  >
-                    Privacy Policy
-                  </Link>
-                </Text>
-              </View>
-
-              <Button onPress={(e) => handleSubmit(e as any)} className="mt-6">
-                Sign up
-              </Button>
+        {({
+          handleChange,
+          handleBlur,
+          handleSubmit,
+          values,
+          errors,
+          touched,
+          setFieldError,
+        }) => (
+          <View>
+            <View className=" flex gap-6 ">
+              <Input
+                label="First Name"
+                type="text"
+                placeholder="Enter your first name"
+                onChangeText={handleChange("firstName")}
+                onBlur={handleBlur("firstName")}
+                value={values.firstName}
+                error={errors.firstName}
+                isError={!!errors.firstName && touched.firstName}
+              />
+              <Input
+                label="Last Name"
+                type="text"
+                placeholder="Enter your last name"
+                onChangeText={handleChange("lastName")}
+                onBlur={handleBlur("lastName")}
+                value={values.lastName}
+                error={errors.lastName}
+                isError={!!errors.lastName && touched.lastName}
+              />
+              <Input
+                label="Email"
+                type="text"
+                placeholder="Enter your email"
+                keyboardType="email-address"
+                onChangeText={handleChange("email")}
+                onBlur={handleBlur("email")}
+                value={values.email}
+                error={errors.email}
+                isError={!!errors.email && touched.email}
+              />
+              <Input
+                label="Password"
+                type="password"
+                placeholder="Enter your password"
+                onChangeText={handleChange("password")}
+                onBlur={handleBlur("password")}
+                value={values.password}
+                error={errors.password}
+                isError={!!errors.password && touched.password}
+              />
+              <Input
+                label="Confirm Password"
+                type="password"
+                placeholder="Confirm your password"
+                onChangeText={handleChange("confirmPassword")}
+                onBlur={handleBlur("confirmPassword")}
+                value={values.confirmPassword}
+                error={errors.confirmPassword}
+                isError={!!errors.confirmPassword && touched.confirmPassword}
+              />
             </View>
-          )}
-        </Formik>
-      </ScrollView>
-    </KeyboardAvoidingView>
+
+            <View className=" mt-6">
+              <Text className="text-sm text-gray-500">
+                By signing up, you confirm that you agree to{" "}
+                <Link
+                  href="/terms-and-conditions"
+                  className="text-azure-radiance-500 text-sm"
+                >
+                  Terms & Conditions
+                </Link>{" "}
+                and{" "}
+                <Link
+                  href="/privacy-policy"
+                  className="text-azure-radiance-500 text-sm"
+                >
+                  Privacy Policy
+                </Link>
+              </Text>
+            </View>
+
+            <Button onPress={(e) => handleSubmit(e as any)} className="mt-6">
+              Sign up
+            </Button>
+          </View>
+        )}
+      </Formik>
+    </View>
   );
 }
 

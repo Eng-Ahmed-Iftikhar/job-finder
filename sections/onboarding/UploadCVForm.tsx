@@ -3,12 +3,14 @@ import { View, Text, TouchableOpacity, Alert } from "react-native";
 import { Formik } from "formik";
 import * as DocumentPicker from "expo-document-picker";
 import * as yup from "yup";
+import { useDispatch } from "react-redux";
 import { useRouter } from "expo-router";
 import Button from "@/components/ui/Button";
 import useOnboarding from "@/hooks/useOnboarding";
 import { OnboardingSteps } from "@/types/onboarding";
 import { useUpdateResumeMutation } from "@/api/services/userApi";
 import { useUploadFileMutation } from "@/api/services/fileApi";
+import { updateIsOnboarded } from "@/store/reducers/userSlice";
 
 const formSchema = yup.object({
   resumeUrl: yup.string().required("Resume is required"),
@@ -19,6 +21,7 @@ type FormValues = yup.InferType<typeof formSchema>;
 type UploadState = "initial" | "uploading" | "ready";
 
 function UploadCVForm() {
+  const dispatch = useDispatch();
   const router = useRouter();
   const { handleUserProfile, userProfile } = useOnboarding();
   const [uploadState, setUploadState] = useState<UploadState>("initial");
@@ -187,6 +190,9 @@ function UploadCVForm() {
           resumeUrl: values.resumeUrl,
         });
 
+        // Update Redux store to mark as onboarded
+        dispatch(updateIsOnboarded(true));
+
         // Navigate to dashboard
         router.replace("/(dashboard)");
       } catch (error: any) {
@@ -209,7 +215,7 @@ function UploadCVForm() {
         Alert.alert("Update Error", errorMessage);
       }
     },
-    [selectedFile, updateResume, handleUserProfile, router]
+    [selectedFile, updateResume, handleUserProfile, router, dispatch]
   );
 
   const formatFileSize = (bytes: number) => {
@@ -218,6 +224,11 @@ function UploadCVForm() {
     const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
+  };
+
+  const handleGenericApplication = () => {
+    // Navigate to generic application form
+    router.push("/(onboarding)/generic-application");
   };
 
   const renderInitialState = (
@@ -241,8 +252,11 @@ function UploadCVForm() {
 
       <View className="mt-6">
         <Text className="text-gray-500 text-center mb-3">or</Text>
-        <TouchableOpacity className="bg-green-100 px-6 py-3 rounded-lg">
-          <Text className="text-green-700 font-medium text-center">
+        <TouchableOpacity
+          onPress={handleGenericApplication}
+          className="bg-azure-radiance-100 px-6 py-3 rounded-lg"
+        >
+          <Text className="text-azure-radiance-700 font-medium text-center">
             Fill a generic application instead
           </Text>
         </TouchableOpacity>
@@ -312,7 +326,6 @@ function UploadCVForm() {
         resumeUrl: userProfile?.resumeUrl || "",
       }}
       onSubmit={handleSubmit}
-      enableReinitialize
       validationSchema={formSchema}
     >
       {({ handleSubmit, isSubmitting, setFieldValue, values }) => (

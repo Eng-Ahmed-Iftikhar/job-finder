@@ -44,6 +44,11 @@ export const userSlice = createSlice({
       state.isLoading = false;
       state.isLoggedIn = false;
     },
+    updateIsOnboarded: (state, action: PayloadAction<boolean>) => {
+      if (state.user && state.user.profile) {
+        state.user.profile.isOnboarded = action.payload;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -53,6 +58,8 @@ export const userSlice = createSlice({
         state.error = null;
       })
       .addMatcher(authApi.endpoints.me.matchFulfilled, (state, action) => {
+        console.log({ slice: action.payload });
+
         state.user = action.payload;
         state.isLoggedIn = true;
         state.isLoading = false;
@@ -74,8 +81,6 @@ export const userSlice = createSlice({
         (state, action) => {
           console.log("General info update payload:", action.payload);
           if (state.user) {
-            state.user.firstName = action.payload.firstName;
-            state.user.lastName = action.payload.lastName;
             state.user.email = action.payload.email;
           }
           state.isLoading = false;
@@ -197,8 +202,14 @@ export const userSlice = createSlice({
   },
 });
 
-export const { setUser, setLoggedIn, setUserLoading, setUserError, clearUser } =
-  userSlice.actions;
+export const {
+  setUser,
+  setLoggedIn,
+  setUserLoading,
+  setUserError,
+  clearUser,
+  updateIsOnboarded,
+} = userSlice.actions;
 
 // Selectors
 export const selectUser = (state: RootState) => state.user.user;

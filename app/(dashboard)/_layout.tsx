@@ -11,6 +11,8 @@ function DashboardLayout() {
       router.replace("/(auth)/login");
     } else if (user && user.profile && !user.profile.isEmailVerified) {
       router.replace("/(profile)/verify-email");
+    } else if (user && user.profile && !user.profile.isOnboarded) {
+      router.replace("/(onboarding)/");
     }
   }, [isLoggedIn, user, router]);
 

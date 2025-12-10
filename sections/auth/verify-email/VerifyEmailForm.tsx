@@ -17,7 +17,7 @@ const verifyEmailSchema = yup.object({
   verificationCode: yup
     .string()
     .required("Verification code is required")
-    .length(6, "Verification code must be exactly 6 digits")
+    .length(5, "Verification code must be exactly 5 digits")
     .matches(/^\d+$/, "Verification code must contain only numbers"),
 });
 
@@ -108,7 +108,7 @@ function VerifyEmailForm() {
       }) => (
         <View className="mt-8  w-[80%]  mx-auto">
           <OtpInput
-            numberOfDigits={6}
+            numberOfDigits={5}
             type="numeric"
             focusColor={"#3b82f6"} // Blue-500
             theme={{
@@ -140,7 +140,7 @@ function VerifyEmailForm() {
           <Button
             onPress={(e) => handleSubmit(e as any)}
             className="mt-6"
-            disabled={isVerifying || values.verificationCode.length !== 6}
+            disabled={isVerifying || values.verificationCode.length !== 5}
           >
             {isVerifying ? "Verifying..." : "Verify Email"}
           </Button>
@@ -161,8 +161,8 @@ function VerifyEmailForm() {
             </Text>
             {isSendAgain && (
               <CircularCountdown
-                seconds={60}
-                size={25}
+                seconds={900}
+                size={40}
                 onComplete={() => setIsSendAgain(false)}
               />
             )}

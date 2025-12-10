@@ -203,7 +203,7 @@ function ProfileImageForm() {
               {/* Image Upload Area */}
               <TouchableOpacity
                 onPress={() => handleImagePick(setFieldValue)}
-                className="w-32 h-32 rounded-full bg-green-500 items-center justify-center mb-4"
+                className="w-32 h-32 rounded-full bg-azure-radiance-500 items-center justify-center mb-4"
               >
                 {values.pictureUrl ? (
                   <Image
@@ -217,7 +217,7 @@ function ProfileImageForm() {
               </TouchableOpacity>
 
               <TouchableOpacity onPress={() => handleImagePick(setFieldValue)}>
-                <Text className="text-green-500 text-lg font-semibold mb-6">
+                <Text className="text-azure-radiance-500 text-lg font-semibold mb-6">
                   Upload image
                 </Text>
               </TouchableOpacity>
@@ -246,7 +246,7 @@ function ProfileImageForm() {
                     isUpdatingProfile
                   }
                   className={`w-full py-3 px-6 rounded-lg font-semibold text-center ${
-                    values.pictureUrl ? "bg-green-500" : "bg-gray-300"
+                    values.pictureUrl ? "bg-azure-radiance-500" : "bg-gray-300"
                   }`}
                 >
                   <Text

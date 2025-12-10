@@ -99,6 +99,47 @@ export interface UpdateProfilePictureResponse {
   updatedAt: string;
 }
 
+// Define experience input
+export interface ExperienceInput {
+  position: string;
+  company: string;
+  startDate: string; // ISO string
+  endDate?: string; // ISO string
+  isCurrent?: boolean;
+}
+
+// Define education input
+export interface EducationInput {
+  school: string;
+  degree: string;
+  fieldOfStudy?: string;
+  yearStarted: number;
+  yearGraduated?: number;
+  inProgress?: boolean;
+}
+
+// Define CV details request payload
+export interface UpdateCvDetailsRequest {
+  experiences?: ExperienceInput[];
+  educations?: EducationInput[];
+  skillIds?: string[];
+  bio?: string;
+  resumeUrl?: string;
+}
+
+// Define CV details response
+export interface UpdateCvDetailsResponse {
+  id: string;
+  userId: string;
+  experiences?: ExperienceInput[];
+  educations?: EducationInput[];
+  skillIds?: string[];
+  bio?: string;
+  resumeUrl?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: baseQueryWithReAuth,
@@ -155,6 +196,24 @@ export const userApi = createApi({
         body,
       }),
     }),
+    // get CV details (requires auth)
+    getCvDetails: builder.query<UpdateCvDetailsResponse, void>({
+      query: () => ({
+        url: `${API_ROUTES.user.me}/cv-details`,
+        method: "GET",
+      }),
+    }),
+    // update CV details (requires auth)
+    updateCvDetails: builder.mutation<
+      UpdateCvDetailsResponse,
+      UpdateCvDetailsRequest
+    >({
+      query: (body) => ({
+        url: `${API_ROUTES.user.me}/cv-details`,
+        method: "PUT",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -164,4 +223,6 @@ export const {
   useUpdatePhoneNumberMutation,
   useUpdateResumeMutation,
   useUpdateProfilePictureMutation,
+  useGetCvDetailsQuery,
+  useUpdateCvDetailsMutation,
 } = userApi;

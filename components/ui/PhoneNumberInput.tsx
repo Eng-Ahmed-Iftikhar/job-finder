@@ -18,11 +18,13 @@ function PhoneNumberInput({
   selectCodeProps,
   inputNumberProps,
 }: SelectProps) {
+  console.log({ error });
+
   return (
     <View>
       <Text className="text-sm text-gray-600 mb-1">{label}</Text>
       <View className=" flex-row items-center  gap-2  rounded-lg  text-base">
-        <View className="w-[40%] border  border-gray-300 rounded-lg  text-base">
+        <View className="w-[30%] border  border-gray-300 rounded-lg  text-base">
           <RNPickerSelect
             style={{
               viewContainer: {
@@ -47,7 +49,7 @@ function PhoneNumberInput({
             {...selectCodeProps}
           />
         </View>
-        <View className="border flex justify-center h-[38px]  w-[60%] border-gray-300 rounded-lg  ">
+        <View className="border flex justify-center h-[38px]  w-[70%] border-gray-300 rounded-lg  ">
           <TextInput {...inputNumberProps} />
         </View>
       </View>

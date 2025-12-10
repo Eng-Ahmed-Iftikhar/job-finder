@@ -23,7 +23,7 @@ export default function Input({
       case "text":
         return (
           <TextInput
-            className={`border ${isError ? "border-red-500" : "border-gray-300"}  rounded-lg px-4 py-2 text-base`}
+            className={`border min-h-12 ${isError ? "border-red-500" : "border-gray-300"}  rounded-lg px-4 py-2 text-base`}
             {...props}
           />
         );
@@ -31,7 +31,7 @@ export default function Input({
       case "password":
         return (
           <View
-            className={`flex-row items-center border ${isError ? "border-red-500" : "border-gray-300 "} rounded-lg px-3`}
+            className={`flex-row min-h-12 items-center border ${isError ? "border-red-500" : "border-gray-300 "} rounded-lg px-3`}
           >
             <TextInput
               secureTextEntry={!passwordVisible}
@@ -53,7 +53,7 @@ export default function Input({
       default:
         return (
           <TextInput
-            className="border border-gray-300 rounded-lg  text-base"
+            className="border min-h-12 border-gray-300 rounded-lg  text-base"
             {...props}
           />
         );

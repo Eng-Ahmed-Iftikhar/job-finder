@@ -90,6 +90,10 @@ function OnboardingLayout() {
         />
         <Stack.Screen name="profile-image" options={{ headerShown: false }} />
         <Stack.Screen name="upload-cv" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="generic-application"
+          options={{ headerShown: false }}
+        />
       </Stack>
 
       {/* Logout Confirmation Modal */}

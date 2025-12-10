@@ -33,6 +33,10 @@ const CircularCountdown = ({
 
   const progress = secondsLeft / seconds;
   const strokeDashoffset = CIRCUMFERENCE * (1 - progress);
+  const displayTime =
+    secondsLeft >= 60
+      ? `${Math.floor(secondsLeft / 60)}:${String(secondsLeft % 60).padStart(2, "0")}`
+      : `${secondsLeft}s`;
 
   return (
     <View className={"items-center justify-center"}>
@@ -60,10 +64,10 @@ const CircularCountdown = ({
         />
       </Svg>
       <Text
-        style={{ fontSize: size * 0.5 }}
+        style={{ fontSize: size * 0.25 }} // relative font size (25% of size)
         className={" font-semibold text-azure-radiance-500 absolute"}
       >
-        {secondsLeft}
+        {displayTime}
       </Text>
     </View>
   );
