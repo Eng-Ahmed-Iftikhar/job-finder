@@ -1,6 +1,7 @@
 import { useUser } from "@/hooks/useUser";
-import { Stack, useRouter } from "expo-router";
+import { Slot, useRouter } from "expo-router";
 import React, { useEffect } from "react";
+import DashboardHeader from "@/sections/dashboard/Header";
 
 function DashboardLayout() {
   const router = useRouter();
@@ -17,9 +18,10 @@ function DashboardLayout() {
   }, [isLoggedIn, user, router]);
 
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="index" />
-    </Stack>
+    <>
+      <DashboardHeader />
+      <Slot />
+    </>
   );
 }
 
