@@ -39,6 +39,41 @@ export default function DashboardTabsLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="search-suggestions"
+        options={{
+          title: "Search Suggestions",
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="job-detail"
+        options={{
+          title: "Job Details",
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: "Profile",
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="profile-detail"
+        options={{
+          title: "Profile Detail",
+          href: null,
+        }}
+      />
+      <Tabs.Screen
+        name="company-detail"
+        options={{
+          title: "Company Detail",
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }

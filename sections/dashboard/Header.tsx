@@ -15,14 +15,15 @@ import { useUser } from "@/hooks/useUser";
 import { useLogoutMutation } from "@/api/services/authApi";
 import { useRouter } from "expo-router";
 import NotificationsContent from "@/sections/notifications/NotificationsContent";
+import { useSearch } from "@/hooks/useSearch";
 
 function DashboardHeader() {
   const router = useRouter();
   const { user } = useUser();
+  const { searchQuery } = useSearch();
   const [logoutApi, { isLoading: isLoggingOut }] = useLogoutMutation();
   const [open, setOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
-  const [search, setSearch] = useState("");
 
   const fullName = useMemo(() => {
     const first = user?.profile?.generalInfo?.firstName;
@@ -44,7 +45,7 @@ function DashboardHeader() {
 
   const handleEditProfile = useCallback(() => {
     setOpen(false);
-    router.push("/(onboarding)");
+    router.push("/(dashboard)/(tabs)/profile");
   }, [router]);
 
   const handleSettings = useCallback(() => {
@@ -55,12 +56,19 @@ function DashboardHeader() {
   return (
     <View className="bg-white border-b border-gray-200 px-4 py-3">
       <View className="flex-row items-center justify-between">
-        <SearchInput
-          value={search}
-          onChangeText={setSearch}
-          placeholder="Search"
+        <TouchableOpacity
+          activeOpacity={1}
+          onPress={() => router.push("/(dashboard)/search")}
           style={{ flex: 1, marginRight: 12 }}
-        />
+        >
+          <SearchInput
+            value={searchQuery}
+            onChangeText={() => {}}
+            placeholder="Search"
+            editable={false}
+            pointerEvents="none"
+          />
+        </TouchableOpacity>
 
         <View className="flex-row items-center gap-4">
           <TouchableOpacity

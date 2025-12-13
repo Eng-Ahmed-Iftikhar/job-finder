@@ -1,6 +1,7 @@
 import React from "react";
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
+import { useRouter } from "expo-router";
 import JobCardMenuIcon from "./jobCardMenuIcon";
 
 export type Job = {
@@ -26,9 +27,22 @@ const placeholderImage =
   "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60";
 
 function JobCard({ job, onPress }: JobCardProps) {
+  const router = useRouter();
+
+  const handlePress = () => {
+    if (onPress) {
+      onPress();
+    } else {
+      router.push({
+        pathname: "/(dashboard)/(tabs)/job-detail",
+        params: { id: job.id },
+      });
+    }
+  };
+
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={handlePress}
       activeOpacity={0.9}
       className="bg-white border border-gray-200 rounded-xl mb-4 overflow-visible"
     >

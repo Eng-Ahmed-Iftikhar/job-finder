@@ -1,11 +1,17 @@
 import { useUser } from "@/hooks/useUser";
-import { Slot, useRouter } from "expo-router";
+import { Slot, useRouter, useSegments } from "expo-router";
 import React, { useEffect } from "react";
 import DashboardHeader from "@/sections/dashboard/Header";
+import { SearchProvider } from "@/contexts/SearchContext";
 
 function DashboardLayout() {
   const router = useRouter();
+  const segments = useSegments();
   const { isLoggedIn, user } = useUser();
+
+  // Check if current route is search page (not search-suggestions)
+  const isSearchPage =
+    segments.includes("search") && !segments.includes("search-suggestions");
 
   useEffect(() => {
     if (!isLoggedIn) {
@@ -18,10 +24,10 @@ function DashboardLayout() {
   }, [isLoggedIn, user, router]);
 
   return (
-    <>
-      <DashboardHeader />
+    <SearchProvider>
+      {!isSearchPage && <DashboardHeader />}
       <Slot />
-    </>
+    </SearchProvider>
   );
 }
 
