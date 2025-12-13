@@ -140,6 +140,14 @@ export interface UpdateCvDetailsResponse {
   updatedAt: string;
 }
 
+export interface ReauthenticateRequest {
+  password: string;
+}
+
+export interface ReauthenticateResponse {
+  isAuthenticated: boolean;
+}
+
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: baseQueryWithReAuth,
@@ -214,6 +222,17 @@ export const userApi = createApi({
         body,
       }),
     }),
+    // reauthenticate current user (requires auth)
+    reauthenticate: builder.mutation<
+      ReauthenticateResponse,
+      ReauthenticateRequest
+    >({
+      query: (body) => ({
+        url: API_ROUTES.user.reauthenticate,
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -225,4 +244,5 @@ export const {
   useUpdateProfilePictureMutation,
   useGetCvDetailsQuery,
   useUpdateCvDetailsMutation,
+  useReauthenticateMutation,
 } = userApi;

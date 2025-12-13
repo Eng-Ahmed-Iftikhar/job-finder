@@ -30,6 +30,7 @@ const API_ROUTES = {
     profile: "/users/me/profile",
     phoneNumber: "/users/me/phone-number",
     resume: "/users/me/resume",
+    reauthenticate: "/users/me/reauthenticate",
   },
   skills: {
     all: "/skills/all",
