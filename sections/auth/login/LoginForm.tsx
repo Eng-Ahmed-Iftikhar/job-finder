@@ -83,9 +83,9 @@ function LoginForm() {
             handleSubmit,
             values,
             setFieldValue,
-            setFieldError,
             errors,
             touched,
+            isSubmitting,
           }) => (
             <View>
               <View className=" flex gap-6 ">
@@ -130,7 +130,11 @@ function LoginForm() {
                 />
                 <Text className="text-sm  ml-2">Keep me logged in</Text>
               </View>
-              <Button onPress={(e) => handleSubmit(e as any)} className="mt-6">
+              <Button
+                loading={isSubmitting}
+                onPress={(e) => handleSubmit(e as any)}
+                className="mt-6"
+              >
                 Login
               </Button>
             </View>

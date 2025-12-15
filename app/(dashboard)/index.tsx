@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { useRouter } from "expo-router";
+import AppLoader from "@/components/AppLoader";
 
 export default function DashboardRedirect() {
   const router = useRouter();
@@ -8,5 +9,5 @@ export default function DashboardRedirect() {
     router.replace("/(dashboard)/(tabs)/jobs");
   }, [router]);
 
-  return null;
+  return <AppLoader />;
 }

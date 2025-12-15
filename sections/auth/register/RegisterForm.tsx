@@ -111,7 +111,7 @@ function RegisterForm() {
           values,
           errors,
           touched,
-          setFieldError,
+          isSubmitting,
         }) => (
           <View>
             <View className=" flex gap-6 ">
@@ -187,7 +187,11 @@ function RegisterForm() {
               </Text>
             </View>
 
-            <Button onPress={(e) => handleSubmit(e as any)} className="mt-6">
+            <Button
+              loading={isSubmitting}
+              onPress={(e) => handleSubmit(e as any)}
+              className="mt-6"
+            >
               Sign up
             </Button>
           </View>

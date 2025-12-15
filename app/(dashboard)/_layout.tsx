@@ -1,11 +1,10 @@
-import { useUser } from "@/hooks/useUser";
-import { Slot, useRouter, useSegments } from "expo-router";
-import React, { useEffect } from "react";
-import DashboardHeader from "@/sections/dashboard/Header";
 import { SearchProvider } from "@/contexts/SearchContext";
+import { useUser } from "@/hooks/useUser";
+import DashboardHeader from "@/sections/dashboard/Header";
+import { Redirect, Slot, useSegments } from "expo-router";
+import React from "react";
 
 function DashboardLayout() {
-  const router = useRouter();
   const segments = useSegments();
   const { isLoggedIn, user } = useUser();
 
@@ -13,15 +12,13 @@ function DashboardLayout() {
   const isSearchPage =
     segments.includes("search") && !segments.includes("search-suggestions");
 
-  useEffect(() => {
-    if (!isLoggedIn) {
-      router.replace("/(auth)/login");
-    } else if (user && !user.email.isVerified) {
-      router.replace("/(profile)/verify-email");
-    } else if (user && user.profile && !user.profile.isOnboarded) {
-      router.replace("/(onboarding)/");
-    }
-  }, [isLoggedIn, user, router]);
+  if (!isLoggedIn) {
+    return <Redirect href="/(auth)/login" />;
+  } else if (user && !user.email.isVerified) {
+    return <Redirect href="/(profile)/verify-email" />;
+  } else if (user && user.profile && !user.profile.isOnboarded) {
+    return <Redirect href="/(onboarding)/" />;
+  }
 
   return (
     <SearchProvider>
