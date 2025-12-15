@@ -9,7 +9,7 @@ function VerifyEmailHeader() {
     <View className="flex items-center w-3/4 mx-auto">
       <Text className=" text-2xl font-semibold ">Confirm your email</Text>
       <Text className="text-sm text-gray-400 text-center  mt-2">
-        Please enter the code we've sent to {user?.email || "your email"}
+        Please enter the code we've sent to {user?.email.email || "your email"}
       </Text>
     </View>
   );

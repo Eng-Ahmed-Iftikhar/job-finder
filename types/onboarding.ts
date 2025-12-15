@@ -5,6 +5,7 @@ export enum OnboardingSteps {
   PHONE_VERIFICATION = "phone_verification",
   PICTURE_URL = "pictureUrl",
   RESUME_URL = "resumeUrl",
+  GENERIC_APPLICATION = "generic_application",
 }
 
 export type StepHeaderType = {

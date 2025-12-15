@@ -1,27 +1,26 @@
-import React, { useCallback } from "react";
 import {
-  View,
-  ScrollView,
-  KeyboardAvoidingView,
-  Platform,
-  Alert,
-} from "react-native";
-import { Formik } from "formik";
-import * as yup from "yup";
-import { useDispatch } from "react-redux";
+  useGetCvDetailsQuery,
+  useUpdateCvDetailsMutation,
+} from "@/api/services/userApi";
 import Button from "@/components/ui/Button";
 import useOnboarding from "@/hooks/useOnboarding";
-import { useRouter } from "expo-router";
-import { OnboardingSteps } from "@/types/onboarding";
-import {
-  useUpdateCvDetailsMutation,
-  useGetCvDetailsQuery,
-} from "@/api/services/userApi";
 import { updateIsOnboarded } from "@/store/reducers/userSlice";
-import ExperienceSection from "./ExperienceSection";
-import EducationSection from "./EducationSection";
-import SkillsSection from "./SkillsSection";
+import { useRouter } from "expo-router";
+import { Formik } from "formik";
+import React, { useCallback } from "react";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  View,
+} from "react-native";
+import { useDispatch } from "react-redux";
+import * as yup from "yup";
 import BioSection from "./BioSection";
+import EducationSection from "./EducationSection";
+import ExperienceSection from "./ExperienceSection";
+import SkillsSection from "./SkillsSection";
 
 const formSchema = yup.object({
   experiences: yup.array().of(

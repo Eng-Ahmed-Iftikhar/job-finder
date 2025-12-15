@@ -6,7 +6,7 @@ import {
   useSendPhoneVerificationMutation,
   useVerifyPhoneCodeMutation,
 } from "@/api/services/authApi";
-import { useUpdatePhoneNumberMutation } from "@/api/services/userApi";
+import { useCreatePhoneNumberMutation } from "@/api/services/userApi";
 import { Formik } from "formik";
 import React, { useCallback, useState } from "react";
 import { View, KeyboardAvoidingView, Platform } from "react-native";
@@ -22,7 +22,7 @@ const formSchema = yup.object({
     .required("Country code is required")
     .min(2, "Country code must be at least 2 characters"),
   number: yup
-    .number()
+    .string()
     .required("Phone number is required")
     .min(2, "Phone number must be at least 2 characters")
     .when("countryCode", (phoneCode, schema) => {
@@ -47,8 +47,9 @@ function PhoneNumberForm() {
   const router = useRouter();
   const [sendPhoneVerification] = useSendPhoneVerificationMutation();
   const [verifyPhoneCode] = useVerifyPhoneCodeMutation();
-  const [updatePhoneNumber, { isLoading: isUpdatingPhoneNumber }] =
-    useUpdatePhoneNumberMutation();
+
+  const [createPhoneNumber, { isLoading: isCreatingPhoneNumber }] =
+    useCreatePhoneNumberMutation();
   const [showVerification, setShowVerification] = useState(false);
   const [verificationCode, setVerificationCode] = useState<string[]>([
     "",
@@ -64,11 +65,11 @@ function PhoneNumberForm() {
   );
 
   const countryOptions = useCountryOptions();
-  const updateProfilePhoneNumber = useCallback(
+  const createProfilePhoneNumber = useCallback(
     async (values: FormValues) => {
       try {
         // Update profile via API
-        await updatePhoneNumber(values);
+        await createPhoneNumber(values);
 
         // Save to context and navigate
         handleUserProfile({ phoneNumber: values });
@@ -79,18 +80,17 @@ function PhoneNumberForm() {
         // Handle error - you might want to show a toast
       }
     },
-    [updatePhoneNumber]
+    [createPhoneNumber]
   );
 
   const handleSubmit = useCallback(
     async (values: FormValues) => {
+      await createProfilePhoneNumber(values);
+
       if (!values.isVerified) {
         try {
           // Call API to send verification code
-          await sendPhoneVerification({
-            phone: `${values.countryCode}${values.number}`,
-            countryCode: values.countryCode,
-          }).unwrap();
+          await sendPhoneVerification({}).unwrap();
 
           // Show verification step
           setShowVerification(true);
@@ -110,26 +110,25 @@ function PhoneNumberForm() {
         }
         return;
       }
-      await updateProfilePhoneNumber(values);
     },
     [
       handleUserProfile,
       handleChangeCurrentStep,
       router,
       sendPhoneVerification,
-      updatePhoneNumber,
+      createProfilePhoneNumber,
     ]
   );
 
   const handleResendCode = useCallback(
-    async (phoneNumber: number, countryCode: string) => {
+    async (phoneNumber: string, countryCode: string) => {
       try {
         // Reset verification code
         setVerificationCode(["", "", "", "", ""]);
 
         // Call API to resend verification code
         await sendPhoneVerification({
-          phone: `${countryCode}${phoneNumber}`,
+          phone: `${phoneNumber}`,
           countryCode: countryCode,
         }).unwrap();
 
@@ -152,7 +151,7 @@ function PhoneNumberForm() {
     <Formik
       initialValues={{
         countryCode: userProfile?.phoneNumber?.countryCode || "+92",
-        number: userProfile?.phoneNumber?.number || 0,
+        number: userProfile?.phoneNumber?.number || "",
         isVerified: userProfile?.phoneNumber?.isVerified || false,
       }}
       onSubmit={handleSubmit}
@@ -170,7 +169,6 @@ function PhoneNumberForm() {
         setFieldValue,
       }) => {
         const handleVerificationSubmit = async () => {
-          if (values.isVerified) return await updateProfilePhoneNumber(values);
           setIsVerifying(true);
           setVerificationError(null);
 
@@ -178,8 +176,6 @@ function PhoneNumberForm() {
             // Call API to verify the code
             const verificationCodeString = verificationCode.join("");
             await verifyPhoneCode({
-              phone: `${values.countryCode}${values.number}`,
-              countryCode: values.countryCode,
               verificationCode: verificationCodeString,
             }).unwrap();
 
@@ -261,7 +257,7 @@ function PhoneNumberForm() {
                 showVerification={showVerification}
                 isSubmitting={isSubmitting}
                 isVerifying={isVerifying}
-                isUpdatingPhoneNumber={isUpdatingPhoneNumber}
+                isUpdatingPhoneNumber={isCreatingPhoneNumber}
                 verificationCode={verificationCode}
                 onBack={handleBackToPhoneInput}
                 onVerify={handleVerificationSubmit}

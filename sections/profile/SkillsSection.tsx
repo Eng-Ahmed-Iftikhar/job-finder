@@ -1,9 +1,19 @@
 import React, { useState } from "react";
-import { View, Text, Pressable, TextInput } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  ActivityIndicator,
+} from "react-native";
 import { useFormikContext } from "formik";
+import {
+  useGetSkillsQuery,
+  useCreateSkillMutation,
+} from "@/api/services/skillApi";
 
 interface FormValues {
-  skills: string[];
+  skillIds: string[]; // array of skill IDs
   [key: string]: any;
 }
 
@@ -11,20 +21,63 @@ export const SkillsSection: React.FC = () => {
   const formik = useFormikContext<FormValues>();
   const [skillInput, setSkillInput] = useState("");
 
-  const addSkill = () => {
-    const trimmedSkill = skillInput.trim();
-    if (trimmedSkill && !formik.values.skills.includes(trimmedSkill)) {
-      formik.setFieldValue("skills", [...formik.values.skills, trimmedSkill]);
+  const { data: availableSkills, isLoading: isLoadingSkills } =
+    useGetSkillsQuery();
+  const [createSkill, { isLoading: isCreatingSkill }] =
+    useCreateSkillMutation();
+
+  const handleAddSkill = async () => {
+    const trimmed = skillInput.trim();
+    if (!trimmed) return;
+
+    try {
+      const existing = availableSkills?.find(
+        (skill) => skill.name.toLowerCase() === trimmed.toLowerCase()
+      );
+
+      if (existing) {
+        if (!formik.values.skillIds.includes(existing.id)) {
+          formik.setFieldValue("skillIds", [
+            ...formik.values.skillIds,
+            existing.id,
+          ]);
+        }
+      } else {
+        const newSkill = await createSkill({ name: trimmed }).unwrap();
+        formik.setFieldValue("skillIds", [
+          ...formik.values.skillIds,
+          newSkill.id,
+        ]);
+      }
+
       setSkillInput("");
+    } catch (err) {
+      console.error("Failed to add skill", err);
     }
   };
 
-  const removeSkill = (index: number) => {
-    const newSkills = formik.values.skills.filter(
-      (_: any, i: number) => i !== index
-    );
-    formik.setFieldValue("skills", newSkills);
+  const handleSelectSkill = (skillId: string) => {
+    if (!formik.values.skillIds.includes(skillId)) {
+      formik.setFieldValue("skillIds", [...formik.values.skillIds, skillId]);
+    }
   };
+
+  const handleRemoveSkill = (skillId: string) => {
+    formik.setFieldValue(
+      "skillIds",
+      formik.values.skillIds.filter((id: string) => id !== skillId)
+    );
+  };
+
+  const getSkillName = (skillId: string) => {
+    return availableSkills?.find((skill) => skill.id === skillId)?.name;
+  };
+
+  const unselectedSkills = availableSkills?.filter(
+    (skill) => !formik.values.skillIds.includes(skill.id)
+  );
+
+  const hasError = formik.touched.skillIds && formik.errors.skillIds;
 
   return (
     <View className="px-4 py-6 bg-white rounded-lg mb-4">
@@ -32,32 +85,75 @@ export const SkillsSection: React.FC = () => {
 
       <View className="flex-row gap-2 mb-4">
         <TextInput
+          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-gray-800"
+          placeholder="Enter a skill"
+          placeholderTextColor="#999"
           value={skillInput}
           onChangeText={setSkillInput}
-          placeholder="Add a skill"
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-gray-800"
-          placeholderTextColor="#999"
+          onSubmitEditing={handleAddSkill}
+          editable={!isCreatingSkill}
         />
-        <Pressable
-          onPress={addSkill}
-          className="bg-azure-radiance-500 px-4 py-2 rounded-lg justify-center"
+        <TouchableOpacity
+          onPress={handleAddSkill}
+          disabled={isCreatingSkill || skillInput.trim().length === 0}
+          className={`px-4 py-2 rounded-lg justify-center ${
+            isCreatingSkill || skillInput.trim().length === 0
+              ? "bg-gray-400"
+              : "bg-azure-radiance-500"
+          }`}
         >
-          <Text className="text-white font-semibold">Add</Text>
-        </Pressable>
+          {isCreatingSkill ? (
+            <ActivityIndicator color="white" size="small" />
+          ) : (
+            <Text className="text-white font-semibold">Add</Text>
+          )}
+        </TouchableOpacity>
       </View>
 
+      {isLoadingSkills ? (
+        <ActivityIndicator color="#1eadff" size="small" />
+      ) : (
+        unselectedSkills &&
+        unselectedSkills.length > 0 && (
+          <View className="mb-4">
+            <Text className="text-sm text-gray-600 mb-2">
+              Select from available skills:
+            </Text>
+            <View className="flex-row flex-wrap gap-2">
+              {unselectedSkills.map((skill) => (
+                <TouchableOpacity
+                  key={skill.id}
+                  onPress={() => handleSelectSkill(skill.id)}
+                  className="bg-gray-200 px-3 py-2 rounded-full"
+                >
+                  <Text className="text-gray-700 text-sm font-medium">
+                    {skill.name}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        )
+      )}
+
       <View className="flex-row flex-wrap gap-2">
-        {formik.values.skills && formik.values.skills.length > 0 ? (
-          formik.values.skills.map((skill: string, index: number) => (
-            <Pressable
-              key={index}
-              onPress={() => removeSkill(index)}
-              className="bg-azure-radiance/20 border border-azure-radiance px-3 py-2 rounded-full flex-row items-center gap-2"
-            >
-              <Text className="text-azure-radiance font-medium">{skill}</Text>
-              <Text className="text-azure-radiance font-bold">×</Text>
-            </Pressable>
-          ))
+        {formik.values.skillIds && formik.values.skillIds.length > 0 ? (
+          formik.values.skillIds.map((skillId: string) => {
+            const skillName = getSkillName(skillId);
+            if (!skillName) return null;
+            return (
+              <TouchableOpacity
+                key={skillId}
+                onPress={() => handleRemoveSkill(skillId)}
+                className="bg-azure-radiance-500 px-3 py-2 rounded-full flex-row items-center gap-2"
+              >
+                <Text className="text-white text-sm font-medium">
+                  {getSkillName(skillId)}
+                </Text>
+                <Text className="text-white text-sm font-bold">×</Text>
+              </TouchableOpacity>
+            );
+          })
         ) : (
           <Text className="text-gray-500 text-sm italic">
             No skills added yet
@@ -65,9 +161,9 @@ export const SkillsSection: React.FC = () => {
         )}
       </View>
 
-      {formik.touched.skills && formik.errors.skills && (
+      {hasError && (
         <Text className="text-red-500 text-sm mt-2">
-          {formik.errors.skills as string}
+          {formik.errors.skillIds as string}
         </Text>
       )}
     </View>

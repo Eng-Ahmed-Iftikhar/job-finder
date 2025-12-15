@@ -6,7 +6,7 @@ import {
   StepHeaderType,
 } from "@/types/onboarding";
 import { determineCurrentStep, getPreviousStep } from "@/utils";
-import { useRouter } from "expo-router";
+import { useRouter, usePathname } from "expo-router";
 import React, { createContext, useCallback, useEffect, useState } from "react";
 
 export const onboardingContext = createContext<OnboardingContextType>({
@@ -36,6 +36,7 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
   });
 
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleUserProfile = useCallback((profile: UserProfile) => {
     console.log({ profile });
@@ -81,8 +82,6 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (user) {
       const profile = user.profile;
-
-      console.log(profile?.isOnboarded, "sdfsdf");
       if (profile) {
         handleUserProfile({
           generalInfo: profile.generalInfo,
@@ -105,6 +104,12 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
 
     console.log("current step ", currentStep);
 
+    const navigateIfNeeded = (target: string) => {
+      if (pathname !== target) {
+        router.replace(target);
+      }
+    };
+
     // Set step header based on current step
     switch (currentStep) {
       case OnboardingSteps.GENERAL_INFO:
@@ -114,7 +119,7 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
           description: "First, please enter your name",
         });
         // Redirect to general info page
-        router.replace("/(onboarding)/general-info");
+        navigateIfNeeded("/(onboarding)/general-info");
         break;
 
       case OnboardingSteps.LOCATION:
@@ -124,7 +129,7 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
             "We will display the most relevant jobs based on your location.",
         });
         // Redirect to location page
-        router.replace("/(onboarding)/location");
+        navigateIfNeeded("/(onboarding)/location");
         break;
 
       case OnboardingSteps.PHONE_NUMBER:
@@ -134,7 +139,7 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
             "Phone number will help protect your account as well as let employers contact you much easier.",
         });
         // Redirect to phone number page
-        router.replace("/(onboarding)/phone-number");
+        navigateIfNeeded("/(onboarding)/phone-number");
         break;
 
       case OnboardingSteps.PHONE_VERIFICATION:
@@ -143,26 +148,33 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
           description: "Your phone number has been verified successfully!",
         });
         // Redirect to phone verification page
-        router.replace("/(onboarding)/phone-verification");
+        navigateIfNeeded("/(onboarding)/phone-verification");
         break;
 
       case OnboardingSteps.PICTURE_URL:
         handleChangeStepHeader({
-          title: "Upload your profile picture",
+          title: "Upload your picture",
           description: "A professional photo helps employers recognize you.",
         });
         // Redirect to profile image page
-        router.replace("/(onboarding)/profile-image");
+        navigateIfNeeded("/(onboarding)/profile-image");
         break;
 
       case OnboardingSteps.RESUME_URL:
         handleChangeStepHeader({
           title: "Upload your resume",
-          description: "STEP 5/5",
+          description:
+            " A well-crafted resume increases your chances of getting hired.",
         });
         // Redirect to upload CV page
-        router.replace("/(onboarding)/upload-cv");
+        navigateIfNeeded("/(onboarding)/upload-cv");
         break;
+      case OnboardingSteps.GENERIC_APPLICATION:
+        handleChangeStepHeader({
+          title: "Cv details",
+          description:
+            "Provide additional details to enhance your job applications.",
+        });
 
       default:
         break;

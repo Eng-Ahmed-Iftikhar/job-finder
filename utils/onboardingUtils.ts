@@ -83,6 +83,8 @@ export const getPreviousStep = (
       return OnboardingSteps.PHONE_NUMBER;
     case OnboardingSteps.RESUME_URL:
       return OnboardingSteps.PICTURE_URL;
+    case OnboardingSteps.GENERIC_APPLICATION:
+      return OnboardingSteps.RESUME_URL;
     default:
       return OnboardingSteps.GENERAL_INFO;
   }

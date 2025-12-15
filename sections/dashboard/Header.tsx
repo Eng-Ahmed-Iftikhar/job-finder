@@ -28,7 +28,9 @@ function DashboardHeader() {
   const fullName = useMemo(() => {
     const first = user?.profile?.generalInfo?.firstName;
     const last = user?.profile?.generalInfo?.lastName;
-    return [first, last].filter(Boolean).join(" ") || user?.email || "User";
+    return (
+      [first, last].filter(Boolean).join(" ") || user?.email.email || "User"
+    );
   }, [user]);
 
   const avatarUrl = user?.profile?.pictureUrl || undefined;
@@ -107,7 +109,7 @@ function DashboardHeader() {
                 </Text>
                 {user?.email && (
                   <Text className="text-xs text-gray-500" numberOfLines={1}>
-                    {user.email}
+                    {user.email.email}
                   </Text>
                 )}
               </View>

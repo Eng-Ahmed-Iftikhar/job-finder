@@ -4,7 +4,7 @@ import PhoneNumberInput from "@/components/ui/PhoneNumberInput";
 
 interface PhoneNumberInputStepProps {
   countryCode: string;
-  phoneNumber: number;
+  phoneNumber: string;
   countryOptions: Array<{ label: string; value: string }>;
   onCountryCodeChange: (value: string) => void;
   onPhoneNumberChange: (value: string) => void;

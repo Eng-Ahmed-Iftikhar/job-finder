@@ -7,7 +7,7 @@ function VerifyEmail() {
   const router = useRouter();
   const { isLoggedIn, user } = useUser();
   React.useEffect(() => {
-    if (user && user.profile && user.profile.isEmailVerified) {
+    if (user && user.email && user.email.isVerified) {
       router.replace("/(dashboard)/");
     }
   }, [isLoggedIn, user, router]);

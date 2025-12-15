@@ -1,15 +1,13 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReAuth } from "./baseApi";
 import API_ROUTES from "@/api/routes";
-import { User } from "@/types/api/auth";
+import { User, UserEmail, UserProfile } from "@/types/api/auth";
 
 // Define the update general info request payload
 export interface UpdateGeneralInfoRequest {
   firstName: string;
   lastName: string;
   email?: string;
-  dateOfBirth?: string;
-  gender?: string;
 }
 
 // Define the update location request payload
@@ -23,20 +21,21 @@ export interface UpdateLocationRequest {
 // Define the update phone number request payload
 export interface UpdatePhoneNumberRequest {
   countryCode: string;
-  number: number;
+  number: string;
   isVerified: boolean;
 }
 
 // Define the update general info response
 export interface UpdateGeneralInfoResponse {
   id: string;
-  email: string;
-  firstName: string;
-  lastName: string;
-  role: string;
-  socialProvider: string;
+  email: UserEmail;
+  profile: {
+    firstName: string;
+    lastName: string;
+    role: string;
+  };
+
   isActive: boolean;
-  isEmailVerified: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -60,9 +59,11 @@ export interface UpdatePhoneNumberResponse {
   id: string;
   userId: string;
   profileId: string;
-  countryCode: string;
-  number: string;
-  isVerified: boolean;
+  phoneNumber: {
+    countryCode: string;
+    number: string;
+    isVerified: boolean;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -174,6 +175,18 @@ export const userApi = createApi({
         body,
       }),
     }),
+
+    // create phone number (requires auth)
+    createPhoneNumber: builder.mutation<
+      UpdatePhoneNumberResponse,
+      UpdatePhoneNumberRequest
+    >({
+      query: (body) => ({
+        url: API_ROUTES.user.phoneNumber,
+        method: "POST",
+        body,
+      }),
+    }),
     // update phone number (requires auth)
     updatePhoneNumber: builder.mutation<
       UpdatePhoneNumberResponse,
@@ -240,6 +253,7 @@ export const {
   useUpdateGeneralInfoMutation,
   useUpdateLocationMutation,
   useUpdatePhoneNumberMutation,
+  useCreatePhoneNumberMutation,
   useUpdateResumeMutation,
   useUpdateProfilePictureMutation,
   useGetCvDetailsQuery,

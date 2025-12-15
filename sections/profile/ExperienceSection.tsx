@@ -1,7 +1,8 @@
 import React from "react";
 import { View, Text, Pressable, ScrollView } from "react-native";
-import { useFormikContext, FieldArray } from "formik";
+import { useFormikContext, FieldArray, ErrorMessage } from "formik";
 import Input from "@/components/ui/Input";
+import DatePicker from "@/components/ui/DatePicker";
 
 interface FormValues {
   experiences: Array<{
@@ -16,6 +17,7 @@ interface FormValues {
 
 export const ExperienceSection: React.FC = () => {
   const formik = useFormikContext<FormValues>();
+  console.log("ExperienceSection formik values:", formik.errors);
   return (
     <View className="px-4 py-6 bg-white rounded-lg mb-4">
       <View className="flex-row items-center justify-between mb-4">
@@ -32,10 +34,7 @@ export const ExperienceSection: React.FC = () => {
                     key={index}
                     className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200"
                   >
-                    <View className="flex-row justify-between items-center mb-4">
-                      <Text className="font-semibold text-gray-800">
-                        Experience {index + 1}
-                      </Text>
+                    <View className="flex-row justify-end items-center mb-4">
                       <Pressable
                         onPress={() => arrayHelpers.remove(index)}
                         className="bg-red-100 px-3 py-1 rounded"
@@ -46,95 +45,115 @@ export const ExperienceSection: React.FC = () => {
                       </Pressable>
                     </View>
 
-                    <View className="mb-3">
-                      <Input
-                        label="Position"
-                        placeholder="e.g., Senior Developer"
-                        value={experience.position}
-                        onChangeText={formik.handleChange(
-                          `experiences.${index}.position`
-                        )}
-                        onBlur={formik.handleBlur(
-                          `experiences.${index}.position`
-                        )}
-                        error={
+                    <Input
+                      label="Position"
+                      placeholder="e.g., Senior Developer"
+                      value={experience.position}
+                      onChangeText={formik.handleChange(
+                        `experiences.${index}.position`
+                      )}
+                      onBlur={formik.handleBlur(
+                        `experiences.${index}.position`
+                      )}
+                      isError={
+                        !!(
                           (formik.touched.experiences as any)?.[index]
                             ?.position &&
                           (formik.errors.experiences as any)?.[index]?.position
-                            ? ((formik.errors.experiences as any)?.[index]
-                                ?.position as string)
-                            : undefined
-                        }
-                      />
-                    </View>
+                        )
+                      }
+                      error={
+                        (formik.touched.experiences as any)?.[index]
+                          ?.position &&
+                        (formik.errors.experiences as any)?.[index]?.position
+                          ? ((formik.errors.experiences as any)?.[index]
+                              ?.position as string)
+                          : undefined
+                      }
+                    />
 
-                    <View className="mb-3">
-                      <Input
-                        label="Company"
-                        placeholder="e.g., Tech Corp"
-                        value={experience.company}
-                        onChangeText={formik.handleChange(
-                          `experiences.${index}.company`
-                        )}
-                        onBlur={formik.handleBlur(
-                          `experiences.${index}.company`
-                        )}
-                        error={
+                    <Input
+                      label="Company"
+                      placeholder="e.g., Tech Corp"
+                      value={experience.company}
+                      onChangeText={formik.handleChange(
+                        `experiences.${index}.company`
+                      )}
+                      onBlur={formik.handleBlur(`experiences.${index}.company`)}
+                      error={
+                        (formik.touched.experiences as any)?.[index]?.company &&
+                        (formik.errors.experiences as any)?.[index]?.company
+                          ? ((formik.errors.experiences as any)?.[index]
+                              ?.company as string)
+                          : undefined
+                      }
+                      isError={
+                        !!(
                           (formik.touched.experiences as any)?.[index]
                             ?.company &&
                           (formik.errors.experiences as any)?.[index]?.company
-                            ? ((formik.errors.experiences as any)?.[index]
-                                ?.company as string)
-                            : undefined
-                        }
-                      />
-                    </View>
+                        )
+                      }
+                    />
 
                     <View className="flex-row gap-3 mb-3">
-                      <View className="flex-1">
-                        <Input
-                          label="Start Date"
-                          placeholder="MM/YYYY"
-                          value={experience.startDate}
-                          onChangeText={formik.handleChange(
-                            `experiences.${index}.startDate`
-                          )}
-                          onBlur={formik.handleBlur(
-                            `experiences.${index}.startDate`
-                          )}
-                          error={
+                      <DatePicker
+                        label="Start Date"
+                        placeholder="Select start date"
+                        value={experience.startDate}
+                        onChangeDate={(date) =>
+                          formik.setFieldValue(
+                            `experiences.${index}.startDate`,
+                            date
+                          )
+                        }
+                        error={
+                          (formik.touched.experiences as any)?.[index]
+                            ?.startDate &&
+                          (formik.errors.experiences as any)?.[index]?.startDate
+                            ? ((formik.errors.experiences as any)?.[index]
+                                ?.startDate as string)
+                            : undefined
+                        }
+                        isError={
+                          !!(
                             (formik.touched.experiences as any)?.[index]
                               ?.startDate &&
                             (formik.errors.experiences as any)?.[index]
                               ?.startDate
-                              ? ((formik.errors.experiences as any)?.[index]
-                                  ?.startDate as string)
-                              : undefined
-                          }
-                        />
-                      </View>
-                      <View className="flex-1">
-                        <Input
-                          label="End Date"
-                          placeholder="MM/YYYY"
-                          value={experience.endDate}
-                          editable={!experience.current}
-                          onChangeText={formik.handleChange(
-                            `experiences.${index}.endDate`
-                          )}
-                          onBlur={formik.handleBlur(
-                            `experiences.${index}.endDate`
-                          )}
-                          error={
+                          )
+                        }
+                        maxDate={experience.endDate || undefined}
+                      />
+
+                      <DatePicker
+                        label="End Date"
+                        placeholder="Select end date"
+                        value={experience.endDate}
+                        onChangeDate={(date) =>
+                          formik.setFieldValue(
+                            `experiences.${index}.endDate`,
+                            date
+                          )
+                        }
+                        error={
+                          (formik.touched.experiences as any)?.[index]
+                            ?.endDate &&
+                          (formik.errors.experiences as any)?.[index]?.endDate
+                            ? ((formik.errors.experiences as any)?.[index]
+                                ?.endDate as string)
+                            : undefined
+                        }
+                        isError={
+                          !!(
                             (formik.touched.experiences as any)?.[index]
                               ?.endDate &&
                             (formik.errors.experiences as any)?.[index]?.endDate
-                              ? ((formik.errors.experiences as any)?.[index]
-                                  ?.endDate as string)
-                              : undefined
-                          }
-                        />
-                      </View>
+                          )
+                        }
+                        editable={!experience.current}
+                        minDate={experience.startDate || undefined}
+                      />
                     </View>
 
                     <Pressable
@@ -177,7 +196,7 @@ export const ExperienceSection: React.FC = () => {
                   current: false,
                 })
               }
-              className="bg-azure-radiance/10 border border-dashed border-azure-radiance p-4 rounded-lg"
+              className="bg-azure-radiance/10 border border-dashed border-azure-radiance p-2 rounded-lg"
             >
               <Text className="text-azure-radiance font-semibold text-center">
                 + Add Experience
@@ -186,6 +205,11 @@ export const ExperienceSection: React.FC = () => {
           </View>
         )}
       </FieldArray>
+      <ErrorMessage
+        name="experiences"
+        component={Text}
+        className="text-red-500 text-xs mt-1"
+      />
     </View>
   );
 };

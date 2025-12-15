@@ -1,177 +1,175 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  ActivityIndicator,
-} from "react-native";
+import React, { useEffect, useState } from "react";
+import { View, Text, Pressable, ActivityIndicator } from "react-native";
 import Modal from "@/components/ui/Modal";
+import {
+  useSendPhoneVerificationMutation,
+  useVerifyPhoneCodeMutation,
+} from "@/api/services/authApi";
+import { OtpInput } from "react-native-otp-entry";
+import CircularCountdown from "@/components/CircularCountdown";
 
 interface PhoneVerificationModalProps {
   isVisible: boolean;
-  phone: string;
+  phone: { countryCode: string; number: string };
   onClose: () => void;
-  onVerify: (code: string) => Promise<void>;
-  onPhoneUpdated: (phone: string) => void;
+  onVerified: () => void;
 }
 
 export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({
   isVisible,
   phone,
   onClose,
-  onVerify,
-  onPhoneUpdated,
+  onVerified,
 }) => {
   const [code, setCode] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [step, setStep] = useState<"input" | "verify">("input");
-  const [newPhone, setNewPhone] = useState("");
+  const [isSendAgain, setIsSendAgain] = useState(false);
+  const [sendPhoneVerification, { isLoading: isSending }] =
+    useSendPhoneVerificationMutation();
+  const [verifyPhoneCode, { isLoading: isVerifying }] =
+    useVerifyPhoneCodeMutation();
 
   const handleSendCode = async () => {
-    if (!newPhone) {
-      setError("Please enter a phone number");
+    if (!phone.number || !phone.countryCode) {
+      setError("Phone number is missing");
       return;
     }
-    setStep("verify");
-    setError("");
+    try {
+      setError("");
+      await sendPhoneVerification({}).unwrap();
+      setIsSendAgain(true);
+    } catch (err: any) {
+      const msg = Array.isArray(err?.data?.message)
+        ? err.data.message[0]
+        : err?.data?.message || "Failed to send verification code";
+      setError(msg);
+    }
   };
 
   const handleVerifyCode = async () => {
-    if (!code.trim()) {
-      setError("Please enter the verification code");
+    if (!code.trim() || code.trim().length !== 5) {
+      setError("Verification code must be 5 digits");
       return;
     }
-
     try {
-      setIsLoading(true);
       setError("");
-      await onVerify(code);
-      onPhoneUpdated(newPhone);
+      await verifyPhoneCode({
+        verificationCode: code.trim(),
+      }).unwrap();
+      onVerified();
       handleClose();
-    } catch (err) {
-      setError("Verification failed. Please try again.");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
+    } catch (err: any) {
+      const msg = Array.isArray(err?.data?.message)
+        ? err.data.message[0]
+        : err?.data?.message || "Verification failed. Please try again.";
+      setError(msg);
     }
   };
 
   const handleClose = () => {
     setCode("");
-    setNewPhone("");
     setError("");
-    setStep("input");
+    setIsSendAgain(false);
     onClose();
   };
+
+  useEffect(() => {
+    if (isVisible) {
+      handleSendCode();
+    } else {
+      setCode("");
+      setError("");
+      setIsSendAgain(false);
+    }
+  }, [isVisible]);
 
   return (
     <Modal visible={isVisible} onClose={handleClose}>
       <View className="bg-white rounded-2xl p-6 w-full max-w-sm">
         <Text className="text-xl font-bold text-gray-800 mb-2">
-          Verify Phone
+          Verify Phone Number
         </Text>
         <Text className="text-sm text-gray-600 mb-6">
-          We'll send a verification code to your phone number
+          Enter the 5-digit code sent to {phone.countryCode} {phone.number}
         </Text>
 
-        {step === "input" ? (
-          <>
-            <View className="mb-4">
-              <Text className="text-gray-700 font-medium mb-2">
-                Current Phone
-              </Text>
-              <View className="bg-gray-100 p-3 rounded-lg">
-                <Text className="text-gray-800">{phone}</Text>
-              </View>
-            </View>
+        <View className="mb-6 items-center">
+          <OtpInput
+            numberOfDigits={5}
+            type="numeric"
+            focusColor={"#3b82f6"}
+            theme={{
+              pinCodeContainerStyle: {
+                borderWidth: 0,
+                borderBottomWidth: 1,
+                borderColor: error ? "#ef4444" : "#1eadff",
+                backgroundColor: "transparent",
+                borderRadius: 0,
+              },
+            }}
+            onTextChange={(text) => {
+              setCode(text);
+              if (error) setError("");
+            }}
+            disabled={isVerifying}
+          />
 
-            <View className="mb-6">
-              <Text className="text-gray-700 font-medium mb-2">
-                New Phone Number
-              </Text>
-              <TextInput
-                placeholder="Enter new phone number"
-                value={newPhone}
-                onChangeText={setNewPhone}
-                keyboardType="phone-pad"
-                placeholderTextColor="#999"
-                className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800"
-              />
-            </View>
+          {error ? (
+            <Text className="text-red-500 text-sm mt-2 text-center">
+              {error}
+            </Text>
+          ) : null}
+        </View>
 
-            {error && (
-              <Text className="text-red-500 text-sm mb-4">{error}</Text>
-            )}
+        <Pressable
+          disabled={isVerifying}
+          className="bg-azure-radiance-500 rounded-lg py-3 mb-3"
+          onPress={handleVerifyCode}
+        >
+          {isVerifying ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text className="text-white font-semibold text-center">
+              Verify Phone
+            </Text>
+          )}
+        </Pressable>
 
-            <View className="flex-row gap-3">
-              <Pressable
-                onPress={handleClose}
-                className="flex-1 border border-gray-300 rounded-lg py-3"
-              >
-                <Text className="text-gray-800 font-semibold text-center">
-                  Cancel
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={handleSendCode}
-                className="flex-1 bg-azure-radiance-500 rounded-lg py-3"
-              >
-                <Text className="text-white font-semibold text-center">
-                  Send Code
-                </Text>
-              </Pressable>
-            </View>
-          </>
-        ) : (
-          <>
-            <View className="mb-6">
-              <Text className="text-gray-700 font-medium mb-2">
-                Verification Code
-              </Text>
-              <Text className="text-sm text-gray-600 mb-3">
-                Enter the 6-digit code sent to {newPhone}
-              </Text>
-              <TextInput
-                placeholder="000000"
-                value={code}
-                onChangeText={setCode}
-                keyboardType="number-pad"
-                maxLength={6}
-                placeholderTextColor="#999"
-                className="border border-gray-300 rounded-lg px-4 py-3 text-gray-800 text-center text-lg tracking-widest"
-              />
-            </View>
+        <Pressable
+          disabled={isSending || isSendAgain}
+          className="flex-row items-center justify-center gap-2"
+          onPress={handleSendCode}
+        >
+          <Text
+            className={`text-sm font-medium ${
+              isSending || isSendAgain
+                ? "text-gray-400"
+                : "text-azure-radiance-500"
+            }`}
+          >
+            {isSending
+              ? "Sending..."
+              : isSendAgain
+                ? "Code is sent"
+                : "Send code again"}
+          </Text>
+          {isSendAgain && (
+            <CircularCountdown
+              seconds={900}
+              size={28}
+              onComplete={() => setIsSendAgain(false)}
+            />
+          )}
+        </Pressable>
 
-            {error && (
-              <Text className="text-red-500 text-sm mb-4">{error}</Text>
-            )}
-
-            <View className="flex-row gap-3">
-              <Pressable
-                onPress={() => setStep("input")}
-                disabled={isLoading}
-                className="flex-1 border border-gray-300 rounded-lg py-3"
-              >
-                <Text className="text-gray-800 font-semibold text-center">
-                  Back
-                </Text>
-              </Pressable>
-              <Pressable
-                onPress={handleVerifyCode}
-                disabled={isLoading}
-                className="flex-1 bg-azure-radiance-500 rounded-lg py-3 flex-row items-center justify-center"
-              >
-                {isLoading ? (
-                  <ActivityIndicator color="white" />
-                ) : (
-                  <Text className="text-white font-semibold">Verify</Text>
-                )}
-              </Pressable>
-            </View>
-          </>
-        )}
+        <Pressable
+          onPress={handleClose}
+          className="mt-4 border border-gray-300 rounded-lg py-3"
+        >
+          <Text className="text-gray-800 font-semibold text-center">
+            Cancel
+          </Text>
+        </Pressable>
       </View>
     </Modal>
   );

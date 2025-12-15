@@ -4,7 +4,6 @@ const API_ROUTES = {
     sign_up: "/auth/register",
     social_login: "/auth/social-login",
     logout: "/auth/logout",
-    me: "/auth/me",
     refresh: "/auth/refresh",
     profile: "/auth/profile?withPopulate=true",
     send_phone_verification: "/auth/send-phone-verification",

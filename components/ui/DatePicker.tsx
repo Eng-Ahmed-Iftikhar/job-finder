@@ -131,7 +131,7 @@ function DatePicker({
   return (
     <View className="flex-1">
       {label && (
-        <Text className="text-sm font-medium text-gray-700 mb-1">{label}</Text>
+        <Text className="text-sm font-normal text-gray-600 mb-1">{label}</Text>
       )}
       <TouchableOpacity
         onPress={() => editable && setShowModal(true)}

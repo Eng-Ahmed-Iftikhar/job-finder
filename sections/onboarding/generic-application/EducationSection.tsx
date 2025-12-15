@@ -85,7 +85,7 @@ function EducationSection({
             )}
           </View>
 
-          <View className="gap-4 flex-1">
+          <View className="gap-4">
             <Input
               label="School"
               placeholder="e.g., Stanford University"

@@ -75,25 +75,21 @@ export const authApi = createApi({
     // get current user (requires auth)
     me: builder.query<User, void>({
       query: () => ({
-        url: API_ROUTES.auth.me,
+        url: API_ROUTES.user.me,
         method: "GET",
       }),
     }),
     // send phone verification code (no auth required)
-    sendPhoneVerification: builder.mutation<
-      { message: string },
-      { phone: string; countryCode: string }
-    >({
-      query: (body) => ({
+    sendPhoneVerification: builder.mutation({
+      query: () => ({
         url: API_ROUTES.auth.send_phone_verification,
         method: "POST",
-        body,
       }),
     }),
     // verify phone verification code (no auth required)
     verifyPhoneCode: builder.mutation<
       { message: string; verified: boolean },
-      { phone: string; countryCode: string; verificationCode: string }
+      { verificationCode: string }
     >({
       query: (body) => ({
         url: API_ROUTES.auth.verify_phone_code,

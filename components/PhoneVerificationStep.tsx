@@ -4,7 +4,7 @@ import VerificationCodeInput from "@/components/ui/VerificationCodeInput";
 
 interface PhoneVerificationStepProps {
   countryCode: string;
-  phoneNumber: number;
+  phoneNumber: string;
   verificationCode: string[];
   onVerificationCodeChange: (code: string[]) => void;
   onResendCode: () => void;

@@ -7,7 +7,7 @@ import useOnboarding from "@/hooks/useOnboarding";
 import { OnboardingSteps } from "@/types/onboarding";
 
 function PhoneVerificationScreen() {
-  const { handleChangeCurrentStep, handleChangeStepHeader } = useOnboarding();
+  const { handleChangeCurrentStep } = useOnboarding();
   const router = useRouter();
 
   React.useEffect(() => {

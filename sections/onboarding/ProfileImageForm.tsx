@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   Image,
   Alert,
+  ActionSheetIOS,
+  Platform,
 } from "react-native";
 import { useRouter } from "expo-router";
 import useOnboarding from "@/hooks/useOnboarding";
@@ -84,6 +86,95 @@ function ProfileImageForm() {
       }
     },
     []
+  );
+
+  const handleCameraCapture = useCallback(
+    async (setFieldValue: (field: string, value: any) => void) => {
+      try {
+        // Request camera permissions
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== "granted") {
+          Alert.alert(
+            "Permission needed",
+            "Please grant camera permissions to take a photo."
+          );
+          return;
+        }
+
+        const result = await ImagePicker.launchCameraAsync({
+          allowsEditing: true,
+          aspect: [1, 1],
+          quality: 0.8,
+        });
+
+        if (!result.canceled && result.assets[0]) {
+          const image = result.assets[0];
+
+          // Check file size (2MB limit)
+          if (image.fileSize && image.fileSize > 2 * 1024 * 1024) {
+            Alert.alert(
+              "Image too large",
+              "Please select an image smaller than 2MB"
+            );
+            return;
+          }
+
+          setSelectedImage({
+            uri: image.uri,
+            name: image.fileName || `camera-${Date.now()}.jpg`,
+            size: image.fileSize || 0,
+          });
+
+          // Set the Formik value to the image URI
+          setFieldValue("pictureUrl", image.uri);
+        }
+      } catch (error) {
+        console.error("Error capturing image:", error);
+        Alert.alert("Error", "Failed to capture image");
+      }
+    },
+    []
+  );
+
+  const handleImageSourceChoice = useCallback(
+    (setFieldValue: (field: string, value: any) => void) => {
+      if (Platform.OS === "ios") {
+        ActionSheetIOS.showActionSheetWithOptions(
+          {
+            options: ["Cancel", "Take Photo", "Choose from Gallery"],
+            cancelButtonIndex: 0,
+          },
+          (buttonIndex) => {
+            if (buttonIndex === 1) {
+              handleCameraCapture(setFieldValue);
+            } else if (buttonIndex === 2) {
+              handleImagePick(setFieldValue);
+            }
+          }
+        );
+      } else {
+        Alert.alert(
+          "Select Image Source",
+          "Choose an option",
+          [
+            {
+              text: "Cancel",
+              style: "cancel",
+            },
+            {
+              text: "Take Photo",
+              onPress: () => handleCameraCapture(setFieldValue),
+            },
+            {
+              text: "Choose from Gallery",
+              onPress: () => handleImagePick(setFieldValue),
+            },
+          ],
+          { cancelable: true }
+        );
+      }
+    },
+    [handleCameraCapture, handleImagePick]
   );
 
   const handleSubmit = async (values: FormValues) => {
@@ -196,13 +287,9 @@ function ProfileImageForm() {
         <ScrollView className="flex-1 bg-white px-4">
           <View className="flex-1 mt-12">
             <View className="items-center justify-center flex-1">
-              <Text className="text-2xl font-bold text-center text-gray-900 mb-8">
-                Upload a profile picture
-              </Text>
-
               {/* Image Upload Area */}
               <TouchableOpacity
-                onPress={() => handleImagePick(setFieldValue)}
+                onPress={() => handleImageSourceChoice(setFieldValue)}
                 className="w-32 h-32 rounded-full bg-azure-radiance-500 items-center justify-center mb-4"
               >
                 {values.pictureUrl ? (
@@ -216,7 +303,9 @@ function ProfileImageForm() {
                 )}
               </TouchableOpacity>
 
-              <TouchableOpacity onPress={() => handleImagePick(setFieldValue)}>
+              <TouchableOpacity
+                onPress={() => handleImageSourceChoice(setFieldValue)}
+              >
                 <Text className="text-azure-radiance-500 text-lg font-semibold mb-6">
                   Upload image
                 </Text>

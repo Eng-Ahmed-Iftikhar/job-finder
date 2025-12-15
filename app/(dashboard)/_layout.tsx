@@ -16,7 +16,7 @@ function DashboardLayout() {
   useEffect(() => {
     if (!isLoggedIn) {
       router.replace("/(auth)/login");
-    } else if (user && user.profile && !user.profile.isEmailVerified) {
+    } else if (user && !user.email.isVerified) {
       router.replace("/(profile)/verify-email");
     } else if (user && user.profile && !user.profile.isOnboarded) {
       router.replace("/(onboarding)/");

@@ -49,6 +49,11 @@ export const userSlice = createSlice({
         state.user.profile.isOnboarded = action.payload;
       }
     },
+    setEmailVerified: (state, action: PayloadAction<boolean>) => {
+      if (state.user && state.user.email) {
+        state.user.email.isVerified = action.payload;
+      }
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -81,7 +86,21 @@ export const userSlice = createSlice({
         (state, action) => {
           console.log("General info update payload:", action.payload);
           if (state.user) {
-            state.user.email = action.payload.email;
+            if (state.user.email.email !== action.payload.email.email) {
+              state.user.email = action.payload.email;
+            }
+            if (state.user.profile) {
+              if (!state.user.profile.generalInfo) {
+                state.user.profile.generalInfo = {
+                  firstName: "",
+                  lastName: "",
+                };
+              }
+              state.user.profile.generalInfo.firstName =
+                action.payload.profile.firstName;
+              state.user.profile.generalInfo.lastName =
+                action.payload.profile.lastName;
+            }
           }
           state.isLoading = false;
           state.error = null;
@@ -137,11 +156,7 @@ export const userSlice = createSlice({
         (state, action) => {
           console.log("Phone number update payload:", action.payload);
           if (state.user && state.user.profile) {
-            state.user.profile.phoneNumber = {
-              countryCode: action.payload.countryCode,
-              number: parseInt(action.payload.number),
-              isVerified: action.payload.isVerified,
-            };
+            state.user.profile.phoneNumber = action.payload.phoneNumber;
           }
           state.isLoading = false;
           state.error = null;
@@ -209,6 +224,7 @@ export const {
   setUserError,
   clearUser,
   updateIsOnboarded,
+  setEmailVerified,
 } = userSlice.actions;
 
 // Selectors

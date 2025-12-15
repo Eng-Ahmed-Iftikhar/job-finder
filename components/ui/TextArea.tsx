@@ -18,7 +18,7 @@ export default function TextArea({
   const minHeight = numberOfLines * 24 + 16; // 24px per line + padding
 
   return (
-    <View className="flex-1">
+    <View style={{ flex: 1, minHeight }}>
       {label && <Text className="text-sm text-gray-600 mb-1">{label}</Text>}
       <TextInput
         className={`border ${isError ? "border-red-500" : "border-gray-300"} rounded-lg px-4 py-2 text-base`}

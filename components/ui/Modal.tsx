@@ -97,50 +97,45 @@ function Modal({
       animationType="none"
       onRequestClose={onClose}
     >
-      <TouchableWithoutFeedback onPress={handleBackdropPress}>
-        <View className="flex-1 justify-center items-center bg-black/50">
+      <View className="flex-1 justify-center items-center bg-black/50">
+        <TouchableWithoutFeedback onPress={handleBackdropPress}>
           <Animated.View
             className="absolute inset-0 bg-black/50"
             style={{
               opacity: fadeAnim,
             }}
           />
-          
-          <Animated.View
-            className="bg-white rounded-2xl mx-4 max-w-sm w-full shadow-2xl"
-            style={{
-              transform: [
-                { translateY: slideAnim },
-                { scale: scaleAnim },
-              ],
-            }}
-          >
-            {/* Header */}
-            {(title || showCloseButton) && (
-              <View className="flex-row items-center justify-between p-4 border-b border-gray-100">
-                {title && (
-                  <Text className="text-lg font-semibold text-gray-900 flex-1">
-                    {title}
-                  </Text>
-                )}
-                {showCloseButton && (
-                  <TouchableOpacity
-                    onPress={onClose}
-                    className="w-8 h-8 items-center justify-center rounded-full bg-gray-100"
-                  >
-                    <Icon name="close" size={16} color="#6B7280" />
-                  </TouchableOpacity>
-                )}
-              </View>
-            )}
+        </TouchableWithoutFeedback>
 
-            {/* Content */}
-            <View className="p-4">
-              {children}
+        <Animated.View
+          className="bg-white rounded-2xl mx-4 max-w-sm w-full shadow-2xl"
+          style={{
+            transform: [{ translateY: slideAnim }, { scale: scaleAnim }],
+          }}
+        >
+          {/* Header */}
+          {(title || showCloseButton) && (
+            <View className="flex-row items-center justify-between p-4 border-b border-gray-100">
+              {title && (
+                <Text className="text-lg font-semibold text-gray-900 flex-1">
+                  {title}
+                </Text>
+              )}
+              {showCloseButton && (
+                <TouchableOpacity
+                  onPress={onClose}
+                  className="w-8 h-8 items-center justify-center rounded-full bg-gray-100"
+                >
+                  <Icon name="close" size={16} color="#6B7280" />
+                </TouchableOpacity>
+              )}
             </View>
-          </Animated.View>
-        </View>
-      </TouchableWithoutFeedback>
+          )}
+
+          {/* Content */}
+          <View className="p-4">{children}</View>
+        </Animated.View>
+      </View>
     </RNModal>
   );
 }

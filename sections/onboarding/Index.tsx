@@ -7,11 +7,11 @@ import AppLoader from "@/components/AppLoader";
 function OnboardingIndexScreen() {
   const { currentStep, stepHeader } = useOnboarding();
   const router = useRouter();
-  useEffect(() => {
-    if (currentStep) {
-      router.replace(`/(onboarding)/${currentStep}`);
-    }
-  }, [currentStep]);
+  // useEffect(() => {
+  //   if (currentStep) {
+  //     router.replace(`/(onboarding)/${currentStep}`);
+  //   }
+  // }, [currentStep]);
 
   return (
     <View className="flex-1 items-center justify-center bg-white">

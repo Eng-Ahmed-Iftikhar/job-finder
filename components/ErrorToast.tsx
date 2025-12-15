@@ -2,19 +2,19 @@ import React, { useEffect } from "react";
 import { View, Text, Pressable, Animated } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 
-interface SuccessToastProps {
+interface ErrorToastProps {
   visible: boolean;
   message: string;
   onClose: () => void;
   duration?: number;
 }
 
-export default function SuccessToast({
+export default function ErrorToast({
   visible,
   message,
   onClose,
   duration = 3000,
-}: SuccessToastProps) {
+}: ErrorToastProps) {
   const [opacity] = React.useState(new Animated.Value(0));
   const [translateY] = React.useState(new Animated.Value(-20));
 
@@ -68,10 +68,13 @@ export default function SuccessToast({
       }}
       className="absolute bottom-2 left-4 right-4 z-50"
     >
-      <View className="bg-azure-radiance-500 rounded-xl px-4 py-3 flex-row items-center justify-between shadow-lg">
-        <Text className="text-white font-semibold text-base flex-1">
-          {message}
-        </Text>
+      <View className="bg-red-500 rounded-xl px-4 py-3 flex-row items-center justify-between shadow-lg">
+        <View className="flex-row items-center flex-1">
+          <Ionicons name="alert-circle" size={24} color="white" />
+          <Text className="text-white font-semibold text-base ml-3 flex-1">
+            {message}
+          </Text>
+        </View>
         <Pressable onPress={handleClose} className="ml-2 p-1">
           <Ionicons name="close" size={20} color="white" />
         </Pressable>

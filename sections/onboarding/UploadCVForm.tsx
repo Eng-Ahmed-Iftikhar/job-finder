@@ -23,7 +23,8 @@ type UploadState = "initial" | "uploading" | "ready";
 function UploadCVForm() {
   const dispatch = useDispatch();
   const router = useRouter();
-  const { handleUserProfile, userProfile } = useOnboarding();
+  const { handleUserProfile, userProfile, handleChangeCurrentStep } =
+    useOnboarding();
   const [uploadState, setUploadState] = useState<UploadState>("initial");
   const [uploadProgress, setUploadProgress] = useState(0);
   const [selectedFile, setSelectedFile] = useState<{
@@ -94,8 +95,6 @@ function UploadCVForm() {
               name: fileData.name,
             };
 
-            console.log("Resume file to upload:", fileObj);
-
             formData.append("file", fileObj as any);
             formData.append("fileType", "document");
             formData.append("folderPath", "resumes");
@@ -104,15 +103,11 @@ function UploadCVForm() {
               `resume-${Date.now()}-${fileData.name}`
             );
 
-            console.log("FormData prepared, uploading resume...");
-
             // Simulate progress update
             setUploadProgress(20);
 
             // Upload the file to get the URL
             const fileUploadResponse = await uploadFile(formData).unwrap();
-
-            console.log("Resume upload successful:", fileUploadResponse);
 
             // Set the uploaded URL in Formik
             setFieldValue("resumeUrl", fileUploadResponse.url);
@@ -189,12 +184,7 @@ function UploadCVForm() {
         handleUserProfile({
           resumeUrl: values.resumeUrl,
         });
-
-        // Update Redux store to mark as onboarded
-        dispatch(updateIsOnboarded(true));
-
-        // Navigate to dashboard
-        router.replace("/(dashboard)");
+        handleChangeCurrentStep(OnboardingSteps.GENERIC_APPLICATION);
       } catch (error: any) {
         console.error("Failed to update resume:", error);
         console.error("Error details:", JSON.stringify(error, null, 2));
@@ -228,6 +218,7 @@ function UploadCVForm() {
 
   const handleGenericApplication = () => {
     // Navigate to generic application form
+    handleChangeCurrentStep(OnboardingSteps.GENERIC_APPLICATION);
     router.push("/(onboarding)/generic-application");
   };
 

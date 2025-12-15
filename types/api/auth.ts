@@ -18,9 +18,9 @@ type UserLocation = {
   address: string;
 };
 
-type UserPhoneNumber = {
+export type UserPhoneNumber = {
   countryCode: string;
-  number: number;
+  number: string;
   isVerified: boolean;
 };
 
@@ -33,14 +33,19 @@ export enum UserRole {
 
 export type User = {
   id: string;
-  email: string;
+  email: UserEmail;
   password?: string; // Optional for social logins
   isActive: boolean;
-  provider: SocialProvider;
   profile?: UserProfile;
   createdAt: Date;
   updatedAt: Date;
 };
+
+export interface UserEmail {
+  email: string;
+  isVerified: boolean;
+  provider: SocialProvider;
+}
 
 export type UserProfile = {
   generalInfo?: UserGeneralInfo;
@@ -50,7 +55,6 @@ export type UserProfile = {
   resumeUrl?: string;
   role?: UserRole;
   isOnboarded?: boolean;
-  isEmailVerified?: boolean;
 };
 
 // Google login response type

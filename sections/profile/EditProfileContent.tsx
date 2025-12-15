@@ -3,14 +3,16 @@ import {
   View,
   Text,
   ScrollView,
+  RefreshControl,
   Pressable,
   TouchableOpacity,
   Image,
   ActivityIndicator,
-  Alert,
   Animated,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import SuccessToast from "@/components/SuccessToast";
+import ErrorToast from "@/components/ErrorToast";
 import * as ImagePicker from "expo-image-picker";
 import { Formik, FormikHelpers } from "formik";
 import { editProfileValidationSchema } from "./validationSchema";
@@ -21,21 +23,33 @@ import { EducationSection } from "./EducationSection";
 import { SkillsSection } from "./SkillsSection";
 import { BioSection } from "./BioSection";
 import { EmailVerificationModal } from "./EmailVerificationModal";
-import { PhoneVerificationModal } from "./PhoneVerificationModal";
+import { PhoneChangeModal } from "./PhoneChangeModal";
 import {
   useGetCvDetailsQuery,
   useUpdateCvDetailsMutation,
   useUpdateGeneralInfoMutation,
+  useUpdateLocationMutation,
+  useUpdatePhoneNumberMutation,
   useUpdateProfilePictureMutation,
 } from "@/api/services/userApi";
 import { useAppSelector } from "@/hooks/useAppSelector";
+import { UserPhoneNumber } from "@/types/api/auth";
+import { useLazyMeQuery } from "@/api/services/authApi";
 
 interface EditProfileFormValues {
   firstName: string;
   lastName: string;
-  zip: string;
+  location: string;
+  city: string;
+  state: string;
+  country: string;
+  address: string;
   email: string;
-  phoneNumber: string;
+  phoneNumber: {
+    countryCode: string;
+    number: string;
+    isVerified?: boolean;
+  };
   profilePicture: string | null;
   cvFile: { uri: string; name: string; size?: number } | null;
   experiences: Array<{
@@ -51,7 +65,7 @@ interface EditProfileFormValues {
     startDate: string;
     endDate: string;
   }>;
-  skills: string[];
+  skillIds: string[];
   bio: string;
 }
 
@@ -111,7 +125,7 @@ const FloatingActions: React.FC<{
         <View className="flex-row items-center gap-3">
           <TouchableOpacity
             onPress={onSubmit}
-            disabled={disabled}
+            // disabled={disabled}
             className="bg-azure-radiance-500 h-12 rounded-xl flex-1 items-center justify-center"
             activeOpacity={0.8}
           >
@@ -144,27 +158,74 @@ export default function EditProfileContent() {
   const [isEmailModalVisible, setIsEmailModalVisible] = useState(false);
   const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [showErrorToast, setShowErrorToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
-  const { data: cvDetails, isLoading: isCvDetailsLoading } =
-    useGetCvDetailsQuery();
+  const {
+    data: cvDetails,
+    isLoading: isCvDetailsLoading,
+    refetch: refetchCvDetails,
+  } = useGetCvDetailsQuery();
+
   const [updateCvDetails] = useUpdateCvDetailsMutation();
   const [updateGeneralInfo] = useUpdateGeneralInfoMutation();
+  const [updateLocation] = useUpdateLocationMutation();
+  const [updatePhoneNumber] = useUpdatePhoneNumberMutation();
   const [updateProfilePicture] = useUpdateProfilePictureMutation();
+  const [getMe] = useLazyMeQuery();
+  const [refreshing, setRefreshing] = useState(false);
+
+  const profileLocation = ((user as any)?.profile?.location as any) || {};
+
+  const formatYearMonth = (value: any): string => {
+    if (!value) return "";
+
+    if (typeof value === "string") {
+      if (/^\d{4}-\d{2}$/.test(value)) return value;
+
+      const parsedFromString = new Date(value);
+      if (!Number.isNaN(parsedFromString.getTime())) {
+        return `${parsedFromString.getFullYear()}-${String(
+          parsedFromString.getMonth() + 1
+        ).padStart(2, "0")}`;
+      }
+
+      if (/^\d{4}$/.test(value)) return `${value}-01`;
+
+      return "";
+    }
+
+    const parsed = new Date(value);
+    if (Number.isNaN(parsed.getTime())) return "";
+
+    return `${parsed.getFullYear()}-${String(parsed.getMonth() + 1).padStart(
+      2,
+      "0"
+    )}`;
+  };
 
   const rawInitialValues: EditProfileFormValues = {
     firstName: user?.profile?.generalInfo?.firstName || "",
     lastName: user?.profile?.generalInfo?.lastName || "",
-    zip: "", // TODO: Get from location API
-    email: user?.email || "",
-    phoneNumber: (user?.profile?.phoneNumber as any)?.number?.toString() || "",
+    location: profileLocation.address || "",
+    city: profileLocation.city || "",
+    state: profileLocation.state || "",
+    country: profileLocation.country || "",
+    address: profileLocation.address || "",
+    email:
+      typeof user?.email === "string"
+        ? user.email
+        : (user?.email as any)?.email || "",
+    phoneNumber: user?.profile?.phoneNumber as UserPhoneNumber,
     profilePicture: user?.profile?.pictureUrl || null,
     cvFile: null,
     experiences:
       cvDetails?.experiences?.map((exp: any) => ({
         position: exp.position || "",
         company: exp.company || "",
-        startDate: exp.startDate || "",
-        endDate: exp.endDate || "",
+        startDate: formatYearMonth(exp.startDate),
+        endDate: formatYearMonth(exp.endDate),
         current: exp.isCurrent || false,
       })) || [],
     educations:
@@ -174,7 +235,7 @@ export default function EditProfileContent() {
         startDate: edu.yearStarted?.toString() || "",
         endDate: edu.yearGraduated?.toString() || "",
       })) || [],
-    skills: cvDetails?.skillIds || [],
+    skillIds: cvDetails?.skillIds || [],
     bio: cvDetails?.bio || "",
   };
 
@@ -195,6 +256,27 @@ export default function EditProfileContent() {
         firstName: values.firstName,
         lastName: values.lastName,
         email: values.email,
+      }).unwrap();
+
+      if (
+        values.phoneNumber.number !== user?.profile?.phoneNumber?.number ||
+        values.phoneNumber.countryCode !==
+          user?.profile?.phoneNumber?.countryCode
+      ) {
+        // Phone number has changed, mark as unverified
+        await updatePhoneNumber({
+          countryCode: values.phoneNumber.countryCode,
+          number: values.phoneNumber.number,
+          isVerified: false,
+        }).unwrap();
+      }
+
+      // Update location info
+      await updateLocation({
+        country: values.country,
+        state: values.state,
+        city: values.city,
+        address: values.address || values.location,
       }).unwrap();
 
       // Update profile picture if changed
@@ -223,28 +305,21 @@ export default function EditProfileContent() {
           yearStarted: parseInt(edu.startDate),
           yearGraduated: edu.endDate ? parseInt(edu.endDate) : undefined,
         })),
-        skillIds: values.skills,
+        skillIds: values.skillIds,
         resumeUrl: values.cvFile?.uri,
       }).unwrap();
+      refetchCvDetails();
 
-      Alert.alert("Success", "Profile updated successfully");
+      setToastMessage("Profile updated successfully");
+      setShowSuccessToast(true);
     } catch (error) {
       console.error("Update error:", error);
-      Alert.alert("Error", "Failed to update profile. Please try again.");
+      setToastMessage("Failed to update profile. Please try again.");
+      setShowErrorToast(true);
     } finally {
       setIsSubmitting(false);
       setSubmitting(false);
     }
-  };
-
-  const handleEmailVerify = async (code: string) => {
-    // TODO: Call email verification API
-    console.log("Email verification code:", code);
-  };
-
-  const handlePhoneVerify = async (code: string) => {
-    // TODO: Call phone verification API
-    console.log("Phone verification code:", code);
   };
 
   if (isCvDetailsLoading) {
@@ -287,7 +362,6 @@ export default function EditProfileContent() {
           }
           return v;
         };
-
         const deepEqual = (a: any, b: any): boolean => {
           if (a === b) return true;
           if (a instanceof Date && b instanceof Date)
@@ -320,6 +394,21 @@ export default function EditProfileContent() {
         return (
           <View className="flex-1 bg-white">
             <ScrollView
+              refreshControl={
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={async () => {
+                    try {
+                      setRefreshing(true);
+                      await Promise.all([refetchCvDetails(), getMe()]);
+                    } finally {
+                      setRefreshing(false);
+                    }
+                  }}
+                  tintColor="#1eadff"
+                  colors={["#1eadff"]}
+                />
+              }
               className="flex-1"
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{ paddingBottom: hasChanges ? 120 : 20 }}
@@ -373,8 +462,8 @@ export default function EditProfileContent() {
             {/* Floating Action Buttons - Animated */}
             <FloatingActions
               visible={hasChanges}
-              onSubmit={() => formik.handleSubmit()}
-              onCancel={() => formik.resetForm()}
+              onSubmit={formik.submitForm}
+              onCancel={formik.resetForm}
               disabled={isSubmitting || !formik.isValid}
               isSubmitting={isSubmitting}
             />
@@ -386,16 +475,30 @@ export default function EditProfileContent() {
               onClose={() => setIsEmailModalVisible(false)}
             />
 
-            {/* Phone Verification Modal */}
-            <PhoneVerificationModal
+            {/* Phone Change Modal */}
+            <PhoneChangeModal
               isVisible={isPhoneModalVisible}
-              phone={formik.values.phoneNumber}
+              phone={
+                formik.values?.phoneNumber?.countryCode +
+                  formik.values?.phoneNumber?.number || ""
+              }
               onClose={() => setIsPhoneModalVisible(false)}
-              onVerify={handlePhoneVerify}
               onPhoneUpdated={(newPhone) => {
+                console.log({ newPhone });
                 formik.setFieldValue("phoneNumber", newPhone);
                 setIsPhoneModalVisible(false);
               }}
+            />
+            {/* Toast Notifications */}
+            <SuccessToast
+              visible={showSuccessToast}
+              message={toastMessage}
+              onClose={() => setShowSuccessToast(false)}
+            />
+            <ErrorToast
+              visible={showErrorToast}
+              message={toastMessage}
+              onClose={() => setShowErrorToast(false)}
             />
           </View>
         );
