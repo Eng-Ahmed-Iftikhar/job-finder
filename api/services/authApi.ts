@@ -80,7 +80,7 @@ export const authApi = createApi({
       }),
     }),
     // send phone verification code (no auth required)
-    sendPhoneVerification: builder.mutation({
+    sendPhoneVerification: builder.mutation<{ message: string }, void>({
       query: () => ({
         url: API_ROUTES.auth.send_phone_verification,
         method: "POST",

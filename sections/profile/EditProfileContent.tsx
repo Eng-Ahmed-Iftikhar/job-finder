@@ -217,7 +217,11 @@ export default function EditProfileContent() {
       typeof user?.email === "string"
         ? user.email
         : (user?.email as any)?.email || "",
-    phoneNumber: user?.profile?.phoneNumber as UserPhoneNumber,
+    phoneNumber: {
+      countryCode: user?.profile?.phoneNumber?.countryCode || "+1",
+      number: user?.profile?.phoneNumber?.number || "",
+      isVerified: user?.profile?.phoneNumber?.isVerified || false,
+    },
     profilePicture: user?.profile?.pictureUrl || null,
     cvFile: null,
     experiences:

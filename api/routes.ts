@@ -27,6 +27,7 @@ const API_ROUTES = {
   user: {
     me: "/users/me",
     profile: "/users/me/profile",
+    createPhoneNumber: "/users/me/create-phone-number",
     phoneNumber: "/users/me/phone-number",
     resume: "/users/me/resume",
     reauthenticate: "/users/me/reauthenticate",

@@ -229,13 +229,6 @@ function GenericApplicationForm() {
               >
                 Save & Finish
               </Button>
-              <Button
-                variant="outline"
-                onPress={() => router.push("/(onboarding)/upload-cv")}
-                className="mt-4 mb-4"
-              >
-                Upload CV
-              </Button>
             </View>
           )}
         </Formik>

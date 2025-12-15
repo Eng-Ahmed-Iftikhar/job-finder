@@ -25,6 +25,16 @@ export interface UpdatePhoneNumberRequest {
   isVerified: boolean;
 }
 
+// Define the create phone number request payload
+export interface CreatePhoneNumberRequest {
+  countryCode: string;
+  number: string;
+}
+
+export interface CreatePhoneNumberRequest {
+  countryCode: string;
+  number: string;
+}
 // Define the update general info response
 export interface UpdateGeneralInfoResponse {
   id: string;
@@ -56,6 +66,20 @@ export interface UpdateLocationResponse {
 
 // Define the update phone number response
 export interface UpdatePhoneNumberResponse {
+  id: string;
+  userId: string;
+  profileId: string;
+  phoneNumber: {
+    countryCode: string;
+    number: string;
+    isVerified: boolean;
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Define the create phone number response
+export interface CreatePhoneNumberResponse {
   id: string;
   userId: string;
   profileId: string;
@@ -176,17 +200,6 @@ export const userApi = createApi({
       }),
     }),
 
-    // create phone number (requires auth)
-    createPhoneNumber: builder.mutation<
-      UpdatePhoneNumberResponse,
-      UpdatePhoneNumberRequest
-    >({
-      query: (body) => ({
-        url: API_ROUTES.user.phoneNumber,
-        method: "POST",
-        body,
-      }),
-    }),
     // update phone number (requires auth)
     updatePhoneNumber: builder.mutation<
       UpdatePhoneNumberResponse,
@@ -195,6 +208,17 @@ export const userApi = createApi({
       query: (body) => ({
         url: API_ROUTES.user.phoneNumber,
         method: "PUT",
+        body,
+      }),
+    }),
+    // create phone number (requires auth)
+    createPhoneNumber: builder.mutation<
+      CreatePhoneNumberResponse,
+      CreatePhoneNumberRequest
+    >({
+      query: (body) => ({
+        url: API_ROUTES.user.phoneNumber,
+        method: "POST",
         body,
       }),
     }),

@@ -1,20 +1,14 @@
-import useOnboarding from "@/hooks/useOnboarding";
-import { useCountryOptions } from "@/hooks/useCountryOptions";
-import { validatePhoneNumber } from "@/utils";
-import { useRouter } from "expo-router";
-import {
-  useSendPhoneVerificationMutation,
-  useVerifyPhoneCodeMutation,
-} from "@/api/services/authApi";
 import { useCreatePhoneNumberMutation } from "@/api/services/userApi";
+import PhoneNumberActions from "@/components/PhoneNumberActions";
+import PhoneNumberInputStep from "@/components/PhoneNumberInputStep";
+import { useCountryOptions } from "@/hooks/useCountryOptions";
+import useOnboarding from "@/hooks/useOnboarding";
+import { OnboardingSteps } from "@/types/onboarding";
+import { validatePhoneNumber } from "@/utils";
 import { Formik } from "formik";
 import React, { useCallback, useState } from "react";
-import { View, KeyboardAvoidingView, Platform } from "react-native";
+import { KeyboardAvoidingView, Platform, View } from "react-native";
 import * as yup from "yup";
-import PhoneNumberInputStep from "@/components/PhoneNumberInputStep";
-import PhoneVerificationStep from "@/components/PhoneVerificationStep";
-import PhoneNumberActions from "@/components/PhoneNumberActions";
-import { OnboardingSteps } from "@/types/onboarding";
 
 const formSchema = yup.object({
   countryCode: yup
@@ -44,108 +38,36 @@ function PhoneNumberForm() {
   const { handleUserProfile, handleChangeCurrentStep, userProfile } =
     useOnboarding();
 
-  const router = useRouter();
-  const [sendPhoneVerification] = useSendPhoneVerificationMutation();
-  const [verifyPhoneCode] = useVerifyPhoneCodeMutation();
-
   const [createPhoneNumber, { isLoading: isCreatingPhoneNumber }] =
     useCreatePhoneNumberMutation();
-  const [showVerification, setShowVerification] = useState(false);
-  const [verificationCode, setVerificationCode] = useState<string[]>([
-    "",
-    "",
-    "",
-    "",
-    "",
-  ]);
-  const [isVerifying, setIsVerifying] = useState(false);
   const [apiError, setApiError] = useState<string | null>(null);
-  const [verificationError, setVerificationError] = useState<string | null>(
-    null
-  );
 
   const countryOptions = useCountryOptions();
-  const createProfilePhoneNumber = useCallback(
-    async (values: FormValues) => {
-      try {
-        // Update profile via API
-        await createPhoneNumber(values);
-
-        // Save to context and navigate
-        handleUserProfile({ phoneNumber: values });
-        handleChangeCurrentStep(OnboardingSteps.PHONE_VERIFICATION);
-        router.push("/(onboarding)/phone-verification");
-      } catch (error) {
-        console.error("Failed to update phone number:", error);
-        // Handle error - you might want to show a toast
-      }
-    },
-    [createPhoneNumber]
-  );
 
   const handleSubmit = useCallback(
     async (values: FormValues) => {
-      await createProfilePhoneNumber(values);
-
-      if (!values.isVerified) {
-        try {
-          // Call API to send verification code
-          await sendPhoneVerification({}).unwrap();
-
-          // Show verification step
-          setShowVerification(true);
-          // Reset verification code to empty
-          setVerificationCode(["", "", "", "", ""]);
-        } catch (error: any) {
-          console.error("Failed to send verification code:", error);
-          // Set API error for display
-          if (Array.isArray(error?.data?.message)) {
-            setApiError(error.data.message[0]);
-          } else {
-            setApiError(
-              error?.data?.message || "Failed to send verification code"
-            );
-          }
-          return;
+      try {
+        await createPhoneNumber({
+          countryCode: values.countryCode,
+          number: values.number,
+        }).unwrap();
+      } catch (error: any) {
+        console.error("Failed to send verification code:", error);
+        if (Array.isArray(error?.data?.message)) {
+          setApiError(error.data.message[0]);
+        } else {
+          setApiError(
+            error?.data?.message || "Failed to send verification code"
+          );
         }
         return;
       }
+
+      handleUserProfile({ phoneNumber: values });
+      handleChangeCurrentStep(OnboardingSteps.PHONE_VERIFICATION);
     },
-    [
-      handleUserProfile,
-      handleChangeCurrentStep,
-      router,
-      sendPhoneVerification,
-      createProfilePhoneNumber,
-    ]
+    [handleUserProfile, handleChangeCurrentStep, createPhoneNumber]
   );
-
-  const handleResendCode = useCallback(
-    async (phoneNumber: string, countryCode: string) => {
-      try {
-        // Reset verification code
-        setVerificationCode(["", "", "", "", ""]);
-
-        // Call API to resend verification code
-        await sendPhoneVerification({
-          phone: `${phoneNumber}`,
-          countryCode: countryCode,
-        }).unwrap();
-
-        // You might want to show a success message
-      } catch (error) {
-        console.error("Failed to resend verification code:", error);
-        // Handle error - you might want to show a toast or error message
-      }
-    },
-    [sendPhoneVerification]
-  );
-
-  const handleBackToPhoneInput = () => {
-    setShowVerification(false);
-    setVerificationCode(["", "", "", "", ""]);
-    setVerificationError(null);
-  };
 
   return (
     <Formik
@@ -166,46 +88,7 @@ function PhoneNumberForm() {
         errors,
         touched,
         isSubmitting,
-        setFieldValue,
       }) => {
-        const handleVerificationSubmit = async () => {
-          setIsVerifying(true);
-          setVerificationError(null);
-
-          try {
-            // Call API to verify the code
-            const verificationCodeString = verificationCode.join("");
-            await verifyPhoneCode({
-              verificationCode: verificationCodeString,
-            }).unwrap();
-
-            // Verification successful
-            await setFieldValue("isVerified", true);
-            setIsVerifying(false);
-            handleUserProfile({ phoneNumber: values });
-            handleChangeCurrentStep(OnboardingSteps.PHONE_VERIFICATION);
-            router.push("/(onboarding)/phone-verification");
-            // Submit the form after verification
-          } catch (error: any) {
-            console.error("Failed to verify code:", error);
-
-            // Handle server-side error
-            let errorMessage = "Invalid verification code";
-
-            if (error?.data?.message) {
-              // Handle array of error messages from server
-              if (Array.isArray(error.data.message)) {
-                errorMessage = error.data.message[0];
-              } else {
-                errorMessage = error.data.message;
-              }
-            }
-
-            setVerificationError(errorMessage);
-            setIsVerifying(false);
-          }
-        };
-
         return (
           <KeyboardAvoidingView
             style={{ flex: 1 }}
@@ -213,54 +96,33 @@ function PhoneNumberForm() {
             keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
           >
             <View className="flex-1">
-              {!showVerification ? (
-                <PhoneNumberInputStep
-                  countryCode={values.countryCode}
-                  phoneNumber={values.number}
-                  countryOptions={countryOptions}
-                  onCountryCodeChange={(value) => {
-                    setApiError(null);
-                    handleChange("countryCode")(value);
-                  }}
-                  onPhoneNumberChange={(value) => {
-                    setApiError(null);
-                    handleChange("number")(value);
-                  }}
-                  onPhoneNumberBlur={handleBlur("number")}
-                  error={apiError || (errors.number as string)}
-                  isError={
-                    !!apiError ||
-                    (!!errors.number && (touched.number as boolean))
-                  }
-                />
-              ) : (
-                <PhoneVerificationStep
-                  countryCode={values.countryCode}
-                  phoneNumber={values.number}
-                  verificationCode={verificationCode}
-                  onVerificationCodeChange={(code) => {
-                    setVerificationCode(code);
-                    // Clear error when user starts typing
-                    if (verificationError) {
-                      setVerificationError(null);
-                    }
-                  }}
-                  onResendCode={() =>
-                    handleResendCode(values.number, values.countryCode)
-                  }
-                  error={verificationError}
-                  isError={!!verificationError}
-                />
-              )}
+              <PhoneNumberInputStep
+                countryCode={values.countryCode}
+                phoneNumber={values.number}
+                countryOptions={countryOptions}
+                onCountryCodeChange={(value) => {
+                  setApiError(null);
+                  handleChange("countryCode")(value);
+                }}
+                onPhoneNumberChange={(value) => {
+                  setApiError(null);
+                  handleChange("number")(value);
+                }}
+                onPhoneNumberBlur={handleBlur("number")}
+                error={apiError || (errors.number as string)}
+                isError={
+                  !!apiError || (!!errors.number && (touched.number as boolean))
+                }
+              />
 
               <PhoneNumberActions
-                showVerification={showVerification}
+                showVerification={false}
                 isSubmitting={isSubmitting}
-                isVerifying={isVerifying}
+                isVerifying={false}
                 isUpdatingPhoneNumber={isCreatingPhoneNumber}
-                verificationCode={verificationCode}
-                onBack={handleBackToPhoneInput}
-                onVerify={handleVerificationSubmit}
+                verificationCode={[]}
+                onBack={() => {}}
+                onVerify={() => {}}
                 onNext={(e) => handleSubmit(e as any)}
               />
             </View>

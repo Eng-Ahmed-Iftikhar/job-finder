@@ -36,7 +36,7 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({
     }
     try {
       setError("");
-      await sendPhoneVerification({}).unwrap();
+      await sendPhoneVerification().unwrap();
       setIsSendAgain(true);
     } catch (err: any) {
       const msg = Array.isArray(err?.data?.message)

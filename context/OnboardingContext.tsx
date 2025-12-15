@@ -175,6 +175,9 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
           description:
             "Provide additional details to enhance your job applications.",
         });
+        // Redirect to generic application page
+        navigateIfNeeded("/(onboarding)/generic-application");
+        break;
 
       default:
         break;

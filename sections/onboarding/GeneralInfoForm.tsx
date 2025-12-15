@@ -1,10 +1,9 @@
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
 
-import useOnboarding from "@/hooks/useOnboarding";
 import { useUpdateGeneralInfoMutation } from "@/api/services/userApi";
+import useOnboarding from "@/hooks/useOnboarding";
 import { OnboardingSteps } from "@/types/onboarding";
-import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import React, { useCallback } from "react";
 import { KeyboardAvoidingView, Platform, View } from "react-native";
@@ -27,7 +26,6 @@ function GeneralInfoForm() {
   const { handleUserProfile, handleChangeCurrentStep, userProfile } =
     useOnboarding();
   console.log("User Profile in GeneralInfoForm:", userProfile);
-  const router = useRouter();
   const [updateGeneralInfo, { isLoading: isUpdatingGeneralInfo }] =
     useUpdateGeneralInfoMutation();
 
@@ -40,13 +38,12 @@ function GeneralInfoForm() {
         // Save to context and navigate
         handleUserProfile({ generalInfo: values });
         handleChangeCurrentStep(OnboardingSteps.LOCATION);
-        router.push("/(onboarding)/location");
       } catch (error) {
         console.error("Failed to update profile:", error);
         // Handle error - you might want to show a toast
       }
     },
-    [handleUserProfile, handleChangeCurrentStep, router, updateGeneralInfo]
+    [handleUserProfile, handleChangeCurrentStep, updateGeneralInfo]
   );
 
   return (

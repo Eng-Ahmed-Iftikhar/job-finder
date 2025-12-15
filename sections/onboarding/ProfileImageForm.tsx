@@ -1,23 +1,22 @@
-import React, { useState, useCallback } from "react";
-import {
-  ScrollView,
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  Alert,
-  ActionSheetIOS,
-  Platform,
-} from "react-native";
-import { useRouter } from "expo-router";
-import useOnboarding from "@/hooks/useOnboarding";
-import { OnboardingSteps } from "@/types/onboarding";
-import Icon from "react-native-vector-icons/AntDesign";
-import { Formik } from "formik";
-import * as yup from "yup";
-import * as ImagePicker from "expo-image-picker";
 import { useUploadFileMutation } from "@/api/services/fileApi";
 import { useUpdateProfilePictureMutation } from "@/api/services/userApi";
+import useOnboarding from "@/hooks/useOnboarding";
+import { OnboardingSteps } from "@/types/onboarding";
+import * as ImagePicker from "expo-image-picker";
+import { Formik } from "formik";
+import React, { useCallback, useState } from "react";
+import {
+  ActionSheetIOS,
+  Alert,
+  Image,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import Icon from "react-native-vector-icons/AntDesign";
+import * as yup from "yup";
 
 const formSchema = yup.object({
   pictureUrl: yup.string().nullable(),
@@ -26,7 +25,6 @@ const formSchema = yup.object({
 type FormValues = yup.InferType<typeof formSchema>;
 
 function ProfileImageForm() {
-  const router = useRouter();
   const { handleUserProfile, handleChangeCurrentStep, userProfile } =
     useOnboarding();
   const [uploadFile, { isLoading: isUploadingFile }] = useUploadFileMutation();
@@ -182,7 +180,7 @@ function ProfileImageForm() {
     if (values.pictureUrl && !selectedImage) {
       handleUserProfile({ pictureUrl: values.pictureUrl });
       handleChangeCurrentStep(OnboardingSteps.RESUME_URL);
-      router.push("/(onboarding)/upload-cv");
+
       return;
     }
 
@@ -246,7 +244,6 @@ function ProfileImageForm() {
       // Save to context with the uploaded image URL
       handleUserProfile({ pictureUrl: fileUploadResponse.url });
       handleChangeCurrentStep(OnboardingSteps.RESUME_URL);
-      router.push("/(onboarding)/upload-cv");
     } catch (error: any) {
       console.error("Failed to upload image:", error);
       console.error("Error details:", JSON.stringify(error, null, 2));
@@ -271,7 +268,6 @@ function ProfileImageForm() {
   const handleSkip = () => {
     // Skip this step and move to next
     handleChangeCurrentStep(OnboardingSteps.RESUME_URL);
-    router.push("/(onboarding)/upload-cv");
   };
 
   return (

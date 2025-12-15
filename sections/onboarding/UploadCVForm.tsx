@@ -1,16 +1,15 @@
-import React, { useState, useCallback } from "react";
-import { View, Text, TouchableOpacity, Alert } from "react-native";
-import { Formik } from "formik";
 import * as DocumentPicker from "expo-document-picker";
-import * as yup from "yup";
+import { Formik } from "formik";
+import React, { useCallback, useState } from "react";
+import { Alert, Text, TouchableOpacity, View } from "react-native";
 import { useDispatch } from "react-redux";
-import { useRouter } from "expo-router";
+import * as yup from "yup";
+
+import { useUploadFileMutation } from "@/api/services/fileApi";
+import { useUpdateResumeMutation } from "@/api/services/userApi";
 import Button from "@/components/ui/Button";
 import useOnboarding from "@/hooks/useOnboarding";
 import { OnboardingSteps } from "@/types/onboarding";
-import { useUpdateResumeMutation } from "@/api/services/userApi";
-import { useUploadFileMutation } from "@/api/services/fileApi";
-import { updateIsOnboarded } from "@/store/reducers/userSlice";
 
 const formSchema = yup.object({
   resumeUrl: yup.string().required("Resume is required"),
@@ -22,7 +21,7 @@ type UploadState = "initial" | "uploading" | "ready";
 
 function UploadCVForm() {
   const dispatch = useDispatch();
-  const router = useRouter();
+
   const { handleUserProfile, userProfile, handleChangeCurrentStep } =
     useOnboarding();
   const [uploadState, setUploadState] = useState<UploadState>("initial");
@@ -205,7 +204,7 @@ function UploadCVForm() {
         Alert.alert("Update Error", errorMessage);
       }
     },
-    [selectedFile, updateResume, handleUserProfile, router, dispatch]
+    [selectedFile, updateResume, handleUserProfile, dispatch]
   );
 
   const formatFileSize = (bytes: number) => {
@@ -219,7 +218,6 @@ function UploadCVForm() {
   const handleGenericApplication = () => {
     // Navigate to generic application form
     handleChangeCurrentStep(OnboardingSteps.GENERIC_APPLICATION);
-    router.push("/(onboarding)/generic-application");
   };
 
   const renderInitialState = (

@@ -2,14 +2,13 @@ import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import TextArea from "@/components/ui/TextArea";
 
-import useOnboarding from "@/hooks/useOnboarding";
 import { useUpdateLocationMutation } from "@/api/services/userApi";
+import useOnboarding from "@/hooks/useOnboarding";
 import { OnboardingSteps } from "@/types/onboarding";
 import { City, Country, State } from "country-state-city";
-import { useRouter } from "expo-router";
 import { Formik } from "formik";
 import React, { useCallback, useMemo } from "react";
-import { View, KeyboardAvoidingView, Platform, Keyboard } from "react-native";
+import { KeyboardAvoidingView, Platform, View } from "react-native";
 import * as yup from "yup";
 
 const formSchema = yup.object({
@@ -25,7 +24,6 @@ const formSchema = yup.object({
 type FormValues = yup.InferType<typeof formSchema>;
 
 function LocationForm() {
-  const router = useRouter();
   const { handleUserProfile, handleChangeCurrentStep, userProfile } =
     useOnboarding();
   const [updateLocation, { isLoading: isUpdatingLocation }] =
@@ -40,13 +38,12 @@ function LocationForm() {
         // Save to context and navigate
         handleUserProfile({ location: values });
         handleChangeCurrentStep(OnboardingSteps.PHONE_NUMBER);
-        router.push("/(onboarding)/phone-number");
       } catch (error) {
         console.error("Failed to update location:", error);
         // Handle error - you might want to show a toast
       }
     },
-    [handleUserProfile, handleChangeCurrentStep, router, updateLocation]
+    [handleUserProfile, handleChangeCurrentStep, updateLocation]
   );
 
   // Memoize country options
