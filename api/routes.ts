@@ -10,6 +10,9 @@ const API_ROUTES = {
     verify_phone_code: "/auth/verify-phone-code",
     send_email_verification: "/auth/resend-verification",
     verify_email_code: "/auth/verify-email",
+    forgot_password: "/auth/forgot-password",
+    verify_reset_code: "/auth/verify-reset-code",
+    reset_password: "/auth/reset-password",
   },
   file: {
     post: "/save",

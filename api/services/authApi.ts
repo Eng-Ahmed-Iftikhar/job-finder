@@ -14,6 +14,33 @@ export interface RefreshTokenResponse {
   access_token: string;
 }
 
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
+export interface VerifyResetCodeRequest {
+  code: string;
+  email: string;
+}
+
+export interface VerifyResetCodeResponse {
+  message: string;
+  verified: boolean;
+}
+
+export interface ResetPasswordRequest {
+  code: string;
+  newPassword: string;
+}
+
+export interface ResetPasswordResponse {
+  message: string;
+}
+
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: baseQueryWithReAuth, // Use baseQueryWithReAuth (it ignores auth endpoints)
@@ -115,6 +142,39 @@ export const authApi = createApi({
         body,
       }),
     }),
+    // forgot password (no auth required)
+    forgotPassword: builder.mutation<
+      ForgotPasswordResponse,
+      ForgotPasswordRequest
+    >({
+      query: (body) => ({
+        url: API_ROUTES.auth.forgot_password,
+        method: "POST",
+        body,
+      }),
+    }),
+    // verify reset code (no auth required)
+    verifyResetCode: builder.mutation<
+      VerifyResetCodeResponse,
+      VerifyResetCodeRequest
+    >({
+      query: (body) => ({
+        url: API_ROUTES.auth.verify_reset_code,
+        method: "POST",
+        body,
+      }),
+    }),
+    // reset password (no auth required)
+    resetPassword: builder.mutation<
+      ResetPasswordResponse,
+      ResetPasswordRequest
+    >({
+      query: (body) => ({
+        url: API_ROUTES.auth.reset_password,
+        method: "POST",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -129,4 +189,7 @@ export const {
   useVerifyPhoneCodeMutation,
   useSendEmailVerificationMutation,
   useVerifyEmailCodeMutation,
+  useForgotPasswordMutation,
+  useVerifyResetCodeMutation,
+  useResetPasswordMutation,
 } = authApi;

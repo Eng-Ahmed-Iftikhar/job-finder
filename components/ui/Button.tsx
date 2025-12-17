@@ -6,6 +6,9 @@ type ButtonProps = {
   children?: React.ReactNode;
   loading?: boolean;
   variant?: "primary" | "outline";
+  icon?: string;
+  iconSize?: number;
+  iconPosition?: "left" | "right";
 } & React.ComponentProps<typeof TouchableOpacity>;
 
 function Button({
@@ -14,6 +17,9 @@ function Button({
   disabled = false,
   loading = false,
   variant = "primary",
+  icon,
+  iconSize = 18,
+  iconPosition = "left",
   ...props
 }: ButtonProps) {
   const isPrimary = variant === "primary";
@@ -44,14 +50,30 @@ function Button({
       )}
 
       {!loading && (
-        <Text
-          className={
-            "font-semibold text-lg" +
-            (isOutline ? " text-azure-radiance-500" : " text-white")
-          }
-        >
-          {children}
-        </Text>
+        <View className="flex-row items-center justify-center gap-2">
+          {icon && iconPosition === "left" && (
+            <Icon
+              name={icon}
+              size={iconSize}
+              color={isOutline ? "#1eadff" : "white"}
+            />
+          )}
+          <Text
+            className={
+              "font-semibold text-lg" +
+              (isOutline ? " text-azure-radiance-500" : " text-white")
+            }
+          >
+            {children}
+          </Text>
+          {icon && iconPosition === "right" && (
+            <Icon
+              name={icon}
+              size={iconSize}
+              color={isOutline ? "#1eadff" : "white"}
+            />
+          )}
+        </View>
       )}
     </TouchableOpacity>
   );

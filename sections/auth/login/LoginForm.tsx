@@ -112,7 +112,7 @@ function LoginForm() {
 
               <View className="mt-2">
                 <Link
-                  href="/(auth)/verify-email"
+                  href="/(auth)/forgot-password"
                   className="text-azure-radiance-500 text-sm"
                 >
                   Forgot Password?
