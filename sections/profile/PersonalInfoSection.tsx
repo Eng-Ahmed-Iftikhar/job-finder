@@ -221,7 +221,7 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
       />
 
       <Select
-        placeholder={{ label: "Select country" }}
+        placeholder="Select country"
         items={countryOptions}
         value={formik.values.country}
         onValueChange={(value) => {
@@ -235,7 +235,7 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
       />
 
       <Select
-        placeholder={{ label: "Select state" }}
+        placeholder="Select state"
         items={stateOptions}
         value={formik.values.state}
         onValueChange={(value) => {
@@ -249,7 +249,7 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
       />
 
       <Select
-        placeholder={{ label: "Select city" }}
+        placeholder="Select city"
         items={cityOptions}
         value={formik.values.city}
         onValueChange={(value) => formik.setFieldValue("city", value)}

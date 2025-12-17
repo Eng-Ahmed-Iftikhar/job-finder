@@ -17,7 +17,7 @@ interface FormValues {
 
 export const ExperienceSection: React.FC = () => {
   const formik = useFormikContext<FormValues>();
-  console.log("ExperienceSection formik values:", formik.errors);
+
   return (
     <View className="px-4 py-6 bg-white rounded-lg mb-4">
       <View className="flex-row items-center justify-between mb-4">

@@ -11,7 +11,7 @@ import Modal from "@/components/ui/Modal";
 import { useReauthenticateMutation } from "@/api/services/userApi";
 import { useCountryOptions } from "@/hooks/useCountryOptions";
 import { validatePhoneNumber } from "@/utils";
-import PhoneNumberInputStep from "@/components/PhoneNumberInputStep";
+import PhoneNumberInput from "@/components/ui/PhoneNumberInput";
 
 interface PhoneChangeModalProps {
   isVisible: boolean;
@@ -179,13 +179,19 @@ export const PhoneChangeModal: React.FC<PhoneChangeModalProps> = ({
               <Text className="text-gray-700 font-medium mb-2">
                 New Phone Number
               </Text>
-              <PhoneNumberInputStep
-                countryCode={countryCode}
-                phoneNumber={phoneNumber as any}
-                countryOptions={countryOptions}
+              <PhoneNumberInput
+                label="Phone Number"
+                countryCodeValue={countryCode}
+                countryCodeItems={countryOptions}
+                countryCodePlaceholder="Code"
                 onCountryCodeChange={setCountryCode}
-                onPhoneNumberChange={setPhoneNumber}
-                onPhoneNumberBlur={() => setError("")}
+                inputNumberProps={{
+                  value: phoneNumber,
+                  onChangeText: setPhoneNumber,
+                  onBlur: () => setError(""),
+                  placeholder: "Enter phone number",
+                  keyboardType: "phone-pad",
+                }}
                 error={error}
                 isError={!!error}
               />

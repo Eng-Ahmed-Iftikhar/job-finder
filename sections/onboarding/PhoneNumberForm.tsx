@@ -1,6 +1,6 @@
 import { useCreatePhoneNumberMutation } from "@/api/services/userApi";
 import PhoneNumberActions from "@/components/PhoneNumberActions";
-import PhoneNumberInputStep from "@/components/PhoneNumberInputStep";
+import PhoneNumberInput from "@/components/ui/PhoneNumberInput";
 import { useCountryOptions } from "@/hooks/useCountryOptions";
 import useOnboarding from "@/hooks/useOnboarding";
 import { OnboardingSteps } from "@/types/onboarding";
@@ -96,19 +96,25 @@ function PhoneNumberForm() {
             keyboardVerticalOffset={Platform.OS === "ios" ? 100 : 0}
           >
             <View className="flex-1">
-              <PhoneNumberInputStep
-                countryCode={values.countryCode}
-                phoneNumber={values.number}
-                countryOptions={countryOptions}
+              <PhoneNumberInput
+                label="Phone Number"
+                countryCodeValue={values.countryCode}
+                countryCodeItems={countryOptions}
+                countryCodePlaceholder="Code"
                 onCountryCodeChange={(value) => {
                   setApiError(null);
                   handleChange("countryCode")(value);
                 }}
-                onPhoneNumberChange={(value) => {
-                  setApiError(null);
-                  handleChange("number")(value);
+                inputNumberProps={{
+                  value: values.number,
+                  onChangeText: (value: string) => {
+                    setApiError(null);
+                    handleChange("number")(value);
+                  },
+                  onBlur: handleBlur("number"),
+                  placeholder: "Enter phone number",
+                  keyboardType: "phone-pad",
                 }}
-                onPhoneNumberBlur={handleBlur("number")}
                 error={apiError || (errors.number as string)}
                 isError={
                   !!apiError || (!!errors.number && (touched.number as boolean))

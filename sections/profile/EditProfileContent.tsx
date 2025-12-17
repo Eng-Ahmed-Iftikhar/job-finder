@@ -1,29 +1,3 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  ScrollView,
-  RefreshControl,
-  Pressable,
-  TouchableOpacity,
-  Image,
-  ActivityIndicator,
-  Animated,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import SuccessToast from "@/components/SuccessToast";
-import ErrorToast from "@/components/ErrorToast";
-import * as ImagePicker from "expo-image-picker";
-import { Formik, FormikHelpers } from "formik";
-import { editProfileValidationSchema } from "./validationSchema";
-import { PersonalInfoSection } from "./PersonalInfoSection";
-import { CVSection } from "./CVSection";
-import { ExperienceSection } from "./ExperienceSection";
-import { EducationSection } from "./EducationSection";
-import { SkillsSection } from "./SkillsSection";
-import { BioSection } from "./BioSection";
-import { EmailVerificationModal } from "./EmailVerificationModal";
-import { PhoneChangeModal } from "./PhoneChangeModal";
 import {
   useGetCvDetailsQuery,
   useUpdateCvDetailsMutation,
@@ -32,10 +6,34 @@ import {
   useUpdatePhoneNumberMutation,
   useUpdateProfilePictureMutation,
 } from "@/api/services/userApi";
+import ErrorToast from "@/components/ErrorToast";
+import SuccessToast from "@/components/SuccessToast";
 import { useAppSelector } from "@/hooks/useAppSelector";
-import { UserPhoneNumber } from "@/types/api/auth";
-import { useLazyMeQuery } from "@/api/services/authApi";
 import { selectUser, selectUserProfile } from "@/store/reducers/userSlice";
+import { Ionicons } from "@expo/vector-icons";
+import * as ImagePicker from "expo-image-picker";
+import { Formik, FormikHelpers } from "formik";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator,
+  Animated,
+  Image,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import { BioSection } from "./BioSection";
+import { CVSection } from "./CVSection";
+import { EducationSection } from "./EducationSection";
+import { EmailVerificationModal } from "./EmailVerificationModal";
+import { ExperienceSection } from "./ExperienceSection";
+import { PersonalInfoSection } from "./PersonalInfoSection";
+import { PhoneChangeModal } from "./PhoneChangeModal";
+import { SkillsSection } from "./SkillsSection";
+import { editProfileValidationSchema } from "./validationSchema";
 
 interface EditProfileFormValues {
   firstName: string;
@@ -52,7 +50,7 @@ interface EditProfileFormValues {
     isVerified?: boolean;
   };
   profilePicture: string | null;
-  cvFile: { uri: string; name: string; size?: number } | null;
+  cvFile: string | null;
   experiences: Array<{
     position: string;
     company: string;
@@ -157,13 +155,34 @@ const FloatingActions: React.FC<{
 export default function EditProfileContent() {
   const user = useAppSelector(selectUser);
   const userProfile = useAppSelector(selectUserProfile);
+
   const [isEmailModalVisible, setIsEmailModalVisible] = useState(false);
   const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [showErrorToast, setShowErrorToast] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
-
+  const [initialValues, setInitialValues] = useState<EditProfileFormValues>({
+    firstName: "",
+    lastName: "",
+    location: "",
+    city: "",
+    state: "",
+    country: "",
+    address: "",
+    email: "",
+    phoneNumber: {
+      countryCode: "+1",
+      number: "",
+      isVerified: false,
+    },
+    profilePicture: null,
+    cvFile: null,
+    experiences: [],
+    educations: [],
+    skillIds: [],
+    bio: "",
+  });
   const {
     data: cvDetails,
     isLoading: isCvDetailsLoading,
@@ -175,10 +194,8 @@ export default function EditProfileContent() {
   const [updateLocation] = useUpdateLocationMutation();
   const [updatePhoneNumber] = useUpdatePhoneNumberMutation();
   const [updateProfilePicture] = useUpdateProfilePictureMutation();
-  const [getMe] = useLazyMeQuery();
-  const [refreshing, setRefreshing] = useState(false);
 
-  const profileLocation = ((user as any)?.profile?.location as any) || {};
+  const [refreshing, setRefreshing] = useState(false);
 
   const formatYearMonth = (value: any): string => {
     if (!value) return "";
@@ -207,48 +224,60 @@ export default function EditProfileContent() {
     )}`;
   };
 
-  const rawInitialValues: EditProfileFormValues = {
-    firstName: userProfile?.generalInfo?.firstName || "",
-    lastName: userProfile?.generalInfo?.lastName || "",
-    location: profileLocation.address || "",
-    city: profileLocation.city || "",
-    state: profileLocation.state || "",
-    country: profileLocation.country || "",
-    address: profileLocation.address || "",
-    email:
-      typeof user?.email === "string"
-        ? user.email
-        : (user?.email as any)?.email || "",
-    phoneNumber: {
-      countryCode: userProfile?.phoneNumber?.countryCode || "+1",
-      number: userProfile?.phoneNumber?.number || "",
-      isVerified: userProfile?.phoneNumber?.isVerified || false,
-    },
-    profilePicture: userProfile?.pictureUrl || null,
-    cvFile: null,
-    experiences:
-      cvDetails?.experiences?.map((exp: any) => ({
-        position: exp.position || "",
-        company: exp.company || "",
-        startDate: formatYearMonth(exp.startDate),
-        endDate: formatYearMonth(exp.endDate),
-        current: exp.isCurrent || false,
-      })) || [],
-    educations:
-      cvDetails?.educations?.map((edu: any) => ({
-        degree: edu.degree || "",
-        institution: edu.school || "",
-        startDate: edu.yearStarted?.toString() || "",
-        endDate: edu.yearGraduated?.toString() || "",
-      })) || [],
-    skillIds: cvDetails?.skillIds || [],
-    bio: cvDetails?.bio || "",
-  };
+  useEffect(() => {
+    if (!userProfile) return;
+    setInitialValues((prev) => {
+      return {
+        ...prev,
+        firstName: userProfile?.generalInfo?.firstName || "",
+        lastName: userProfile?.generalInfo?.lastName || "",
+        location: userProfile?.location?.address || "",
+        city: userProfile?.location?.city || "",
+        state: userProfile?.location?.state || "",
+        country: userProfile?.location?.country || "",
+        address: userProfile?.location?.address || "",
+        phoneNumber: {
+          countryCode: userProfile?.phoneNumber?.countryCode || "+1",
+          number: userProfile?.phoneNumber?.number || "",
+          isVerified: userProfile?.phoneNumber?.isVerified || false,
+        },
+        profilePicture: userProfile?.pictureUrl || null,
+        cvFile: userProfile?.resumeUrl || null,
+      };
+    });
+  }, [userProfile, cvDetails]);
 
-  // Cast with validation schema to align shapes/types with Formik's values
-  const initialValues = editProfileValidationSchema.cast(rawInitialValues, {
-    stripUnknown: false,
-  }) as EditProfileFormValues;
+  useEffect(() => {
+    if (!cvDetails) return;
+    setInitialValues((prev) => ({
+      ...prev,
+      experiences:
+        cvDetails?.experiences?.map((exp: any) => ({
+          position: exp.position || "",
+          company: exp.company || "",
+          startDate: formatYearMonth(exp.startDate),
+          endDate: formatYearMonth(exp.endDate),
+          current: exp.isCurrent || false,
+        })) || [],
+      educations:
+        cvDetails?.educations?.map((edu: any) => ({
+          degree: edu.degree || "",
+          institution: edu.school || "",
+          startDate: edu.yearStarted?.toString() || "",
+          endDate: edu.yearGraduated?.toString() || "",
+        })) || [],
+      skillIds: cvDetails?.skillIds || [],
+      bio: cvDetails?.bio || "",
+    }));
+  }, [cvDetails]);
+
+  useEffect(() => {
+    if (!user) return;
+    setInitialValues((prev) => ({
+      ...prev,
+      email: user.email?.email || "",
+    }));
+  }, [user]);
 
   const handleSubmit = async (
     values: EditProfileFormValues,
@@ -311,7 +340,7 @@ export default function EditProfileContent() {
           yearGraduated: edu.endDate ? parseInt(edu.endDate) : undefined,
         })),
         skillIds: values.skillIds,
-        resumeUrl: values.cvFile?.uri,
+        resumeUrl: values.cvFile as string,
       }).unwrap();
       refetchCvDetails();
 
@@ -404,7 +433,7 @@ export default function EditProfileContent() {
                   onRefresh={async () => {
                     try {
                       setRefreshing(true);
-                      await Promise.all([refetchCvDetails(), getMe()]);
+                      await Promise.all([refetchCvDetails()]);
                     } finally {
                       setRefreshing(false);
                     }

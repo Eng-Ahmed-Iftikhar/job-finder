@@ -127,7 +127,7 @@ function LocationForm() {
             <View className="flex-1">
               <View className="mt-4 gap-6">
                 <Select
-                  placeholder={{ label: "Select country" }}
+                  placeholder="Select country"
                   items={countryOptions}
                   value={values.country}
                   onValueChange={(value) => {
@@ -142,7 +142,7 @@ function LocationForm() {
                 />
 
                 <Select
-                  placeholder={{ label: "Select state" }}
+                  placeholder="Select state"
                   items={stateOptions}
                   value={values.state}
                   onValueChange={(value) => {
@@ -157,7 +157,7 @@ function LocationForm() {
                 />
 
                 <Select
-                  placeholder={{ label: "Select city" }}
+                  placeholder="Select city"
                   items={cityOptions}
                   value={values.city}
                   onValueChange={(value) => setFieldValue("city", value)}

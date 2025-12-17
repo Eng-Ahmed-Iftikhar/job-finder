@@ -104,7 +104,7 @@ function EducationSection({
             <View className="flex-row flex-1 gap-4">
               <Select
                 label="Year Started"
-                placeholder={{ label: "Select year" }}
+                placeholder="Select year"
                 items={yearOptions}
                 value={String(edu.yearStarted)}
                 onValueChange={(value) =>
@@ -119,7 +119,7 @@ function EducationSection({
 
               <Select
                 label="Year Graduated"
-                placeholder={{ label: "Select year" }}
+                placeholder="Select year"
                 items={yearOptions}
                 value={
                   edu.yearGraduated ? String(edu.yearGraduated) : undefined
@@ -138,7 +138,7 @@ function EducationSection({
 
             <Select
               label="Degree"
-              placeholder={{ label: "Select degree" }}
+              placeholder="Select degree"
               items={degreeOptions}
               value={edu.degree}
               onValueChange={(value) =>
