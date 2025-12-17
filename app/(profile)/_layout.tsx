@@ -1,19 +1,9 @@
 import Logo from "@/assets/logo.png";
-import { useUser } from "@/hooks/useUser";
-import { Stack, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import { Stack } from "expo-router";
+import React from "react";
 import { Image, View } from "react-native";
 
 export default function ProfileLayout() {
-  const router = useRouter();
-  const { isLoggedIn } = useUser();
-
-  useEffect(() => {
-    if (!isLoggedIn) {
-      router.replace("/(auth)/");
-    }
-  }, [isLoggedIn, router]);
-
   return (
     <View className="flex-1 bg-white">
       <View className="h-[56px] items-center justify-center ">

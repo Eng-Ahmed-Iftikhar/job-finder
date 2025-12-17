@@ -49,7 +49,6 @@ export const EmailVerificationModal: React.FC<EmailVerificationModalProps> = ({
       }
     } catch (e) {
       setError("Authentication failed. Please check your password.");
-      console.error(e);
     } finally {
       setIsAuthenticating(false);
     }

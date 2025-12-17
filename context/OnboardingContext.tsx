@@ -1,4 +1,5 @@
-import { useUser } from "@/hooks/useUser";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectUserProfile } from "@/store/reducers/userSlice";
 import { UserProfile } from "@/types/api/auth";
 import {
   OnboardingSteps,
@@ -25,7 +26,7 @@ const Provider = onboardingContext.Provider;
 
 function OnboardingProvider({ children }: { children: React.ReactNode }) {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
-  const { user } = useUser();
+  const profile = useAppSelector(selectUserProfile);
   const [currentStep, setCurrentStep] = useState<string>(
     OnboardingSteps.GENERAL_INFO
   );
@@ -39,7 +40,6 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const handleUserProfile = useCallback((profile: UserProfile) => {
-    console.log({ profile });
     setUserProfile((prev) => {
       return {
         ...prev,
@@ -62,12 +62,8 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
 
   const handleGoBack = useCallback(() => {
     const previousStep = getPreviousStep(currentStep as OnboardingSteps);
-    console.log({ previousStep });
-
     if (previousStep !== currentStep) {
       setCurrentStep(previousStep);
-
-      // The useEffect will handle the redirect and header update
     }
   }, [currentStep]);
 
@@ -80,30 +76,23 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
   );
 
   useEffect(() => {
-    if (user) {
-      const profile = user.profile;
-      if (profile) {
-        handleUserProfile({
-          generalInfo: profile.generalInfo,
-          location: profile.location,
-          phoneNumber: profile.phoneNumber,
-          pictureUrl: profile.pictureUrl,
-          resumeUrl: profile.resumeUrl,
-        });
+    if (!profile) return;
+    handleUserProfile({
+      generalInfo: profile.generalInfo,
+      location: profile.location,
+      phoneNumber: profile.phoneNumber,
+      pictureUrl: profile.pictureUrl,
+      resumeUrl: profile.resumeUrl,
+    });
 
-        // Set current step based on profile completion
-        const currentStepFromProfile = getCurrentStepFromProfile(profile);
-        setCurrentStep(currentStepFromProfile);
-      }
-    }
-  }, [user, handleUserProfile, getCurrentStepFromProfile]);
+    // Set current step based on profile completion
+    const currentStepFromProfile = getCurrentStepFromProfile(profile);
+    setCurrentStep(currentStepFromProfile);
+  }, [profile, handleUserProfile, getCurrentStepFromProfile]);
 
   // Auto-redirect and set headers based on current step
   useEffect(() => {
     if (!currentStep) return;
-
-    console.log("current step ", currentStep);
-
     const navigateIfNeeded = (target: string) => {
       if (pathname !== target) {
         router.replace(target);

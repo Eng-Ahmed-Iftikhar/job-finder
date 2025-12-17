@@ -135,7 +135,6 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
   };
 
   const handleConfirmApply = (coverLetter: string) => {
-    console.log("Apply to job:", job.id, "with cover letter:", coverLetter);
     setApplySheetVisible(false);
     setApplied(true);
     setShowSuccessToast(true);
@@ -148,7 +147,6 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
   const handleRetractApplication = () => {
     setApplied(false);
     setInterviewScheduled(false);
-    console.log("Retract application for job:", job.id);
   };
 
   const handleAddToCalendar = () => {

@@ -1,24 +1,16 @@
-import AppLoader from "@/components/AppLoader";
-import { useUser } from "@/hooks/useUser";
-import { useRouter } from "expo-router";
-import { useEffect } from "react";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectIsLoggedIn } from "@/store/reducers/userSlice";
+
+import { Redirect } from "expo-router";
 
 function App() {
-  const router = useRouter();
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
 
-  const { isLoggedIn } = useUser();
+  if (isLoggedIn) {
+    return <Redirect href="/(dashboard)" />;
+  }
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      // User is logged in and user data is available
-      router.replace("/(dashboard)");
-    } else if (!isLoggedIn) {
-      // No token or not logged in, redirect to auth
-      router.replace("/(auth)");
-    }
-  }, [isLoggedIn, router]);
-
-  return <AppLoader />;
+  return <Redirect href="/(auth)" />;
 }
 
 export default App;

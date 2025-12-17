@@ -17,7 +17,12 @@ import {
 } from "@/api/services/authApi";
 import { useLazyMeQuery } from "@/api/services/authApi";
 import { PhoneVerificationModal } from "./PhoneVerificationModal";
-import { setUser } from "@/store/reducers/userSlice";
+import {
+  selectUser,
+  selectUserProfile,
+  setUser,
+  updateProfile,
+} from "@/store/reducers/userSlice";
 import { UserPhoneNumber } from "@/types/api/auth";
 
 interface PersonalInfoSectionProps {
@@ -48,7 +53,8 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
   onChangePhone,
 }) => {
   const formik = useFormikContext<FormValues>();
-  const user = useAppSelector((state) => state.user.user);
+  const user = useAppSelector(selectUser);
+  const userProfile = useAppSelector(selectUserProfile);
   const dispatch = useAppDispatch();
   const [isVerifyModalVisible, setIsVerifyModalVisible] = useState(false);
   const [isPhoneVerifyModalVisible, setIsPhoneVerifyModalVisible] =
@@ -107,7 +113,6 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
       setIsSendAgain(true);
       setCodeError("");
     } catch (error: any) {
-      console.error("Failed to send verification code:", error);
       const errorMessage = Array.isArray(error?.data?.message)
         ? error.data.message.join(", ")
         : error?.data?.message || "Failed to send verification code";
@@ -141,7 +146,6 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
         ]);
       }
     } catch (error: any) {
-      console.error("Verification failed:", error);
       let errorMessage = "Invalid verification code";
 
       if (error?.data?.message) {
@@ -176,7 +180,7 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
     setIsPhoneVerifyModalVisible(true);
   };
 
-  const phoneForVerification = user?.profile?.phoneNumber;
+  const phoneForVerification = userProfile?.phoneNumber;
 
   return (
     <View className="px-4 py-6 bg-white rounded-lg mb-4">
@@ -310,7 +314,7 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
         <View className="flex-row items-center justify-between mb-1">
           <Text className="text-gray-700 font-medium">Phone Number</Text>
           <View className="flex-row gap-2">
-            {!user?.profile?.phoneNumber?.isVerified && (
+            {!userProfile?.phoneNumber?.isVerified && (
               <Pressable onPress={handleOpenPhoneModal}>
                 <Text className="text-green-600 font-semibold">Verify</Text>
               </Pressable>
@@ -326,12 +330,12 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
               {formik?.values?.phoneNumber?.countryCode}{" "}
               {formik?.values?.phoneNumber?.number}
             </Text>
-            {user?.profile?.phoneNumber?.countryCode ===
+            {userProfile?.phoneNumber?.countryCode ===
               formik?.values?.phoneNumber?.countryCode &&
-              user?.profile?.phoneNumber?.number ===
+              userProfile?.phoneNumber?.number ===
                 formik?.values?.phoneNumber?.number && (
                 <View>
-                  {user?.profile?.phoneNumber?.isVerified ? (
+                  {userProfile?.phoneNumber?.isVerified ? (
                     <View className="bg-emerald-100 px-2 py-1 rounded">
                       <Text className="text-emerald-700 text-xs font-medium">
                         Verified
@@ -451,14 +455,11 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
           });
           if (user) {
             dispatch(
-              setUser({
-                ...user,
-                profile: {
-                  ...(user.profile || {}),
-                  phoneNumber: {
-                    ...(user.profile?.phoneNumber as UserPhoneNumber),
-                    isVerified: true,
-                  },
+              updateProfile({
+                ...(userProfile || {}),
+                phoneNumber: {
+                  ...(userProfile?.phoneNumber as UserPhoneNumber),
+                  isVerified: true,
                 },
               })
             );

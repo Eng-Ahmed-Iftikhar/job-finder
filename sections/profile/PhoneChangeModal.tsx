@@ -61,7 +61,6 @@ export const PhoneChangeModal: React.FC<PhoneChangeModalProps> = ({
       }
     } catch (e) {
       setError("Authentication failed. Please check your password.");
-      console.error(e);
     } finally {
       setIsAuthenticating(false);
     }

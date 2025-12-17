@@ -51,9 +51,7 @@ export const SkillsSection: React.FC = () => {
       }
 
       setSkillInput("");
-    } catch (err) {
-      console.error("Failed to add skill", err);
-    }
+    } catch (err) {}
   };
 
   const handleSelectSkill = (skillId: string) => {

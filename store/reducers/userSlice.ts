@@ -3,21 +3,19 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from ".";
 import { authApi } from "@/api/services/authApi";
 import { userApi } from "@/api/services/userApi";
-import { User } from "@/types/api/auth";
+import { User, UserProfile } from "@/types/api/auth";
 
 // Define a type for the slice state
 interface UserState {
   user: User | null;
-  isLoading: boolean;
-  error: string | null;
+  profile: UserProfile | null;
   isLoggedIn: boolean;
 }
 
 // Define the initial state using that type
 const initialState: UserState = {
   user: null,
-  isLoading: false,
-  error: null,
+  profile: null,
   isLoggedIn: false,
 };
 
@@ -26,27 +24,27 @@ export const userSlice = createSlice({
   initialState,
   reducers: {
     setUser: (state, action: PayloadAction<User | null>) => {
-      state.user = action.payload;
-      state.error = null;
+      state["user"] = action.payload;
+    },
+    setUserProfile: (state, action: PayloadAction<UserProfile | null>) => {
+      state["profile"] = action.payload;
     },
     setLoggedIn: (state, action: PayloadAction<boolean>) => {
       state.isLoggedIn = action.payload;
     },
-    setUserLoading: (state, action: PayloadAction<boolean>) => {
-      state.isLoading = action.payload;
-    },
-    setUserError: (state, action: PayloadAction<string | null>) => {
-      state.error = action.payload;
-    },
     clearUser: (state) => {
       state.user = null;
-      state.error = null;
-      state.isLoading = false;
+      state.profile = null;
       state.isLoggedIn = false;
     },
     updateIsOnboarded: (state, action: PayloadAction<boolean>) => {
-      if (state.user && state.user.profile) {
-        state.user.profile.isOnboarded = action.payload;
+      if (state.profile) {
+        state.profile.isOnboarded = action.payload;
+      }
+    },
+    updateProfile: (state, action: PayloadAction<Partial<UserProfile>>) => {
+      if (state.profile) {
+        state.profile = { ...state.profile, ...action.payload };
       }
     },
     setEmailVerified: (state, action: PayloadAction<boolean>) => {
@@ -57,140 +55,67 @@ export const userSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      // Handle /me endpoint
-      .addMatcher(authApi.endpoints.me.matchPending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
       .addMatcher(authApi.endpoints.me.matchFulfilled, (state, action) => {
-        console.log({ slice: action.payload });
-
-        state.user = action.payload;
+        state["user"] = action.payload.user;
+        state["profile"] = action.payload.profile;
         state.isLoggedIn = true;
-        state.isLoading = false;
-        state.error = null;
       })
       .addMatcher(authApi.endpoints.me.matchRejected, (state, action) => {
         state.user = null;
         state.isLoggedIn = false;
-        state.isLoading = false;
-        state.error = action.error?.message || "Failed to fetch user data";
-      })
-      // Handle general info update
-      .addMatcher(userApi.endpoints.updateGeneralInfo.matchPending, (state) => {
-        state.isLoading = true;
-        state.error = null;
       })
       .addMatcher(
         userApi.endpoints.updateGeneralInfo.matchFulfilled,
         (state, action) => {
-          console.log("General info update payload:", action.payload);
           if (state.user) {
             if (state.user.email.email !== action.payload.email.email) {
               state.user.email = action.payload.email;
             }
-            if (state.user.profile) {
-              if (!state.user.profile.generalInfo) {
-                state.user.profile.generalInfo = {
+            if (state.profile) {
+              if (!state.profile.generalInfo) {
+                state.profile.generalInfo = {
                   firstName: "",
                   lastName: "",
                 };
               }
-              state.user.profile.generalInfo.firstName =
+              state.profile.generalInfo.firstName =
                 action.payload.profile.firstName;
-              state.user.profile.generalInfo.lastName =
+              state.profile.generalInfo.lastName =
                 action.payload.profile.lastName;
             }
           }
-          state.isLoading = false;
-          state.error = null;
         }
       )
-      .addMatcher(
-        userApi.endpoints.updateGeneralInfo.matchRejected,
-        (state, action) => {
-          state.isLoading = false;
-          state.error =
-            action.error?.message || "Failed to update general info";
-        }
-      )
-      // Handle location update
-      .addMatcher(userApi.endpoints.updateLocation.matchPending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
       .addMatcher(
         userApi.endpoints.updateLocation.matchFulfilled,
         (state, action) => {
-          console.log("Location update payload:", action.payload);
-          if (state.user && state.user.profile) {
-            state.user.profile.location = {
+          if (state.user && state.profile) {
+            state.profile.location = {
               country: action.payload.country,
               state: action.payload.state,
               city: action.payload.city,
               address: action.payload.address,
             };
-            state.user.profile.pictureUrl =
-              action.payload.pictureUrl || undefined;
-            state.user.profile.resumeUrl =
-              action.payload.resumeUrl || undefined;
+            state.profile.pictureUrl = action.payload.pictureUrl || undefined;
+            state.profile.resumeUrl = action.payload.resumeUrl || undefined;
           }
-          state.isLoading = false;
-          state.error = null;
         }
       )
-      .addMatcher(
-        userApi.endpoints.updateLocation.matchRejected,
-        (state, action) => {
-          state.isLoading = false;
-          state.error = action.error?.message || "Failed to update location";
-        }
-      )
-      // Handle phone number update
-      .addMatcher(userApi.endpoints.updatePhoneNumber.matchPending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
+
       .addMatcher(
         userApi.endpoints.updatePhoneNumber.matchFulfilled,
         (state, action) => {
-          console.log("Phone number update payload:", action.payload);
-          if (state.user && state.user.profile) {
-            state.user.profile.phoneNumber = action.payload.phoneNumber;
+          if (state.user && state.profile) {
+            state.profile.phoneNumber = action.payload.phoneNumber;
           }
-          state.isLoading = false;
-          state.error = null;
         }
       )
-      .addMatcher(
-        userApi.endpoints.updatePhoneNumber.matchRejected,
-        (state, action) => {
-          state.isLoading = false;
-          state.error =
-            action.error?.message || "Failed to update phone number";
-        }
-      )
-      // Handle resume update
-      .addMatcher(userApi.endpoints.updateResume.matchPending, (state) => {
-        state.isLoading = true;
-        state.error = null;
-      })
       .addMatcher(
         userApi.endpoints.updateResume.matchFulfilled,
         (state, action) => {
-          console.log("Resume update payload:", action.payload);
-          if (state.user && state.user.profile) {
-            state.user.profile.resumeUrl = action.payload.resumeUrl;
+          if (state.user && state.profile) {
+            state.profile.resumeUrl = action.payload.resumeUrl;
           }
-          state.isLoading = false;
-          state.error = null;
-        }
-      )
-      .addMatcher(
-        userApi.endpoints.updateResume.matchRejected,
-        (state, action) => {
-          state.isLoading = false;
-          state.error = action.error?.message || "Failed to update resume";
         }
       )
       // Handle login/signup success
@@ -219,9 +144,9 @@ export const userSlice = createSlice({
 
 export const {
   setUser,
+  updateProfile,
   setLoggedIn,
-  setUserLoading,
-  setUserError,
+  setUserProfile,
   clearUser,
   updateIsOnboarded,
   setEmailVerified,
@@ -229,8 +154,8 @@ export const {
 
 // Selectors
 export const selectUser = (state: RootState) => state.user.user;
-export const selectUserLoading = (state: RootState) => state.user.isLoading;
-export const selectUserError = (state: RootState) => state.user.error;
+export const selectUserProfile = (state: RootState) => state.user.profile;
+export const selectUserError = (state: RootState) => state.user;
 export const selectIsLoggedIn = (state: RootState) => state.user.isLoggedIn;
 
 export default userSlice.reducer;

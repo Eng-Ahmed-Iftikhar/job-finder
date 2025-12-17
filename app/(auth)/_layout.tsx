@@ -1,30 +1,31 @@
 import Logo from "@/assets/logo.png";
-import { useUser } from "@/hooks/useUser";
-import { Stack, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import AppLoader from "@/components/AppLoader";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectIsLoggedIn } from "@/store/reducers/userSlice";
+
+import { Redirect, Stack } from "expo-router";
+import React, { Suspense } from "react";
 import { Image, View } from "react-native";
 
 export default function AuthLayout() {
-  const router = useRouter();
-  const { isLoggedIn } = useUser();
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.replace("/(dashboard)/");
-    }
-  }, [isLoggedIn, router]);
+  if (isLoggedIn) {
+    return <Redirect href="/(dashboard)/" />;
+  }
 
   return (
     <View className="flex-1 bg-white">
       <View className="h-[56px] items-center justify-center ">
         <Image source={Logo} className="h-[40px] w-[76px]" />
       </View>
-
-      <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="login" options={{ headerShown: false }} />
-        <Stack.Screen name="register" options={{ headerShown: false }} />
-      </Stack>
+      <Suspense fallback={<AppLoader />}>
+        <Stack>
+          <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="login" options={{ headerShown: false }} />
+          <Stack.Screen name="register" options={{ headerShown: false }} />
+        </Stack>
+      </Suspense>
     </View>
   );
 }

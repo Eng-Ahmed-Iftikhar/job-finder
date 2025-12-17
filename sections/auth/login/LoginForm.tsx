@@ -41,8 +41,6 @@ function LoginForm() {
       try {
         await loginUser(values).unwrap();
       } catch (error: any) {
-        console.log("Login failed:", error);
-
         // Set field error if server returns validation error
         if (error?.data?.message) {
           // Check if the error is related to a specific field

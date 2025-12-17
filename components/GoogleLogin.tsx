@@ -44,15 +44,8 @@ function GoogleLogin() {
       };
 
       // Call social login API with Google user data
-      const result = await socialLogin(googleUserData).unwrap();
-
-      // Handle successful social login
-      console.log("Google social login successful:", result);
-      // Note: Redirection will happen automatically through the auth layout
-      // when the Redux state updates via the socialLogin matcher in authSlice
+      await socialLogin(googleUserData).unwrap();
     } catch (error: any) {
-      console.error("Google social login error:", error);
-
       if (error.code === "SIGN_IN_CANCELLED") {
         // User cancelled the sign-in flow
         return;

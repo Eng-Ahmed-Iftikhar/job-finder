@@ -61,8 +61,6 @@ function RegisterForm() {
           provider: SocialProvider.EMAIL,
         }).unwrap();
       } catch (error: any) {
-        console.log("Registration failed:", error);
-
         // Set field error if server returns validation error
         if (error?.data?.message) {
           // Check if the error is related to a specific field

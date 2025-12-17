@@ -11,36 +11,38 @@ import Icon from "react-native-vector-icons/Ionicons";
 import SearchInput from "@/components/ui/SearchInput";
 import Avatar from "@/components/ui/Avatar";
 import Badge from "@/components/ui/Badge";
-import { useUser } from "@/hooks/useUser";
 import { useLogoutMutation } from "@/api/services/authApi";
 import { useRouter } from "expo-router";
 import NotificationsContent from "@/sections/notifications/NotificationsContent";
 import { useSearch } from "@/hooks/useSearch";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectUser, selectUserProfile } from "@/store/reducers/userSlice";
 
 function DashboardHeader() {
   const router = useRouter();
-  const { user } = useUser();
+  const user = useAppSelector(selectUser);
+  const userProfile = useAppSelector(selectUserProfile);
+
   const { searchQuery } = useSearch();
   const [logoutApi, { isLoading: isLoggingOut }] = useLogoutMutation();
   const [open, setOpen] = useState(false);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
 
   const fullName = useMemo(() => {
-    const first = user?.profile?.generalInfo?.firstName;
-    const last = user?.profile?.generalInfo?.lastName;
+    const first = userProfile?.generalInfo?.firstName;
+    const last = userProfile?.generalInfo?.lastName;
     return (
       [first, last].filter(Boolean).join(" ") || user?.email.email || "User"
     );
-  }, [user]);
+  }, [userProfile, user]);
 
-  const avatarUrl = user?.profile?.pictureUrl || undefined;
+  const avatarUrl = userProfile?.pictureUrl || undefined;
 
   const handleLogout = useCallback(async () => {
     try {
       await logoutApi().unwrap();
       setOpen(false);
     } catch (error) {
-      console.error("Logout API error:", error);
       setOpen(false);
     }
   }, [logoutApi]);

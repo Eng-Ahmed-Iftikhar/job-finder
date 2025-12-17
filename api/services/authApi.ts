@@ -1,5 +1,5 @@
 import API_ROUTES from "@/api/routes";
-import { SocialProvider, User } from "@/types/api/auth";
+import { AuthMeResponse, SocialProvider, User } from "@/types/api/auth";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReAuth } from "./baseApi";
 
@@ -73,7 +73,7 @@ export const authApi = createApi({
       }),
     }),
     // get current user (requires auth)
-    me: builder.query<User, void>({
+    me: builder.query<AuthMeResponse, void>({
       query: () => ({
         url: API_ROUTES.user.me,
         method: "GET",

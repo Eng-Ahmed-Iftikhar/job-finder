@@ -31,9 +31,6 @@ const persistConfig = {
     // For Store Encryption in LocalStorage
     encryptTransform({
       secretKey: "your-secret-key", // Replace with your actual secret key
-      onError: function (error: any) {
-        console.log("Error during encryption", error);
-      },
     }),
   ],
   // Only persist the auth slice

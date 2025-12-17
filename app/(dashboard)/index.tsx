@@ -1,13 +1,5 @@
-import { useEffect } from "react";
-import { useRouter } from "expo-router";
-import AppLoader from "@/components/AppLoader";
+import { Redirect } from "expo-router";
 
 export default function DashboardRedirect() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace("/(dashboard)/(tabs)/jobs");
-  }, [router]);
-
-  return <AppLoader />;
+  return <Redirect href="/(dashboard)/(tabs)/jobs" />;
 }

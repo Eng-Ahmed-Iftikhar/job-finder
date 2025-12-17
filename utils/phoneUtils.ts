@@ -22,7 +22,6 @@ export const validatePhoneNumber = (
 
     return isValidPhoneNumber(formatted, code as CountryCode);
   } catch (error) {
-    console.error("Phone validation error:", error);
     return false;
   }
 };
@@ -46,7 +45,6 @@ export const formatPhoneNumber = (
     const asYouType = new AsYouType(code as CountryCode);
     return asYouType.input(value.toString());
   } catch (error) {
-    console.error("Phone formatting error:", error);
     return value.toString();
   }
 };
@@ -63,7 +61,6 @@ export const getCountryFromPhoneCode = (phoneCode: string): string => {
     );
     return country?.isoCode || "PK";
   } catch (error) {
-    console.error("Country lookup error:", error);
     return "PK";
   }
 };
@@ -90,7 +87,6 @@ export const isPhoneNumberComplete = (
     // Check if the formatted number has the expected length for the country
     return formatted.length >= 10 && formatted.length <= 15;
   } catch (error) {
-    console.error("Phone completion check error:", error);
     return false;
   }
 };
@@ -118,7 +114,6 @@ export const getNationalNumber = (
     const phoneCodeWithoutPlus = phoneCode.replace("+", "");
     return formatted.replace(phoneCodeWithoutPlus, "").trim();
   } catch (error) {
-    console.error("National number extraction error:", error);
     return value.toString();
   }
 };

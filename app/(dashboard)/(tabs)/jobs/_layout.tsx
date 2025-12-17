@@ -1,6 +1,7 @@
-import React from "react";
+import React, { Suspense } from "react";
 import { Slot, usePathname, useRouter } from "expo-router";
 import { View, TouchableOpacity, Text } from "react-native";
+import AppLoader from "@/components/AppLoader";
 
 const tabs = [
   { name: "Suggested jobs", route: "/(dashboard)/(tabs)/jobs", label: "/jobs" },
@@ -47,7 +48,10 @@ export default function JobsTopTabsLayout() {
           );
         })}
       </View>
-      <Slot />
+
+      <Suspense fallback={<AppLoader />}>
+        <Slot />
+      </Suspense>
     </View>
   );
 }

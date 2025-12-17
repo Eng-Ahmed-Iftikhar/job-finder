@@ -35,6 +35,7 @@ import {
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { UserPhoneNumber } from "@/types/api/auth";
 import { useLazyMeQuery } from "@/api/services/authApi";
+import { selectUser, selectUserProfile } from "@/store/reducers/userSlice";
 
 interface EditProfileFormValues {
   firstName: string;
@@ -154,7 +155,8 @@ const FloatingActions: React.FC<{
 };
 
 export default function EditProfileContent() {
-  const user = useAppSelector((state) => state.user.user);
+  const user = useAppSelector(selectUser);
+  const userProfile = useAppSelector(selectUserProfile);
   const [isEmailModalVisible, setIsEmailModalVisible] = useState(false);
   const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -206,8 +208,8 @@ export default function EditProfileContent() {
   };
 
   const rawInitialValues: EditProfileFormValues = {
-    firstName: user?.profile?.generalInfo?.firstName || "",
-    lastName: user?.profile?.generalInfo?.lastName || "",
+    firstName: userProfile?.generalInfo?.firstName || "",
+    lastName: userProfile?.generalInfo?.lastName || "",
     location: profileLocation.address || "",
     city: profileLocation.city || "",
     state: profileLocation.state || "",
@@ -218,11 +220,11 @@ export default function EditProfileContent() {
         ? user.email
         : (user?.email as any)?.email || "",
     phoneNumber: {
-      countryCode: user?.profile?.phoneNumber?.countryCode || "+1",
-      number: user?.profile?.phoneNumber?.number || "",
-      isVerified: user?.profile?.phoneNumber?.isVerified || false,
+      countryCode: userProfile?.phoneNumber?.countryCode || "+1",
+      number: userProfile?.phoneNumber?.number || "",
+      isVerified: userProfile?.phoneNumber?.isVerified || false,
     },
-    profilePicture: user?.profile?.pictureUrl || null,
+    profilePicture: userProfile?.pictureUrl || null,
     cvFile: null,
     experiences:
       cvDetails?.experiences?.map((exp: any) => ({
@@ -263,9 +265,8 @@ export default function EditProfileContent() {
       }).unwrap();
 
       if (
-        values.phoneNumber.number !== user?.profile?.phoneNumber?.number ||
-        values.phoneNumber.countryCode !==
-          user?.profile?.phoneNumber?.countryCode
+        values.phoneNumber.number !== userProfile?.phoneNumber?.number ||
+        values.phoneNumber.countryCode !== userProfile?.phoneNumber?.countryCode
       ) {
         // Phone number has changed, mark as unverified
         await updatePhoneNumber({
@@ -286,7 +287,7 @@ export default function EditProfileContent() {
       // Update profile picture if changed
       if (
         values.profilePicture &&
-        values.profilePicture !== user?.profile?.pictureUrl
+        values.profilePicture !== userProfile?.pictureUrl
       ) {
         await updateProfilePicture({
           pictureUrl: values.profilePicture,
@@ -317,7 +318,6 @@ export default function EditProfileContent() {
       setToastMessage("Profile updated successfully");
       setShowSuccessToast(true);
     } catch (error) {
-      console.error("Update error:", error);
       setToastMessage("Failed to update profile. Please try again.");
       setShowErrorToast(true);
     } finally {
@@ -488,7 +488,6 @@ export default function EditProfileContent() {
               }
               onClose={() => setIsPhoneModalVisible(false)}
               onPhoneUpdated={(newPhone) => {
-                console.log({ newPhone });
                 formik.setFieldValue("phoneNumber", newPhone);
                 setIsPhoneModalVisible(false);
               }}

@@ -36,11 +36,14 @@ export type User = {
   email: UserEmail;
   password?: string; // Optional for social logins
   isActive: boolean;
-  profile?: UserProfile;
   createdAt: Date;
   updatedAt: Date;
 };
 
+export interface AuthMeResponse {
+  user: User;
+  profile: UserProfile;
+}
 export interface UserEmail {
   email: string;
   isVerified: boolean;

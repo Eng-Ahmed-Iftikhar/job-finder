@@ -23,8 +23,6 @@ const baseQuery = fetchBaseQuery({
 
     // Add ngrok-skip-browser-warning header for ngrok URLs
     if (BASE_URL?.includes("ngrok")) {
-      console.log("ngrok");
-
       headers.set("ngrok-skip-browser-warning", "any");
       headers.set("User-Agent", "ReactNative");
     }
@@ -73,7 +71,6 @@ const baseQueryWithReAuth: BaseQueryFn<
   unknown,
   FetchBaseQueryError
 > = async (args, api, extraOptions) => {
-  console.log("=== baseQueryWithReAuth called ===");
   const result = await baseQueryWithAuth(args, api, extraOptions);
 
   if (result.error && result.error.status === 401) {

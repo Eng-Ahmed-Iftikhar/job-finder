@@ -31,7 +31,6 @@ export const CVSection: React.FC = () => {
         setCVName(file.name);
       }
     } catch (error) {
-      console.error("Error picking document:", error);
     } finally {
       setIsUploading(false);
     }

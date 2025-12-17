@@ -1,18 +1,17 @@
 import OnboardingProvider from "@/context/OnboardingContext";
-import { useUser } from "@/hooks/useUser";
+import { useAppSelector } from "@/hooks/useAppSelector";
+
 import OnboardingLayout from "@/sections/onboarding/OnboardingLayout";
-import { useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import { selectIsLoggedIn } from "@/store/reducers/userSlice";
+import { Redirect } from "expo-router";
+import React from "react";
 
 function Layout() {
-  const router = useRouter();
-  const { isLoggedIn } = useUser();
+  const isLoggedIn = useAppSelector(selectIsLoggedIn);
 
-  useEffect(() => {
-    if (!isLoggedIn) {
-      router.replace("/(auth)/");
-    }
-  }, [isLoggedIn, router]);
+  if (!isLoggedIn) {
+    return <Redirect href="/(auth)/" />;
+  }
 
   return (
     <OnboardingProvider>

@@ -1,9 +1,10 @@
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectUser } from "@/store/reducers/userSlice";
 import React from "react";
 import { Text, View } from "react-native";
-import { useUser } from "@/hooks/useUser";
 
 function VerifyEmailHeader() {
-  const { user } = useUser();
+  const user = useAppSelector(selectUser);
 
   return (
     <View className="flex items-center w-3/4 mx-auto">

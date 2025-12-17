@@ -37,11 +37,9 @@ export default function ProfileDetailContent({
 
   const handleConnect = () => {
     setIsConnected(!isConnected);
-    console.log("Connect/Remove connection:", userId);
   };
 
   const handleMessage = () => {
-    console.log("Message user:", userId);
     router.push("/(dashboard)/(tabs)/messages");
   };
 

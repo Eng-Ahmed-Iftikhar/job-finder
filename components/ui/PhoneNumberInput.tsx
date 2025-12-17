@@ -18,8 +18,6 @@ function PhoneNumberInput({
   selectCodeProps,
   inputNumberProps,
 }: SelectProps) {
-  console.log({ error });
-
   return (
     <View>
       <Text className="text-sm text-gray-600 mb-1">{label}</Text>

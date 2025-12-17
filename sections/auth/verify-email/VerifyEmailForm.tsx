@@ -47,7 +47,6 @@ function VerifyEmailForm() {
       await sendEmailVerification().unwrap();
       setIsSendAgain(true);
     } catch (error: any) {
-      console.error("Failed to send verification code:", error);
       const errorMessage = Array.isArray(error?.data?.message)
         ? error.data.message.join(", ")
         : error?.data?.message || "Failed to send verification code";
@@ -77,8 +76,6 @@ function VerifyEmailForm() {
           }, 1500);
         }
       } catch (error: any) {
-        console.error("Verification failed:", error);
-
         // Handle server-side errors
         let errorMessage = "Invalid verification code";
 

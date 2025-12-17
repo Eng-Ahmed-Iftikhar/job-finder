@@ -53,10 +53,6 @@ export const fileApi = createApi({
     // Upload file (requires auth)
     uploadFile: builder.mutation<FileUploadResponse, FormData>({
       query: (formData) => {
-        console.log("=== Starting file upload ===");
-        console.log("Upload URL:", API_ROUTES.file.upload);
-        console.log("FormData:", formData);
-
         return {
           url: API_ROUTES.file.upload,
           method: "POST",
