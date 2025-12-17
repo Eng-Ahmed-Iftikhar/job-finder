@@ -1,69 +1,163 @@
-import React, { useState } from "react";
-import { View, Text, ScrollView, Pressable } from "react-native";
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  Text,
+  ScrollView,
+  Pressable,
+  RefreshControl,
+} from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import {
+  useGetNotificationSettingsQuery,
+  useUpdateNotificationSettingsMutation,
+} from "@/api/services/notificationSettingsApi";
+import PasswordSection from "./PasswordSection";
+
+type NotificationId =
+  | "jobInterviewScheduled"
+  | "connectionRequest"
+  | "newJobOpening"
+  | "interviewReminder";
 
 interface NotificationSetting {
-  id: string;
+  id: NotificationId;
   label: string;
   system: boolean;
   email: boolean;
 }
 
 export default function SettingsContent() {
-  const [notifications, setNotifications] = useState<NotificationSetting[]>([
+  const [notifications, setNotifications] = useState<NotificationSetting[]>([]);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const { data, refetch } = useGetNotificationSettingsQuery();
+  const [updateSettings, { isLoading: isUpdating }] =
+    useUpdateNotificationSettingsMutation();
+
+  const defaultNotifications: NotificationSetting[] = [
     {
-      id: "1",
+      id: "jobInterviewScheduled",
       label: "Someone scheduled a job interview with me",
-      system: true,
-      email: true,
+      system: false,
+      email: false,
     },
     {
-      id: "2",
+      id: "connectionRequest",
       label: "Someone wants to connect",
-      system: true,
-      email: true,
+      system: false,
+      email: false,
     },
     {
-      id: "3",
+      id: "newJobOpening",
       label: "New job opening from the company I follow",
-      system: true,
-      email: true,
+      system: false,
+      email: false,
     },
     {
-      id: "4",
+      id: "interviewReminder",
       label: "Reminder about upcoming job interview",
       system: false,
-      email: true,
+      email: false,
     },
-  ]);
+  ];
 
-  const toggleNotification = (id: string, type: "system" | "email") => {
-    setNotifications(
-      notifications.map((notif) =>
-        notif.id === id ? { ...notif, [type]: !notif[type] } : notif
-      )
+  useEffect(() => {
+    if (!data) return;
+    setNotifications([
+      {
+        id: "jobInterviewScheduled",
+        label: "Someone scheduled a job interview with me",
+        system: data.jobInterviewScheduledSystem,
+        email: data.jobInterviewScheduledEmail,
+      },
+      {
+        id: "connectionRequest",
+        label: "Someone wants to connect",
+        system: data.connectionRequestSystem,
+        email: data.connectionRequestEmail,
+      },
+      {
+        id: "newJobOpening",
+        label: "New job opening from the company I follow",
+        system: data.newJobOpeningSystem,
+        email: data.newJobOpeningEmail,
+      },
+      {
+        id: "interviewReminder",
+        label: "Reminder about upcoming job interview",
+        system: data.interviewReminderSystem,
+        email: data.interviewReminderEmail,
+      },
+    ]);
+  }, [data]);
+
+  useEffect(() => {
+    if (notifications.length === 0 && !data) {
+      setNotifications(defaultNotifications);
+    }
+  }, [notifications.length, data]);
+
+  const toPayload = (items: NotificationSetting[]) => ({
+    jobInterviewScheduledSystem:
+      items.find((n) => n.id === "jobInterviewScheduled")?.system ?? false,
+    jobInterviewScheduledEmail:
+      items.find((n) => n.id === "jobInterviewScheduled")?.email ?? false,
+    connectionRequestSystem:
+      items.find((n) => n.id === "connectionRequest")?.system ?? false,
+    connectionRequestEmail:
+      items.find((n) => n.id === "connectionRequest")?.email ?? false,
+    newJobOpeningSystem:
+      items.find((n) => n.id === "newJobOpening")?.system ?? false,
+    newJobOpeningEmail:
+      items.find((n) => n.id === "newJobOpening")?.email ?? false,
+    interviewReminderSystem:
+      items.find((n) => n.id === "interviewReminder")?.system ?? false,
+    interviewReminderEmail:
+      items.find((n) => n.id === "interviewReminder")?.email ?? false,
+  });
+
+  const toggleNotification = async (
+    id: NotificationId,
+    type: "system" | "email"
+  ) => {
+    const previous = notifications;
+    const updated = notifications.map((notif) =>
+      notif.id === id ? { ...notif, [type]: !notif[type] } : notif
     );
+
+    setNotifications(updated);
+    try {
+      await updateSettings(toPayload(updated)).unwrap();
+    } catch (error) {
+      setNotifications(previous);
+      console.log("Failed to update notification settings", error);
+    }
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    try {
+      await refetch();
+    } catch (error) {
+      console.log("Failed to refresh notification settings", error);
+    } finally {
+      setRefreshing(false);
+    }
   };
 
   return (
     <View className="flex-1 bg-white">
       <ScrollView
         className="flex-1"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 24 }}
       >
         <View className="px-4 pt-4">
           {/* Password Section */}
-          <View className="mb-8">
-            <Text className="text-base font-semibold text-gray-900 mb-3">
-              Password
-            </Text>
-            <Pressable>
-              <Text className="text-base font-semibold text-azure-radiance-500">
-                Change password
-              </Text>
-            </Pressable>
-          </View>
+          <PasswordSection />
 
           {/* Notification Settings */}
           <View>
@@ -103,6 +197,7 @@ export default function SettingsContent() {
                 </View>
                 <View className="w-20 items-center">
                   <Pressable
+                    disabled={isUpdating}
                     onPress={() =>
                       toggleNotification(notification.id, "system")
                     }
@@ -119,6 +214,7 @@ export default function SettingsContent() {
                 </View>
                 <View className="w-20 items-center">
                   <Pressable
+                    disabled={isUpdating}
                     onPress={() => toggleNotification(notification.id, "email")}
                     className={`w-6 h-6 rounded items-center justify-center ${
                       notification.email

@@ -31,6 +31,10 @@ const API_ROUTES = {
     phoneNumber: "/users/me/phone-number",
     resume: "/users/me/resume",
     reauthenticate: "/users/me/reauthenticate",
+    changePassword: "/users/me/change-password",
+  },
+  notificationSettings: {
+    me: "/notification-settings/me",
   },
   skills: {
     all: "/skills/all",

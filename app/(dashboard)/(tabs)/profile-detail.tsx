@@ -1,10 +1,10 @@
 import React from "react";
-import ProfileDetailContent from "@/sections/profile/ProfileDetailContent";
+import ProfileDetailScreen from "@/screens/ProfileDetail";
 import { useLocalSearchParams } from "expo-router";
 
-export default function ProfileDetailScreen() {
+export default function ProfileDetailRoute() {
   const params = useLocalSearchParams();
   const userId = typeof params.id === "string" ? params.id : undefined;
 
-  return <ProfileDetailContent userId={userId} />;
+  return <ProfileDetailScreen />;
 }

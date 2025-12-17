@@ -15,7 +15,7 @@ type PhoneNumberInputProps = {
 };
 
 function PhoneNumberInput({
-  label = "label",
+  label,
   isError,
   error,
   countryCodeValue,
@@ -27,7 +27,7 @@ function PhoneNumberInput({
 }: PhoneNumberInputProps) {
   return (
     <View>
-      <Text className="text-sm text-gray-600 mb-1">{label}</Text>
+      {label && <Text className="text-sm text-gray-600 mb-1">{label}</Text>}
       <View className="flex-row items-center gap-2">
         <View className="w-[30%]">
           <Select

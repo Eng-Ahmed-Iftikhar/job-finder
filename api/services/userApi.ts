@@ -173,6 +173,15 @@ export interface ReauthenticateResponse {
   isAuthenticated: boolean;
 }
 
+export interface ChangePasswordRequest {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export interface ChangePasswordResponse {
+  message: string;
+}
+
 export const userApi = createApi({
   reducerPath: "userApi",
   baseQuery: baseQueryWithReAuth,
@@ -270,6 +279,17 @@ export const userApi = createApi({
         body,
       }),
     }),
+    // change password (requires auth)
+    changePassword: builder.mutation<
+      ChangePasswordResponse,
+      ChangePasswordRequest
+    >({
+      query: (body) => ({
+        url: API_ROUTES.user.changePassword,
+        method: "PUT",
+        body,
+      }),
+    }),
   }),
 });
 
@@ -283,4 +303,5 @@ export const {
   useGetCvDetailsQuery,
   useUpdateCvDetailsMutation,
   useReauthenticateMutation,
+  useChangePasswordMutation,
 } = userApi;

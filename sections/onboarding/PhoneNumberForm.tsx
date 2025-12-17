@@ -97,7 +97,7 @@ function PhoneNumberForm() {
           >
             <View className="flex-1">
               <PhoneNumberInput
-                label="Phone Number"
+                label=""
                 countryCodeValue={values.countryCode}
                 countryCodeItems={countryOptions}
                 countryCodePlaceholder="Code"

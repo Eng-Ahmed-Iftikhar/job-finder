@@ -28,7 +28,7 @@ type SelectProps = {
 };
 
 function Select({
-  label = "label",
+  label,
   isError,
   error,
   placeholder = "Search or select an option",

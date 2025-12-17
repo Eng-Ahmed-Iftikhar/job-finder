@@ -43,10 +43,6 @@ export default function ProfileDetailContent({
     router.push("/(dashboard)/(tabs)/messages");
   };
 
-  const handleBack = () => {
-    router.back();
-  };
-
   if (showConnectionsList) {
     return (
       <ConnectionsList
