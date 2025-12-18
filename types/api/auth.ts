@@ -16,6 +16,7 @@ type UserLocation = {
   state: string;
   country: string;
   address: string;
+  id: string;
 };
 
 export type UserPhoneNumber = {

@@ -226,6 +226,7 @@ export default function EditProfileContent() {
 
   useEffect(() => {
     if (!userProfile) return;
+
     setInitialValues((prev) => {
       return {
         ...prev,

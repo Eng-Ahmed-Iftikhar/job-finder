@@ -90,12 +90,7 @@ export const userSlice = createSlice({
         userApi.endpoints.updateLocation.matchFulfilled,
         (state, action) => {
           if (state.user && state.profile) {
-            state.profile.location = {
-              country: action.payload.country,
-              state: action.payload.state,
-              city: action.payload.city,
-              address: action.payload.address,
-            };
+            state.profile.location = action.payload.location;
             state.profile.pictureUrl = action.payload.pictureUrl || undefined;
             state.profile.resumeUrl = action.payload.resumeUrl || undefined;
           }

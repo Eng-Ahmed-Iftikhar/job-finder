@@ -54,10 +54,13 @@ export interface UpdateGeneralInfoResponse {
 export interface UpdateLocationResponse {
   id: string;
   userId: string;
-  city: string;
-  state: string;
-  country: string;
-  address: string;
+  location: {
+    city: string;
+    state: string;
+    country: string;
+    address: string;
+    id: string;
+  };
   pictureUrl: string | null;
   resumeUrl: string | null;
   createdAt: string;
