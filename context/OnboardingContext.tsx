@@ -77,6 +77,7 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!profile) return;
+
     handleUserProfile({
       generalInfo: profile.generalInfo,
       location: profile.location,

@@ -43,6 +43,9 @@ const API_ROUTES = {
     all: "/skills/all",
     create: "/skills",
   },
+  jobs: {
+    suggested: "/jobs/suggested",
+  },
 };
 
 export default API_ROUTES;
