@@ -73,47 +73,73 @@ const baseQueryWithReAuth: BaseQueryFn<
 > = async (args, api, extraOptions) => {
   const result = await baseQueryWithAuth(args, api, extraOptions);
 
-  if (result.error && result.error.status === 401) {
-    // Get the URL from args
-    const url = typeof args === "string" ? args : args.url;
+  // Handle network errors
+  if (result.error) {
+    if (result.error.status === 401) {
+      // Get the URL from args
+      const url = typeof args === "string" ? args : args.url;
 
-    // Skip refresh logic for auth endpoints (login, register, refresh)
-    if (isAuthEndpoint(url)) {
-      return result;
-    }
-
-    // Try to refresh the token for other endpoints
-    const state = api.getState() as RootState;
-    const currentAccessToken = state.auth.access_token;
-
-    if (currentAccessToken) {
-      // Attempt to refresh the token
-      const refreshResult = await baseQuery(
-        {
-          url: API_ROUTES.auth.refresh,
-          method: "POST",
-          body: { access_token: currentAccessToken },
-        },
-        api,
-        extraOptions
-      );
-
-      if (refreshResult.data) {
-        // Update the access token in store using action type string
-        const newToken = (refreshResult.data as { access_token: string })
-          .access_token;
-        api.dispatch({
-          type: "auth/setAccessToken",
-          payload: newToken,
-        });
-
-        // Retry the original request with new token
-        return baseQueryWithAuth(args, api, extraOptions);
+      // Skip refresh logic for auth endpoints (login, register, refresh)
+      if (isAuthEndpoint(url)) {
+        return result;
       }
-    }
 
-    // If refresh failed, redirect to login
-    router.replace("/(auth)/login");
+      // Try to refresh the token for other endpoints
+      const state = api.getState() as RootState;
+      const currentAccessToken = state.auth.access_token;
+
+      if (currentAccessToken) {
+        // Attempt to refresh the token
+        const refreshResult = await baseQuery(
+          {
+            url: API_ROUTES.auth.refresh,
+            method: "POST",
+            body: { access_token: currentAccessToken },
+          },
+          api,
+          extraOptions
+        );
+
+        if (refreshResult.data) {
+          // Update the access token in store using action type string
+          const newToken = (refreshResult.data as { access_token: string })
+            .access_token;
+          api.dispatch({
+            type: "auth/setAccessToken",
+            payload: newToken,
+          });
+
+          // Retry the original request with new token
+          return baseQueryWithAuth(args, api, extraOptions);
+        }
+      }
+
+      // If refresh failed, redirect to login
+      router.replace("/(auth)/login");
+    } else if (result.error.status === "FETCH_ERROR") {
+      // Network error - no internet connection
+      api.dispatch({
+        type: "notification/showError",
+        payload:
+          result.error.error || "Network error. Please check your connection.",
+      });
+    } else if (result.error.status === "PARSING_ERROR") {
+      // Response parsing error
+      api.dispatch({
+        type: "notification/showError",
+        payload: "Failed to parse response. Please try again.",
+      });
+    } else if (
+      result.error.status &&
+      typeof result.error.status === "number" &&
+      result.error.status >= 500
+    ) {
+      // Server error
+      api.dispatch({
+        type: "notification/showError",
+        payload: "Server error. Please try again later.",
+      });
+    }
   }
 
   return result;

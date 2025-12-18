@@ -128,7 +128,7 @@ export const EducationSection: React.FC = () => {
                   endDate: "",
                 })
               }
-              className="bg-azure-radiance/10 border border-dashed border-azure-radiance py-3 rounded-lg"
+              className="bg-azure-radiance/10 border border-dashed border-azure-radiance p-2 rounded-lg"
             >
               <Text className="text-azure-radiance font-semibold text-center">
                 + Add Education

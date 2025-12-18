@@ -1,15 +1,20 @@
-import { useMeQuery } from "@/api/services/authApi";
+import { useLazyMeQuery } from "@/api/services/authApi";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import AppLoader from "./AppLoader";
+import { useEffect } from "react";
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { access_token } = useAppSelector((state) => state.auth);
 
-  const { isLoading, isFetching } = useMeQuery(undefined, {
-    skip: !Boolean(access_token),
-  });
-  const gettingUser = isLoading || isFetching;
+  const [trigger, { isLoading, isFetching }] = useLazyMeQuery();
 
+  useEffect(() => {
+    if (access_token) {
+      trigger();
+    }
+  }, [access_token, trigger]);
+
+  const gettingUser = isLoading || isFetching;
   if (gettingUser) {
     return <AppLoader />;
   }

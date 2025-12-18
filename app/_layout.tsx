@@ -8,6 +8,7 @@ import "@/globals.css"; // Ensure this is the correct path to your global styles
 import { ReduxPersisted } from "@/store";
 import AuthGuard from "@/components/AuthGuard";
 import AppLoader from "@/components/AppLoader";
+import NotificationProvider from "@/components/NotificationProvider";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -29,6 +30,7 @@ export default function RootLayout() {
     <ReduxPersisted>
       <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
         <StatusBar style="dark" />
+        <NotificationProvider />
 
         <AuthGuard>
           <Suspense fallback={<AppLoader />}>

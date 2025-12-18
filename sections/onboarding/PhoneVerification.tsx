@@ -1,28 +1,28 @@
-import { useRouter } from "expo-router";
-import React, { useState, useCallback } from "react";
-import { View, Text, ActivityIndicator } from "react-native";
-import { OtpInput } from "react-native-otp-entry";
-import Button from "@/components/ui/Button";
-import useOnboarding from "@/hooks/useOnboarding";
-import { OnboardingSteps } from "@/types/onboarding";
 import {
   useSendPhoneVerificationMutation,
   useVerifyPhoneCodeMutation,
 } from "@/api/services/authApi";
-import SuccessToast from "@/components/SuccessToast";
-import ErrorToast from "@/components/ErrorToast";
 import CircularCountdown from "@/components/CircularCountdown";
+import Button from "@/components/ui/Button";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import useOnboarding from "@/hooks/useOnboarding";
+import {
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/store/reducers/notificationSlice";
 import { UserPhoneNumber } from "@/types/api/auth";
+import { OnboardingSteps } from "@/types/onboarding";
+import React, { useCallback, useState } from "react";
+import { Text, View } from "react-native";
+import { OtpInput } from "react-native-otp-entry";
 
 function PhoneVerificationScreen() {
   const { handleChangeCurrentStep, handleUserProfile, userProfile } =
     useOnboarding();
-
+  const dispatch = useAppDispatch();
   const [code, setCode] = useState("");
   const [error, setError] = useState("");
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [showErrorToast, setShowErrorToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
+
   const [canResend, setCanResend] = useState(false);
 
   const [sendPhoneVerification, { isLoading: isSending }] =
@@ -35,14 +35,13 @@ function PhoneVerificationScreen() {
       setError("");
       await sendPhoneVerification().unwrap();
       setCanResend(false);
-      setToastMessage("Verification code sent");
-      setShowSuccessToast(true);
+      dispatch(showSuccessNotification("Verification code sent"));
     } catch (err: any) {
       const msg = Array.isArray(err?.data?.message)
         ? err.data.message[0]
         : err?.data?.message || "Failed to resend verification code";
-      setToastMessage(msg);
-      setShowErrorToast(true);
+
+      dispatch(showErrorNotification(msg));
     }
   }, [sendPhoneVerification]);
 
@@ -62,8 +61,7 @@ function PhoneVerificationScreen() {
           isVerified: true,
         },
       });
-      setToastMessage("Phone verified successfully!");
-      setShowSuccessToast(true);
+      dispatch(showSuccessNotification("Phone verified successfully!"));
 
       // Navigate to next step after a short delay
       setTimeout(() => {
@@ -74,8 +72,8 @@ function PhoneVerificationScreen() {
         ? err.data.message[0]
         : err?.data?.message || "Verification failed. Please try again.";
       setError(msg);
-      setToastMessage(msg);
-      setShowErrorToast(true);
+
+      dispatch(showErrorNotification(msg));
     }
   };
 
@@ -145,17 +143,6 @@ function PhoneVerificationScreen() {
           )}
         </View>
       </View>
-
-      <SuccessToast
-        visible={showSuccessToast}
-        message={toastMessage}
-        onClose={() => setShowSuccessToast(false)}
-      />
-      <ErrorToast
-        visible={showErrorToast}
-        message={toastMessage}
-        onClose={() => setShowErrorToast(false)}
-      />
     </View>
   );
 }

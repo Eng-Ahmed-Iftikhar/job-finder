@@ -6,9 +6,12 @@ import {
   useUpdatePhoneNumberMutation,
   useUpdateProfilePictureMutation,
 } from "@/api/services/userApi";
-import ErrorToast from "@/components/ErrorToast";
-import SuccessToast from "@/components/SuccessToast";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { useAppSelector } from "@/hooks/useAppSelector";
+import {
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/store/reducers/notificationSlice";
 import { selectUser, selectUserProfile } from "@/store/reducers/userSlice";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
@@ -159,9 +162,6 @@ export default function EditProfileContent() {
   const [isEmailModalVisible, setIsEmailModalVisible] = useState(false);
   const [isPhoneModalVisible, setIsPhoneModalVisible] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [showErrorToast, setShowErrorToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
   const [initialValues, setInitialValues] = useState<EditProfileFormValues>({
     firstName: "",
     lastName: "",
@@ -188,7 +188,7 @@ export default function EditProfileContent() {
     isLoading: isCvDetailsLoading,
     refetch: refetchCvDetails,
   } = useGetCvDetailsQuery();
-
+  const dispatch = useAppDispatch();
   const [updateCvDetails] = useUpdateCvDetailsMutation();
   const [updateGeneralInfo] = useUpdateGeneralInfoMutation();
   const [updateLocation] = useUpdateLocationMutation();
@@ -343,12 +343,11 @@ export default function EditProfileContent() {
         resumeUrl: values.cvFile as string,
       }).unwrap();
       refetchCvDetails();
-
-      setToastMessage("Profile updated successfully");
-      setShowSuccessToast(true);
+      dispatch(showSuccessNotification("Profile updated successfully"));
     } catch (error) {
-      setToastMessage("Failed to update profile. Please try again.");
-      setShowErrorToast(true);
+      dispatch(
+        showErrorNotification("Failed to update profile. Please try again.")
+      );
     } finally {
       setIsSubmitting(false);
       setSubmitting(false);
@@ -520,17 +519,6 @@ export default function EditProfileContent() {
                 formik.setFieldValue("phoneNumber", newPhone);
                 setIsPhoneModalVisible(false);
               }}
-            />
-            {/* Toast Notifications */}
-            <SuccessToast
-              visible={showSuccessToast}
-              message={toastMessage}
-              onClose={() => setShowSuccessToast(false)}
-            />
-            <ErrorToast
-              visible={showErrorToast}
-              message={toastMessage}
-              onClose={() => setShowErrorToast(false)}
             />
           </View>
         );

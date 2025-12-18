@@ -73,6 +73,8 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
     label: c.name,
     value: c.name,
   }));
+  console.log(formik.values);
+
   const stateOptions = (() => {
     const countryName = formik.values.country;
     if (!countryName) return [] as { label: string; value: string }[];

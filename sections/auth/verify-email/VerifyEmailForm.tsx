@@ -1,19 +1,20 @@
-import CircularCountdown from "@/components/CircularCountdown";
-import Button from "@/components/ui/Button";
-import SuccessToast from "@/components/SuccessToast";
-import ErrorToast from "@/components/ErrorToast";
-import React, { useEffect, useCallback, useState } from "react";
-import { Text, TouchableOpacity } from "react-native";
-import { View } from "react-native";
-import { OtpInput } from "react-native-otp-entry";
 import {
   useSendEmailVerificationMutation,
   useVerifyEmailCodeMutation,
 } from "@/api/services/authApi";
-import { useRouter } from "expo-router";
+import CircularCountdown from "@/components/CircularCountdown";
+import Button from "@/components/ui/Button";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
+import {
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/store/reducers/notificationSlice";
 import { setEmailVerified } from "@/store/reducers/userSlice";
+import { useRouter } from "expo-router";
 import { Formik } from "formik";
+import React, { useCallback, useEffect, useState } from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import { OtpInput } from "react-native-otp-entry";
 import * as yup from "yup";
 
 const verifyEmailSchema = yup.object({
@@ -26,9 +27,6 @@ const verifyEmailSchema = yup.object({
 
 function VerifyEmailForm() {
   const [isSendAgain, setIsSendAgain] = useState<boolean>(false);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
-  const [showErrorToast, setShowErrorToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
   const router = useRouter();
   const dispatch = useAppDispatch();
 
@@ -50,8 +48,7 @@ function VerifyEmailForm() {
       const errorMessage = Array.isArray(error?.data?.message)
         ? error.data.message.join(", ")
         : error?.data?.message || "Failed to send verification code";
-      setToastMessage(errorMessage);
-      setShowErrorToast(true);
+      dispatch(showErrorNotification(errorMessage));
     }
   }, [sendEmailVerification]);
 
@@ -67,8 +64,11 @@ function VerifyEmailForm() {
           dispatch(setEmailVerified(true));
 
           // Show success toast
-          setToastMessage(response.message || "Email verified successfully");
-          setShowSuccessToast(true);
+          dispatch(
+            showSuccessNotification(
+              response.message || "Email verified successfully"
+            )
+          );
 
           // Navigate after a short delay to show toast
           setTimeout(() => {
@@ -176,16 +176,6 @@ function VerifyEmailForm() {
           </View>
         )}
       </Formik>
-      <SuccessToast
-        visible={showSuccessToast}
-        message={toastMessage}
-        onClose={() => setShowSuccessToast(false)}
-      />
-      <ErrorToast
-        visible={showErrorToast}
-        message={toastMessage}
-        onClose={() => setShowErrorToast(false)}
-      />
     </>
   );
 }
