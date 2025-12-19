@@ -180,7 +180,7 @@ function EducationSection({
                 }`}
               >
                 {edu.inProgress && (
-                  <Text className="text-white text-xs">✓</Text>
+                  <Text className="text-white text-sm font-medium">✓</Text>
                 )}
               </TouchableOpacity>
               <Text className="text-gray-600">Education in progress</Text>

@@ -40,7 +40,7 @@ function PhoneVerificationStep({
         />
 
         <TouchableOpacity onPress={onResendCode} className="mt-4">
-          <Text className="text-blue-500 text-sm">
+          <Text className="text-blue-500 text-sm font-medium">
             Didn't receive code? Resend
           </Text>
         </TouchableOpacity>

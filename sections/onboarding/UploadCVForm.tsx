@@ -235,7 +235,9 @@ function UploadCVForm() {
           <Text className="text-black font-medium text-center">
             Click to upload your CV
           </Text>
-          <Text className="text-gray-500 text-sm mt-1">Max size 5 MB</Text>
+          <Text className="text-gray-500 text-sm font-medium mt-1">
+            Max size 5 MB
+          </Text>
         </View>
       </TouchableOpacity>
 
@@ -263,7 +265,7 @@ function UploadCVForm() {
         </View>
         <View className="flex-1">
           <Text className="text-black font-medium">{selectedFile?.name}</Text>
-          <Text className="text-gray-600 text-sm">
+          <Text className="text-gray-600 text-sm font-medium">
             Uploading... {uploadProgress}%
           </Text>
         </View>
@@ -295,7 +297,7 @@ function UploadCVForm() {
         </View>
         <View className="flex-1">
           <Text className="text-black font-medium">{selectedFile?.name}</Text>
-          <Text className="text-green-600 text-sm">
+          <Text className="text-green-600 text-sm font-medium">
             Upload Complete • {formatFileSize(selectedFile?.size || 0)}
           </Text>
         </View>

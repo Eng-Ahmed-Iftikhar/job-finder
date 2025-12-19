@@ -57,7 +57,7 @@ export default function VerifyResetCodeForm() {
   return (
     <View className="flex-1">
       <Text className="text-2xl font-semibold mb-2">Verify Reset Code</Text>
-      <Text className="text-sm text-gray-600 mb-6">
+      <Text className="text-sm font-medium text-gray-600 mb-6">
         We've sent a 5-digit verification code to {email}. Please enter it below
         to proceed.
       </Text>
@@ -71,7 +71,9 @@ export default function VerifyResetCodeForm() {
           <View className="flex-1">
             {serverError && (
               <View className="mb-4 p-3 bg-red-50 rounded-lg">
-                <Text className="text-sm text-red-600">{serverError}</Text>
+                <Text className="text-sm font-medium text-red-600">
+                  {serverError}
+                </Text>
               </View>
             )}
 
@@ -108,7 +110,7 @@ export default function VerifyResetCodeForm() {
               onPress={handleSendCode}
             >
               <Text
-                className={`${isSendAgain || isResending ? "text-gray-400" : "text-azure-radiance-500"} text-sm font-medium`}
+                className={`${isSendAgain || isResending ? "text-gray-400" : "text-azure-radiance-500"} text-sm font-medium font-medium`}
               >
                 {isResending
                   ? "Sending..."

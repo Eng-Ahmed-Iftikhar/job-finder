@@ -153,7 +153,7 @@ export default function LocationInput({
                       {item.mainText}
                     </Text>
                     {item.secondaryText && (
-                      <Text className="text-sm text-gray-500">
+                      <Text className="text-sm font-medium text-gray-500">
                         {item.secondaryText}
                       </Text>
                     )}

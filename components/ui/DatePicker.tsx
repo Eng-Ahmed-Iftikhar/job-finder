@@ -131,7 +131,9 @@ function DatePicker({
   return (
     <View className="flex-1">
       {label && (
-        <Text className="text-sm font-normal text-gray-600 mb-1">{label}</Text>
+        <Text className="text-sm font-medium font-normal text-gray-600 mb-1">
+          {label}
+        </Text>
       )}
       <TouchableOpacity
         onPress={() => editable && setShowModal(true)}
@@ -145,7 +147,7 @@ function DatePicker({
         </Text>
       </TouchableOpacity>
       {isError && error && (
-        <Text className="text-red-500 text-xs mt-1">{error}</Text>
+        <Text className="text-red-500 text-sm font-medium mt-1">{error}</Text>
       )}
 
       <Modal
@@ -170,7 +172,9 @@ function DatePicker({
               <View className="flex-row gap-4 mb-4">
                 {/* Year Selector */}
                 <View className="flex-1">
-                  <Text className="text-sm font-medium mb-2">Year</Text>
+                  <Text className="text-sm font-medium font-medium mb-2">
+                    Year
+                  </Text>
                   <FlatList
                     data={years}
                     keyExtractor={(item) => item.toString()}
@@ -206,7 +210,9 @@ function DatePicker({
 
                 {/* Month Selector */}
                 <View className="flex-1">
-                  <Text className="text-sm font-medium mb-2">Month</Text>
+                  <Text className="text-sm font-medium font-medium mb-2">
+                    Month
+                  </Text>
                   <FlatList
                     data={months}
                     keyExtractor={(item) => item.value.toString()}

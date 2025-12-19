@@ -166,7 +166,7 @@ export default function CompanyDetailContent({
             <Text className="text-base font-semibold text-gray-900 mb-1">
               {item.title}
             </Text>
-            <Text className="text-xs text-gray-500 mb-1">
+            <Text className="text-sm font-medium text-gray-500 mb-1">
               Published {item.publishedDate}
             </Text>
           </View>
@@ -177,10 +177,10 @@ export default function CompanyDetailContent({
       </View>
 
       <View className="flex-row items-center gap-1 mb-2">
-        <Text className="text-sm font-medium text-gray-900">
+        <Text className="text-sm font-medium font-medium text-gray-900">
           {item.company}
         </Text>
-        <Text className="text-sm text-gray-500">
+        <Text className="text-sm font-medium text-gray-500">
           • {item.location} ({item.distance})
         </Text>
       </View>
@@ -188,28 +188,34 @@ export default function CompanyDetailContent({
       <View className="flex-row items-center gap-2 mb-2">
         <View className="flex-row items-center gap-1">
           <Ionicons name="briefcase-outline" size={14} color="#6B7280" />
-          <Text className="text-xs text-gray-600">{item.employmentType}</Text>
+          <Text className="text-sm font-medium text-gray-600">
+            {item.employmentType}
+          </Text>
         </View>
         <View className="flex-row items-center gap-1">
           <Ionicons name="time-outline" size={14} color="#6B7280" />
-          <Text className="text-xs text-gray-600">{item.salary}</Text>
+          <Text className="text-sm font-medium text-gray-600">
+            {item.salary}
+          </Text>
         </View>
       </View>
 
       {item.isUrgent && (
         <View className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 mb-2">
-          <Text className="text-xs font-semibold text-orange-600">
+          <Text className="text-sm font-medium font-semibold text-orange-600">
             {item.description}
           </Text>
         </View>
       )}
 
       {!item.isUrgent && (
-        <Text className="text-sm text-gray-600 mb-2">{item.description}</Text>
+        <Text className="text-sm font-medium text-gray-600 mb-2">
+          {item.description}
+        </Text>
       )}
 
       <Pressable>
-        <Text className="text-sm font-semibold text-azure-radiance-500">
+        <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
           Learn more
         </Text>
       </Pressable>
@@ -230,7 +236,7 @@ export default function CompanyDetailContent({
             <Text className="text-base font-semibold text-gray-900">
               {item.authorName}
             </Text>
-            <Text className="text-xs text-gray-500">
+            <Text className="text-sm font-medium text-gray-500">
               {item.timestamp} • {item.location}
             </Text>
           </View>
@@ -240,7 +246,9 @@ export default function CompanyDetailContent({
         </Pressable>
       </View>
 
-      <Text className="text-sm text-gray-700 mb-3">{item.content}</Text>
+      <Text className="text-sm font-medium text-gray-700 mb-3">
+        {item.content}
+      </Text>
 
       {item.imageUrl && (
         <View className="w-full h-64 bg-orange-500 rounded-lg overflow-hidden">
@@ -256,7 +264,7 @@ export default function CompanyDetailContent({
     <View className="flex-1">
       <View className="p-4">
         <Text className="text-lg font-bold text-gray-900 mb-3">About</Text>
-        <Text className="text-sm text-gray-700 leading-6">
+        <Text className="text-sm font-medium text-gray-700 leading-6">
           Looking for an experienced Restaurant Manager. Professional
           mixologists dry ice icecream today's specials Aesop Wahlqvist Alec
           ethically sourcing. No signs Heston Bloomihill enjoy your meal forged
@@ -289,15 +297,15 @@ export default function CompanyDetailContent({
               <Ionicons name="restaurant" size={24} color="white" />
             </View>
             <View className="flex-1">
-              <Text className="text-sm font-semibold text-gray-900 mb-1">
+              <Text className="text-sm font-medium font-semibold text-gray-900 mb-1">
                 {job.title}
               </Text>
-              <Text className="text-xs text-gray-600">
+              <Text className="text-sm font-medium text-gray-600">
                 {job.company} • {job.location}
               </Text>
               <View className="flex-row items-center gap-1 mt-1">
                 <Ionicons name="briefcase-outline" size={12} color="#6B7280" />
-                <Text className="text-xs text-gray-500">
+                <Text className="text-sm font-medium text-gray-500">
                   {job.employmentType}
                 </Text>
               </View>
@@ -311,7 +319,7 @@ export default function CompanyDetailContent({
           onPress={() => setActiveTab("jobs")}
           className="flex-row items-center justify-between py-3"
         >
-          <Text className="text-sm font-semibold text-azure-radiance-500">
+          <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
             See all 12 jobs
           </Text>
           <Ionicons name="chevron-forward" size={18} color="#1eadff" />
@@ -331,10 +339,10 @@ export default function CompanyDetailContent({
                 <Ionicons name="restaurant" size={20} color="white" />
               </View>
               <View className="flex-1">
-                <Text className="text-sm font-semibold text-gray-900">
+                <Text className="text-sm font-medium font-semibold text-gray-900">
                   {post.authorName}
                 </Text>
-                <Text className="text-xs text-gray-500">
+                <Text className="text-sm font-medium text-gray-500">
                   {post.timestamp} • {post.location}
                 </Text>
               </View>
@@ -342,7 +350,9 @@ export default function CompanyDetailContent({
                 <Ionicons name="share-outline" size={18} color="#6B7280" />
               </Pressable>
             </View>
-            <Text className="text-sm text-gray-700 mb-3">{post.content}</Text>
+            <Text className="text-sm font-medium text-gray-700 mb-3">
+              {post.content}
+            </Text>
             {post.imageUrl && (
               <View className="w-full h-48 bg-orange-500 rounded-lg overflow-hidden">
                 <View className="w-full h-full items-center justify-center">
@@ -356,7 +366,7 @@ export default function CompanyDetailContent({
           onPress={() => setActiveTab("posts")}
           className="flex-row items-center justify-between py-3"
         >
-          <Text className="text-sm font-semibold text-azure-radiance-500">
+          <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
             See all 12 posts
           </Text>
           <Ionicons name="chevron-forward" size={18} color="#1eadff" />
@@ -376,7 +386,7 @@ export default function CompanyDetailContent({
             onChangeText={setSearchQuery}
             placeholder="Search"
             placeholderTextColor="#9CA3AF"
-            className="flex-1 ml-2 text-sm text-gray-900"
+            className="flex-1 ml-2 text-sm font-medium text-gray-900"
           />
         </View>
         <Pressable
@@ -389,7 +399,7 @@ export default function CompanyDetailContent({
 
       {/* Jobs Count */}
       <View className="bg-white px-4 py-3 border-b border-gray-100">
-        <Text className="text-sm text-gray-600">
+        <Text className="text-sm font-medium text-gray-600">
           {mockJobs.length} jobs found
         </Text>
       </View>
@@ -416,14 +426,14 @@ export default function CompanyDetailContent({
             onChangeText={setSearchQuery}
             placeholder="Search"
             placeholderTextColor="#9CA3AF"
-            className="flex-1 ml-2 text-sm text-gray-900"
+            className="flex-1 ml-2 text-sm font-medium text-gray-900"
           />
         </View>
       </View>
 
       {/* Posts Count */}
       <View className="bg-white px-4 py-3 border-b border-gray-100">
-        <Text className="text-sm text-gray-600">
+        <Text className="text-sm font-medium text-gray-600">
           {mockPosts.length} posts found
         </Text>
       </View>
@@ -497,7 +507,7 @@ export default function CompanyDetailContent({
         className="flex-1 py-3 items-center"
       >
         <Text
-          className={`text-sm font-semibold ${
+          className={`text-sm font-medium font-semibold ${
             activeTab === "overview"
               ? "text-azure-radiance-500"
               : "text-gray-500"
@@ -515,7 +525,7 @@ export default function CompanyDetailContent({
         className="flex-1 py-3 items-center"
       >
         <Text
-          className={`text-sm font-semibold ${
+          className={`text-sm font-medium font-semibold ${
             activeTab === "jobs" ? "text-azure-radiance-500" : "text-gray-500"
           }`}
         >
@@ -531,7 +541,7 @@ export default function CompanyDetailContent({
         className="flex-1 py-3 items-center"
       >
         <Text
-          className={`text-sm font-semibold ${
+          className={`text-sm font-medium font-semibold ${
             activeTab === "posts" ? "text-azure-radiance-500" : "text-gray-500"
           }`}
         >
@@ -577,11 +587,13 @@ export default function CompanyDetailContent({
             <Text className="text-xl font-bold text-gray-900 mb-1">
               Hungry Joe's
             </Text>
-            <Text className="text-sm text-gray-600 mb-2">Austin, TX</Text>
+            <Text className="text-sm font-medium text-gray-600 mb-2">
+              Austin, TX
+            </Text>
 
             {/* Followers Info */}
             <View className="flex-row items-center mb-3">
-              <Text className="text-sm">
+              <Text className="text-sm font-medium">
                 <Text className="text-azure-radiance-500 font-semibold">
                   26 followers
                 </Text>
@@ -596,7 +608,7 @@ export default function CompanyDetailContent({
             {/* Website Link */}
             <View className="flex-row items-center gap-2 mb-4">
               <Ionicons name="link-outline" size={16} color="#1eadff" />
-              <Text className="text-sm text-azure-radiance-500 font-medium">
+              <Text className="text-sm font-medium text-azure-radiance-500 font-medium">
                 hungryjoes.com
               </Text>
             </View>
@@ -616,7 +628,7 @@ export default function CompanyDetailContent({
                 color={isFollowing ? "#374151" : "white"}
               />
               <Text
-                className={`text-sm font-semibold ${
+                className={`text-sm font-medium font-semibold ${
                   isFollowing ? "text-gray-900" : "text-white"
                 }`}
               >
@@ -644,7 +656,7 @@ export default function CompanyDetailContent({
         <View className="py-4">
           {/* Employment Type */}
           <View className="px-4 mb-6">
-            <Text className="text-sm font-semibold text-gray-900 mb-3">
+            <Text className="text-sm font-medium font-semibold text-gray-900 mb-3">
               Employment type
             </Text>
             {employmentTypes.map((type) => (
@@ -659,7 +671,9 @@ export default function CompanyDetailContent({
                 }
                 className="flex-row items-center justify-between py-3 border-b border-gray-100"
               >
-                <Text className="text-sm text-gray-700">{type}</Text>
+                <Text className="text-sm font-medium text-gray-700">
+                  {type}
+                </Text>
                 <View
                   className={`w-5 h-5 rounded border-2 items-center justify-center ${
                     selectedEmploymentTypes.includes(type)
@@ -677,7 +691,7 @@ export default function CompanyDetailContent({
 
           {/* Salary Range */}
           <View className="px-4 mb-6">
-            <Text className="text-sm font-semibold text-gray-900 mb-3">
+            <Text className="text-sm font-medium font-semibold text-gray-900 mb-3">
               Salary range
             </Text>
             {salaryRanges.map((range) => (
@@ -692,7 +706,9 @@ export default function CompanyDetailContent({
                 }
                 className="flex-row items-center justify-between py-3 border-b border-gray-100"
               >
-                <Text className="text-sm text-gray-700">{range}</Text>
+                <Text className="text-sm font-medium text-gray-700">
+                  {range}
+                </Text>
                 <View
                   className={`w-5 h-5 rounded border-2 items-center justify-center ${
                     selectedSalaryRange.includes(range)

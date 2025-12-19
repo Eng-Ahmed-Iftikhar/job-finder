@@ -138,7 +138,7 @@ function VerifyEmailForm() {
 
             {/* Display error message */}
             {errors.verificationCode && touched.verificationCode && (
-              <Text className="text-red-500 text-sm mt-2 text-center">
+              <Text className="text-red-500 text-sm font-medium mt-2 text-center">
                 {errors.verificationCode}
               </Text>
             )}
@@ -157,7 +157,7 @@ function VerifyEmailForm() {
               onPress={handleSendCode}
             >
               <Text
-                className={`${isSendAgain || isSending ? "text-gray-400" : "text-azure-radiance-500"}  text-sm font-medium  `}
+                className={`${isSendAgain || isSending ? "text-gray-400" : "text-azure-radiance-500"}  text-sm font-medium font-medium  `}
               >
                 {isSending
                   ? "Sending..."

@@ -79,13 +79,13 @@ export default function ProfileDetailContent({
             <Text className="text-base text-gray-600 mb-1">
               {mockProfile.location}
             </Text>
-            <Text className="text-sm text-gray-500 mb-3">
+            <Text className="text-sm font-medium text-gray-500 mb-3">
               {mockProfile.joinedDate}
             </Text>
 
             {/* Connections */}
             <Pressable onPress={() => setShowConnectionsList(true)}>
-              <Text className="text-sm">
+              <Text className="text-sm font-medium">
                 <Text className="font-semibold text-azure-radiance-500">
                   {mockProfile.connectionsCount} connections
                 </Text>

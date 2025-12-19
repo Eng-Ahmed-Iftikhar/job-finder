@@ -130,7 +130,7 @@ function TabButton({
   return (
     <Pressable onPress={onPress} className="mr-5 pb-2">
       <Text
-        className={`text-sm font-semibold ${active ? "text-azure-radiance-500" : "text-gray-500"}`}
+        className={`text-sm font-medium font-semibold ${active ? "text-azure-radiance-500" : "text-gray-500"}`}
       >
         {label}
       </Text>
@@ -168,16 +168,16 @@ function CompanyRow({ item }: { item: CompanyItem }) {
           >
             {item.name}
           </Text>
-          <Text className="text-sm text-gray-600" numberOfLines={1}>
+          <Text className="text-sm font-medium text-gray-600" numberOfLines={1}>
             {item.location}
           </Text>
-          <Text className="text-sm font-semibold text-azure-radiance-500 mt-1">
+          <Text className="text-sm font-medium font-semibold text-azure-radiance-500 mt-1">
             {item.openJobs} open jobs
           </Text>
         </View>
       </View>
       <Pressable className="px-4 py-2 rounded-lg bg-azure-radiance-50 border border-azure-radiance-200">
-        <Text className="text-sm font-semibold text-azure-radiance-500">
+        <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
           Follow
         </Text>
       </Pressable>
@@ -212,16 +212,16 @@ function PeopleRow({ item }: { item: PeopleItem }) {
           >
             {item.name}
           </Text>
-          <Text className="text-sm text-gray-600" numberOfLines={1}>
+          <Text className="text-sm font-medium text-gray-600" numberOfLines={1}>
             {item.location}
           </Text>
-          <Text className="text-sm font-semibold text-azure-radiance-500 mt-1">
+          <Text className="text-sm font-medium font-semibold text-azure-radiance-500 mt-1">
             {item.mutualConnections} mutual connections
           </Text>
         </View>
       </View>
       <Pressable className="px-4 py-2 rounded-lg bg-azure-radiance-50 border border-azure-radiance-200">
-        <Text className="text-sm font-semibold text-azure-radiance-500">
+        <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
           Connect
         </Text>
       </Pressable>
@@ -277,7 +277,7 @@ export default function SearchResultsContent() {
       >
         <Text className="text-base text-gray-900">Employment type</Text>
         <View className="flex-row items-center gap-2">
-          <Text className="text-sm text-gray-500">
+          <Text className="text-sm font-medium text-gray-500">
             {Object.keys(employmentTypes)
               .filter((k) => employmentTypes[k])
               .map((k) =>
@@ -299,7 +299,7 @@ export default function SearchResultsContent() {
       >
         <Text className="text-base text-gray-900">Distance</Text>
         <View className="flex-row items-center gap-2">
-          <Text className="text-sm text-gray-500">{`${distanceRange[0]} - ${distanceRange[1]} mi`}</Text>
+          <Text className="text-sm font-medium text-gray-500">{`${distanceRange[0]} - ${distanceRange[1]} mi`}</Text>
           <Ionicons name="chevron-forward" size={18} color="#9CA3AF" />
         </View>
       </Pressable>
@@ -336,11 +336,11 @@ export default function SearchResultsContent() {
         <View className="flex-row items-center gap-2 px-3 py-2 rounded-lg border border-gray-300">
           <Text className="text-base text-gray-900">0</Text>
         </View>
-        <Text className="text-sm text-gray-500">-</Text>
+        <Text className="text-sm font-medium text-gray-500">-</Text>
         <View className="flex-row items-center gap-2 px-3 py-2 rounded-lg border border-gray-300">
           <Text className="text-base text-gray-900">5</Text>
         </View>
-        <Text className="text-sm text-gray-500">mi</Text>
+        <Text className="text-sm font-medium text-gray-500">mi</Text>
       </View>
       <View className="h-2 rounded-full bg-azure-radiance-100">
         <View className="h-2 rounded-full bg-azure-radiance-500 w-full" />
@@ -396,12 +396,12 @@ export default function SearchResultsContent() {
           </Pressable>
         </View>
 
-        <Text className="text-sm text-gray-500 mt-2 mb-1">
+        <Text className="text-sm font-medium text-gray-500 mt-2 mb-1">
           {headerSubtitle}
         </Text>
         <View className="flex-row items-center gap-2">
           <Ionicons name="location-outline" size={14} color="#6B7280" />
-          <Text className="text-xs text-gray-600">{location}</Text>
+          <Text className="text-sm font-medium text-gray-600">{location}</Text>
         </View>
       </View>
 

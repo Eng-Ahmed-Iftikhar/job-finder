@@ -50,7 +50,7 @@ export const CVSection: React.FC = () => {
         <Text className="text-azure-radiance font-semibold mb-2">
           {isUploading ? "Uploading..." : "Choose File"}
         </Text>
-        <Text className="text-gray-600 text-xs text-center">
+        <Text className="text-gray-600 text-sm font-medium text-center">
           Click to select a PDF file
         </Text>
       </Pressable>
@@ -72,7 +72,7 @@ export const CVSection: React.FC = () => {
       )}
 
       {formik.touched.cvFile && formik.errors.cvFile && (
-        <Text className="text-red-500 text-sm mt-2">
+        <Text className="text-red-500 text-sm font-medium mt-2">
           {formik.errors.cvFile as string}
         </Text>
       )}

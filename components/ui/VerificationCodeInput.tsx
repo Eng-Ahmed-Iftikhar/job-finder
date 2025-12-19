@@ -70,7 +70,9 @@ const VerificationCodeInput = forwardRef<
       />
 
       {error && (
-        <Text className="text-red-500 text-sm text-center mb-4">{error}</Text>
+        <Text className="text-red-500 text-sm font-medium text-center mb-4">
+          {error}
+        </Text>
       )}
     </View>
   );

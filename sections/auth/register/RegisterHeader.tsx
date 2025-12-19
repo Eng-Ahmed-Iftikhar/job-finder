@@ -6,7 +6,7 @@ function RegisterHeader() {
   return (
     <View className="flex items-center ">
       <Text className=" text-2xl font-semibold ">Sign up to find a job</Text>
-      <Text className="text-sm mt-2">
+      <Text className="text-sm font-medium mt-2 font-medium">
         Already have an account?{" "}
         <Link href="/(auth)/login" className="text-azure-radiance-500">
           Sign in

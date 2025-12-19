@@ -102,7 +102,7 @@ function PhoneVerificationScreen() {
           />
 
           {error ? (
-            <Text className="text-red-500 text-sm mt-2 text-center">
+            <Text className="text-red-500 text-sm font-medium mt-2 text-center">
               {error}
             </Text>
           ) : null}
@@ -125,7 +125,7 @@ function PhoneVerificationScreen() {
             className="flex-row items-center gap-2 max-w-[150px]"
           >
             <Text
-              className={`text-sm font-medium ${
+              className={`text-sm font-medium font-medium ${
                 isSending || !canResend
                   ? "text-gray-400"
                   : "text-azure-radiance-500"

@@ -86,7 +86,7 @@ export default function Pagination({
                 }`}
               >
                 <Text
-                  className={`text-sm font-semibold ${
+                  className={`text-sm font-medium font-semibold ${
                     currentPage === page ? "text-white" : "text-gray-700"
                   }`}
                 >
@@ -112,7 +112,7 @@ export default function Pagination({
 
       {/* Items Info */}
       {totalItems && (
-        <Text className="text-sm text-gray-500">
+        <Text className="text-sm font-medium text-gray-500">
           Showing {startItem}-{endItem} of {totalItems}
         </Text>
       )}

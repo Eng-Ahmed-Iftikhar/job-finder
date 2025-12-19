@@ -110,7 +110,10 @@ function DashboardHeader() {
                   {fullName}
                 </Text>
                 {user?.email && (
-                  <Text className="text-xs text-gray-500" numberOfLines={1}>
+                  <Text
+                    className="text-sm font-medium text-gray-500"
+                    numberOfLines={1}
+                  >
                     {user.email.email}
                   </Text>
                 )}
@@ -126,7 +129,9 @@ function DashboardHeader() {
                   color="#4B5563"
                   style={{ marginRight: 10 }}
                 />
-                <Text className="text-sm text-gray-800">Edit profile</Text>
+                <Text className="text-sm font-medium text-gray-800">
+                  Edit profile
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -139,7 +144,9 @@ function DashboardHeader() {
                   color="#4B5563"
                   style={{ marginRight: 10 }}
                 />
-                <Text className="text-sm text-gray-800">Settings</Text>
+                <Text className="text-sm font-medium text-gray-800">
+                  Settings
+                </Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -161,7 +168,9 @@ function DashboardHeader() {
                     style={{ marginRight: 10 }}
                   />
                 )}
-                <Text className="text-sm text-red-500">Log out</Text>
+                <Text className="text-sm font-medium text-red-500">
+                  Log out
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

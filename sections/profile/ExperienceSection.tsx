@@ -39,7 +39,7 @@ export const ExperienceSection: React.FC = () => {
                         onPress={() => arrayHelpers.remove(index)}
                         className="bg-red-100 px-3 py-1 rounded"
                       >
-                        <Text className="text-red-600 font-semibold text-xs">
+                        <Text className="text-red-600 font-semibold text-sm font-medium">
                           Remove
                         </Text>
                       </Pressable>
@@ -173,7 +173,7 @@ export const ExperienceSection: React.FC = () => {
                         }`}
                       >
                         {experience.current && (
-                          <Text className="text-white font-bold text-xs text-center">
+                          <Text className="text-white font-bold text-sm font-medium text-center">
                             ✓
                           </Text>
                         )}
@@ -208,7 +208,7 @@ export const ExperienceSection: React.FC = () => {
       <ErrorMessage
         name="experiences"
         component={Text}
-        className="text-red-500 text-xs mt-1"
+        className="text-red-500 text-sm font-medium mt-1"
       />
     </View>
   );

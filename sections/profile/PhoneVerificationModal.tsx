@@ -89,7 +89,7 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({
         <Text className="text-xl font-bold text-gray-800 mb-2">
           Verify Phone Number
         </Text>
-        <Text className="text-sm text-gray-600 mb-6">
+        <Text className="text-sm font-medium text-gray-600 mb-6">
           Enter the 5-digit code sent to {phone.countryCode} {phone.number}
         </Text>
 
@@ -115,7 +115,7 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({
           />
 
           {error ? (
-            <Text className="text-red-500 text-sm mt-2 text-center">
+            <Text className="text-red-500 text-sm font-medium mt-2 text-center">
               {error}
             </Text>
           ) : null}
@@ -141,7 +141,7 @@ export const PhoneVerificationModal: React.FC<PhoneVerificationModalProps> = ({
           onPress={handleSendCode}
         >
           <Text
-            className={`text-sm font-medium ${
+            className={`text-sm font-medium font-medium ${
               isSending || isSendAgain
                 ? "text-gray-400"
                 : "text-azure-radiance-500"

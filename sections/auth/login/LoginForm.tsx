@@ -113,7 +113,7 @@ function LoginForm() {
               <View className="mt-2">
                 <Link
                   href="/(auth)/forgot-password"
-                  className="text-azure-radiance-500 text-sm"
+                  className="text-azure-radiance-500 text-sm font-medium font-medium"
                 >
                   Forgot Password?
                 </Link>
@@ -126,7 +126,9 @@ function LoginForm() {
                     setFieldValue("rememberMe", value);
                   }}
                 />
-                <Text className="text-sm  ml-2">Keep me logged in</Text>
+                <Text className="text-sm font-medium  font-medium ml-2">
+                  Keep me logged in
+                </Text>
               </View>
               <Button
                 loading={isSubmitting}

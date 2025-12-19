@@ -85,13 +85,17 @@ export default function ChangePasswordModal({
           <View>
             {error && (
               <View className="mb-4 p-3 bg-red-50 rounded-lg">
-                <Text className="text-sm text-red-600">{error}</Text>
+                <Text className="text-sm font-medium text-red-600">
+                  {error}
+                </Text>
               </View>
             )}
 
             {success && (
               <View className="mb-4 p-3 bg-green-50 rounded-lg">
-                <Text className="text-sm text-green-600">{success}</Text>
+                <Text className="text-sm font-medium text-green-600">
+                  {success}
+                </Text>
               </View>
             )}
 

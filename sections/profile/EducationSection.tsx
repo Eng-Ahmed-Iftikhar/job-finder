@@ -35,7 +35,7 @@ export const EducationSection: React.FC = () => {
                       onPress={() => arrayHelpers.remove(index)}
                       className="bg-red-100 px-3 py-1 rounded"
                     >
-                      <Text className="text-red-600 font-semibold text-xs">
+                      <Text className="text-red-600 font-semibold text-sm font-medium">
                         Remove
                       </Text>
                     </Pressable>
@@ -140,7 +140,7 @@ export const EducationSection: React.FC = () => {
       <ErrorMessage
         name="educations"
         component={Text}
-        className="text-red-500 text-xs mt-1"
+        className="text-red-500 text-sm font-medium mt-1"
       />
     </View>
   );

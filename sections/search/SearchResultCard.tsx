@@ -53,7 +53,10 @@ export default function SearchResultCard({
         >
           {job.title}
         </Text>
-        <Text className="text-sm text-gray-600 mt-1" numberOfLines={1}>
+        <Text
+          className="text-sm font-medium text-gray-600 mt-1"
+          numberOfLines={1}
+        >
           {job.company}
           {job.location ? ` • ${job.location}` : ""}
           {job.distance ? ` (${job.distance})` : ""}
@@ -64,7 +67,10 @@ export default function SearchResultCard({
             {job.shiftInfo && (
               <View className="flex-row items-center gap-1">
                 <Ionicons name="briefcase-outline" size={14} color="#6B7280" />
-                <Text className="text-xs text-gray-600" numberOfLines={1}>
+                <Text
+                  className="text-sm font-medium text-gray-600"
+                  numberOfLines={1}
+                >
                   {job.shiftInfo}
                 </Text>
               </View>
@@ -72,7 +78,10 @@ export default function SearchResultCard({
             {job.rate && (
               <View className="flex-row items-center gap-1">
                 <Ionicons name="cash-outline" size={14} color="#6B7280" />
-                <Text className="text-xs text-gray-600" numberOfLines={1}>
+                <Text
+                  className="text-sm font-medium text-gray-600"
+                  numberOfLines={1}
+                >
                   {job.rate}
                 </Text>
               </View>

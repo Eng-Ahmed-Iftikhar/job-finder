@@ -54,12 +54,15 @@ export default function SearchJobResultCard({ job, onPress }: Props) {
             {job.title}
           </Text>
           {job.publishedAt && (
-            <Text className="text-xs text-gray-500 mt-1">
+            <Text className="text-sm font-medium text-gray-500 mt-1">
               {job.publishedAt}
             </Text>
           )}
 
-          <Text className="text-sm text-gray-700 mt-1" numberOfLines={1}>
+          <Text
+            className="text-sm font-medium text-gray-700 mt-1"
+            numberOfLines={1}
+          >
             {job.company}
             {job.location ? ` • ${job.location}` : ""}
             {job.distance ? ` (${job.distance})` : ""}
@@ -69,7 +72,10 @@ export default function SearchJobResultCard({ job, onPress }: Props) {
             {job.shiftInfo && (
               <View className="flex-row items-center gap-1">
                 <Ionicons name="briefcase-outline" size={14} color="#6B7280" />
-                <Text className="text-xs text-gray-700" numberOfLines={1}>
+                <Text
+                  className="text-sm font-medium text-gray-700"
+                  numberOfLines={1}
+                >
                   {job.shiftInfo}
                 </Text>
               </View>
@@ -77,7 +83,10 @@ export default function SearchJobResultCard({ job, onPress }: Props) {
             {job.rate && (
               <View className="flex-row items-center gap-1">
                 <Ionicons name="cash-outline" size={14} color="#6B7280" />
-                <Text className="text-xs text-gray-700" numberOfLines={1}>
+                <Text
+                  className="text-sm font-medium text-gray-700"
+                  numberOfLines={1}
+                >
                   {job.rate}
                 </Text>
               </View>
@@ -85,13 +94,16 @@ export default function SearchJobResultCard({ job, onPress }: Props) {
           </View>
 
           {job.description && (
-            <Text className="text-sm text-gray-800 mt-2" numberOfLines={2}>
+            <Text
+              className="text-sm font-medium text-gray-800 mt-2"
+              numberOfLines={2}
+            >
               {job.description}
             </Text>
           )}
 
           <Pressable className="mt-3" onPress={handlePress}>
-            <Text className="text-sm font-semibold text-azure-radiance-500">
+            <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
               Learn more
             </Text>
           </Pressable>

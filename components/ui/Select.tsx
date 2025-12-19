@@ -69,7 +69,9 @@ function Select({
 
   return (
     <View className="flex-1">
-      {label && <Text className="text-sm text-gray-600 mb-1">{label}</Text>}
+      {label && (
+        <Text className="text-sm font-medium text-gray-600 mb-1">{label}</Text>
+      )}
       <TouchableOpacity
         onPress={handleOpen}
         disabled={disabled}
@@ -78,7 +80,7 @@ function Select({
         }`}
       >
         <Text
-          className={`text-sm ${
+          className={`text-sm font-medium ${
             selectedItem ? "text-gray-900" : "text-gray-400"
           }`}
         >
@@ -90,7 +92,9 @@ function Select({
           color={disabled ? "#9CA3AF" : "#6B7280"}
         />
       </TouchableOpacity>
-      {isError && <Text className="text-red-500 text-xs mt-1">{error}</Text>}
+      {isError && (
+        <Text className="text-red-500 text-sm font-medium mt-1">{error}</Text>
+      )}
 
       <Modal
         visible={isOpen}
@@ -117,7 +121,7 @@ function Select({
                   onChangeText={setSearchText}
                   placeholder="Search..."
                   placeholderTextColor="#9CA3AF"
-                  className="flex-1 ml-2 text-sm text-gray-900"
+                  className="flex-1 ml-2 text-sm font-medium text-gray-900"
                   autoFocus
                 />
                 {searchText.length > 0 && (
@@ -157,7 +161,7 @@ function Select({
                 ))
               ) : (
                 <View className="p-8 items-center">
-                  <Text className="text-gray-500 text-sm">
+                  <Text className="text-gray-500 text-sm font-medium">
                     No results found
                   </Text>
                 </View>

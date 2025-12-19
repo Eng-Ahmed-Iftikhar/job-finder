@@ -20,7 +20,7 @@ export default function Tabs({ items, activeKey, className }: TabsProps) {
     <View className={`flex-row ${className ?? ""}`.trim()}>
       {items.map((item, index) => {
         const pressableClasses = `${index !== items.length - 1 ? "mr-6 " : ""}py-3`;
-        const textClasses = `text-sm font-semibold ${
+        const textClasses = `text-sm font-medium font-semibold ${
           activeKey === item.key ? "text-azure-radiance-500" : "text-gray-500"
         }`;
         const underline = activeKey === item.key;

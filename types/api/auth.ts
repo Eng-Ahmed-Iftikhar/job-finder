@@ -26,10 +26,8 @@ export type UserPhoneNumber = {
 };
 
 export enum UserRole {
-  USER = "USER",
-  ADMIN = "ADMIN",
   EMPLOYER = "EMPLOYER",
-  CANDIDATE = "CANDIDATE",
+  EMPLOYEE = "EMPLOYEE",
 }
 
 export type User = {

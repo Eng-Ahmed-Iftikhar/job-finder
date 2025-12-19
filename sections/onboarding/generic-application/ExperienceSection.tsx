@@ -145,7 +145,9 @@ function ExperienceSection({
                     : "border-gray-300"
                 }`}
               >
-                {exp.isCurrent && <Text className="text-white text-xs">✓</Text>}
+                {exp.isCurrent && (
+                  <Text className="text-white text-sm font-medium">✓</Text>
+                )}
               </TouchableOpacity>
               <Text className="text-gray-600">My current position</Text>
             </View>

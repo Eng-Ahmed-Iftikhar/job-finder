@@ -102,13 +102,18 @@ function RelatedJobCard({ job }: { job: Job }) {
           </Text>
           <Ionicons name="ellipsis-vertical" size={18} color="#9CA3AF" />
         </View>
-        <Text className="text-sm text-gray-600 mt-1" numberOfLines={1}>
+        <Text
+          className="text-sm font-medium text-gray-600 mt-1"
+          numberOfLines={1}
+        >
           {job.company} • {job.location}
         </Text>
         {job.shiftInfo && (
           <View className="flex-row items-center gap-1 mt-1">
             <Ionicons name="briefcase-outline" size={14} color="#6B7280" />
-            <Text className="text-xs text-gray-600">{job.shiftInfo}</Text>
+            <Text className="text-sm font-medium text-gray-600">
+              {job.shiftInfo}
+            </Text>
           </View>
         )}
       </View>
@@ -182,7 +187,7 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
 
           {/* Published Date */}
           {job.publishedAt && (
-            <Text className="text-sm text-gray-500 mb-3">
+            <Text className="text-sm font-medium text-gray-500 mb-3">
               {job.publishedAt}
             </Text>
           )}
@@ -190,7 +195,7 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
           {/* Location */}
           <View className="flex-row items-center gap-2 mb-3">
             <Ionicons name="location-outline" size={16} color="#6B7280" />
-            <Text className="text-sm text-gray-700 flex-1">
+            <Text className="text-sm font-medium text-gray-700 flex-1">
               {job.location}
               {job.distance ? ` (${job.distance})` : ""}
             </Text>
@@ -200,7 +205,7 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
           {job.shiftInfo && (
             <View className="flex-row items-center gap-2 mb-2">
               <Ionicons name="briefcase-outline" size={16} color="#6B7280" />
-              <Text className="text-sm font-semibold text-gray-900">
+              <Text className="text-sm font-medium font-semibold text-gray-900">
                 {job.shiftInfo}
               </Text>
             </View>
@@ -210,7 +215,7 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
           {job.rate && (
             <View className="flex-row items-center gap-2 mb-4">
               <Ionicons name="cash-outline" size={16} color="#6B7280" />
-              <Text className="text-sm font-semibold text-gray-900">
+              <Text className="text-sm font-medium font-semibold text-gray-900">
                 {job.rate}
               </Text>
             </View>
@@ -220,7 +225,7 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
           <Text className="text-lg font-bold text-gray-900 mb-3">
             Job description
           </Text>
-          <Text className="text-sm text-gray-700 leading-6 mb-6">
+          <Text className="text-sm font-medium text-gray-700 leading-6 mb-6">
             {job.description}
           </Text>
 
@@ -248,10 +253,13 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
                 >
                   {job.companyName}
                 </Text>
-                <Text className="text-sm text-gray-600" numberOfLines={1}>
+                <Text
+                  className="text-sm font-medium text-gray-600"
+                  numberOfLines={1}
+                >
                   {job.companyLocation}
                 </Text>
-                <Text className="text-sm font-semibold text-azure-radiance-500 mt-1">
+                <Text className="text-sm font-medium font-semibold text-azure-radiance-500 mt-1">
                   {job.companyOpenJobs} open jobs
                 </Text>
               </View>
@@ -265,7 +273,7 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
             >
               <View className="flex-row items-center gap-1">
                 <Ionicons name="add" size={16} color="#1eadff" />
-                <Text className="text-sm font-semibold text-azure-radiance-500">
+                <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
                   Follow
                 </Text>
               </View>
@@ -276,7 +284,7 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
           <View className="flex-row items-center justify-between mb-3">
             <Text className="text-lg font-bold text-gray-900">Jobs</Text>
             <Pressable className="flex-row items-center gap-1">
-              <Text className="text-sm font-semibold text-azure-radiance-500">
+              <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
                 See all {job.companyOpenJobs} jobs
               </Text>
               <Ionicons name="chevron-forward" size={16} color="#1eadff" />
@@ -293,12 +301,12 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
       <View className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-white border-t border-gray-200">
         {interviewScheduled && (
           <View className="mb-3 flex-row items-center justify-between">
-            <Text className="text-sm text-gray-700">
+            <Text className="text-sm font-medium text-gray-700">
               Job interview scheduled for{"\n"}
               <Text className="font-semibold">Feb 14, 4:30 PM</Text>
             </Text>
             <Pressable onPress={handleAddToCalendar}>
-              <Text className="text-sm font-semibold text-azure-radiance-500">
+              <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
                 Add to Google Calendar
               </Text>
             </Pressable>

@@ -24,12 +24,12 @@ export const BioSection: React.FC = () => {
         numberOfLines={3}
       />
 
-      <Text className="text-gray-500 text-xs mt-2">
+      <Text className="text-gray-500 text-sm font-medium mt-2">
         {formik.values.bio.length}/500 characters
       </Text>
 
       {formik.touched.bio && formik.errors.bio && (
-        <Text className="text-red-500 text-sm mt-1">
+        <Text className="text-red-500 text-sm font-medium mt-1">
           {formik.errors.bio as string}
         </Text>
       )}

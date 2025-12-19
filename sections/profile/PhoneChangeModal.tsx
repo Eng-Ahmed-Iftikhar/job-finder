@@ -103,7 +103,7 @@ export const PhoneChangeModal: React.FC<PhoneChangeModalProps> = ({
             <Text className="text-xl font-bold text-gray-800 mb-2">
               Verify Your Identity
             </Text>
-            <Text className="text-sm text-gray-600 mb-6">
+            <Text className="text-sm font-medium text-gray-600 mb-6">
               Please enter your password to change your phone number
             </Text>
 
@@ -130,14 +130,16 @@ export const PhoneChangeModal: React.FC<PhoneChangeModalProps> = ({
                 </Pressable>
               </View>
               {password && (
-                <Text className="text-gray-500 text-xs mt-2">
+                <Text className="text-gray-500 text-sm font-medium mt-2">
                   ✓ Password entered
                 </Text>
               )}
             </View>
 
             {error && (
-              <Text className="text-red-500 text-sm mb-4">{error}</Text>
+              <Text className="text-red-500 text-sm font-medium mb-4">
+                {error}
+              </Text>
             )}
 
             <View className="flex-row gap-3">

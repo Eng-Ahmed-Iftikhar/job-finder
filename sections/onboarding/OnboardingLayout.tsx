@@ -66,7 +66,7 @@ function OnboardingLayout() {
         <Image source={Logo} className="h-[40px] w-[76px]" />
         <TouchableOpacity onPress={handleLogout} disabled={isLoggingOut}>
           <Text
-            className={`text-sm font-semibold ${isLoggingOut ? "text-gray-400" : "text-azure-radiance-500"}`}
+            className={`text-sm font-medium font-semibold ${isLoggingOut ? "text-gray-400" : "text-azure-radiance-500"}`}
           >
             {isLoggingOut ? "Logging out..." : "Logout"}
           </Text>
@@ -76,7 +76,7 @@ function OnboardingLayout() {
       <View className="w-[300px]  mx-auto  mt-3 ">
         <Text className=" font-semibold text-2xl text-center">{title}</Text>
 
-        <Text className="text-sm text-gray-500 text-center mt-2 ">
+        <Text className="text-sm font-medium text-gray-500 text-center mt-2 ">
           {description}
         </Text>
       </View>

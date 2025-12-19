@@ -34,7 +34,10 @@ export default function ShareDropdown({
         className="flex-row items-center bg-gray-50 rounded-lg px-4 py-3 mb-4"
       >
         <Icon name="link-outline" size={20} color="#9CA3AF" />
-        <Text className="flex-1 ml-3 text-sm text-gray-700" numberOfLines={1}>
+        <Text
+          className="flex-1 ml-3 text-sm font-medium text-gray-700"
+          numberOfLines={1}
+        >
           {jobUrl}
         </Text>
         <Icon name="copy-outline" size={20} color="#9CA3AF" />
@@ -48,21 +51,25 @@ export default function ShareDropdown({
           <View className="w-10 h-10 rounded-full bg-blue-600 items-center justify-center">
             <Icon name="logo-facebook" size={20} color="#FFFFFF" />
           </View>
-          <Text className="text-xs text-gray-700 mt-1">Facebook</Text>
+          <Text className="text-sm font-medium text-gray-700 mt-1">
+            Facebook
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={onShareTwitter} className="items-center">
           <View className="w-10 h-10 rounded-full bg-sky-500 items-center justify-center">
             <Icon name="logo-twitter" size={20} color="#FFFFFF" />
           </View>
-          <Text className="text-xs text-gray-700 mt-1">Twitter</Text>
+          <Text className="text-sm font-medium text-gray-700 mt-1">
+            Twitter
+          </Text>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={onShareEmail} className="items-center">
           <View className="w-10 h-10 rounded-full bg-gray-600 items-center justify-center">
             <Icon name="mail-outline" size={20} color="#FFFFFF" />
           </View>
-          <Text className="text-xs text-gray-700 mt-1">Email</Text>
+          <Text className="text-sm font-medium text-gray-700 mt-1">Email</Text>
         </TouchableOpacity>
       </View>
     </View>

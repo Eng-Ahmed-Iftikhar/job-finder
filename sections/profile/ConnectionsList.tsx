@@ -84,7 +84,9 @@ export default function ConnectionsList({
         <Text className="text-base font-semibold text-gray-900">
           {item.name}
         </Text>
-        <Text className="text-sm text-gray-600">{item.location}</Text>
+        <Text className="text-sm font-medium text-gray-600">
+          {item.location}
+        </Text>
       </View>
       {activeTab === "connections" ? (
         <Pressable
@@ -92,7 +94,7 @@ export default function ConnectionsList({
           className="px-4 py-2 rounded-lg bg-azure-radiance-50 border border-azure-radiance-200 flex-row items-center gap-1"
         >
           <Ionicons name="person-add" size={16} color="#1eadff" />
-          <Text className="text-sm font-semibold text-azure-radiance-500">
+          <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
             Connect
           </Text>
         </Pressable>
@@ -103,7 +105,7 @@ export default function ConnectionsList({
             className="px-4 py-2 rounded-lg bg-azure-radiance-50 border border-azure-radiance-200 flex-row items-center gap-1"
           >
             <Ionicons name="chatbubble" size={16} color="#1eadff" />
-            <Text className="text-sm font-semibold text-azure-radiance-500">
+            <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
               Message
             </Text>
           </Pressable>
@@ -127,7 +129,7 @@ export default function ConnectionsList({
           className="mr-8 py-3 flex-row items-center gap-2"
         >
           <Text
-            className={`text-sm font-semibold ${
+            className={`text-sm font-medium font-semibold ${
               activeTab === "connections"
                 ? "text-azure-radiance-500"
                 : "text-gray-600"
@@ -143,7 +145,7 @@ export default function ConnectionsList({
             }`}
           >
             <Text
-              className={`text-xs font-semibold ${
+              className={`text-sm font-medium font-semibold ${
                 activeTab === "connections" ? "text-white" : "text-gray-600"
               }`}
             >
@@ -163,7 +165,7 @@ export default function ConnectionsList({
           className="py-3 flex-row items-center gap-2"
         >
           <Text
-            className={`text-sm font-semibold ${
+            className={`text-sm font-medium font-semibold ${
               activeTab === "mutual"
                 ? "text-azure-radiance-500"
                 : "text-gray-600"
@@ -177,7 +179,7 @@ export default function ConnectionsList({
             }`}
           >
             <Text
-              className={`text-xs font-semibold ${
+              className={`text-sm font-medium font-semibold ${
                 activeTab === "mutual" ? "text-white" : "text-gray-600"
               }`}
             >
@@ -199,7 +201,7 @@ export default function ConnectionsList({
             onChangeText={setSearchQuery}
             placeholder="Search"
             placeholderTextColor="#9CA3AF"
-            className="flex-1 ml-2 text-sm text-gray-900"
+            className="flex-1 ml-2 text-sm font-medium text-gray-900"
           />
         </View>
       </View>

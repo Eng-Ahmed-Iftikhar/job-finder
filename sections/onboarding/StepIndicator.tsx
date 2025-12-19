@@ -35,7 +35,7 @@ export default function StepIndicator({
       </View>
 
       <View className=" flex-row justify-center mt-9  ">
-        <Text className=" text-sm font-medium text-gray-400   ">
+        <Text className=" text-sm font-medium font-medium text-gray-400   ">
           STEP {current}/{total}
         </Text>
       </View>

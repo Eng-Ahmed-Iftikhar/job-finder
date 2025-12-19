@@ -1,53 +1,39 @@
-import React, { Suspense } from "react";
-import { Slot, usePathname, useRouter } from "expo-router";
-import { View, TouchableOpacity, Text } from "react-native";
+import React, { Suspense, useMemo } from "react";
+import { Slot, usePathname } from "expo-router";
+import { View } from "react-native";
 import AppLoader from "@/components/AppLoader";
-
-const tabs = [
-  { name: "Suggested jobs", route: "/(dashboard)/(tabs)/jobs", label: "/jobs" },
-  {
-    name: "Applied",
-    route: "/(dashboard)/(tabs)/jobs/applied",
-    label: "/jobs/applied",
-  },
-  {
-    name: "Saved",
-    route: "/(dashboard)/(tabs)/jobs/saved",
-    label: "/jobs/saved",
-  },
-];
+import Tabs from "@/components/ui/Tabs";
 
 export default function JobsTopTabsLayout() {
-  const router = useRouter();
   const pathname = usePathname();
+
+  const activeKey = useMemo(() => {
+    if (pathname?.endsWith("/jobs/applied")) return "applied";
+    if (pathname?.endsWith("/jobs/saved")) return "saved";
+    return "suggested";
+  }, [pathname]);
+
+  const items = [
+    {
+      key: "suggested",
+      label: "Suggested jobs",
+      href: "/(dashboard)/(tabs)/jobs",
+    },
+    {
+      key: "applied",
+      label: "Applied",
+      href: "/(dashboard)/(tabs)/jobs/applied",
+    },
+    { key: "saved", label: "Saved", href: "/(dashboard)/(tabs)/jobs/saved" },
+  ];
 
   return (
     <View style={{ flex: 1 }}>
-      <View className="flex-row px-4 pt-3 bg-white border-b border-gray-200 gap-6">
-        {tabs.map((tab) => {
-          const active = pathname === tab.label;
-          return (
-            <TouchableOpacity
-              key={tab.route}
-              className="items-center "
-              onPress={() => router.replace(tab.route)}
-            >
-              <Text
-                className={`text-sm font-medium ${
-                  active ? "text-azure-radiance-500" : "text-gray-500"
-                }`}
-              >
-                {tab.name}
-              </Text>
-              <View
-                className={`h-0.5 w-full mt-2 ${
-                  active ? "bg-azure-radiance-500" : "bg-transparent"
-                }`}
-              />
-            </TouchableOpacity>
-          );
-        })}
-      </View>
+      <Tabs
+        items={items}
+        activeKey={activeKey}
+        className="px-4  bg-white border-b border-gray-200 "
+      />
 
       <Suspense fallback={<AppLoader />}>
         <Slot />

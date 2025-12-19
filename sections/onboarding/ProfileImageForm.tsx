@@ -309,13 +309,13 @@ function ProfileImageForm() {
 
               {/* Image Requirements */}
               <View className="mb-8">
-                <Text className="text-gray-600 text-center text-sm mb-1">
+                <Text className="text-gray-600 text-center text-sm font-medium mb-1">
                   Recommended resolution is 300×300 px.
                 </Text>
-                <Text className="text-gray-600 text-center text-sm mb-1">
+                <Text className="text-gray-600 text-center text-sm font-medium mb-1">
                   Max size - 2 MB.
                 </Text>
-                <Text className="text-gray-600 text-center text-sm">
+                <Text className="text-gray-600 text-center text-sm font-medium">
                   Allowed formats: *.jpg, *.jpeg, *.png, *.gif
                 </Text>
               </View>

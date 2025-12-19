@@ -5,13 +5,7 @@ import { SocialProvider } from "@/types/api/auth";
 import { Link } from "expo-router";
 import { Formik } from "formik";
 import React, { useCallback } from "react";
-import {
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  Text,
-  View,
-} from "react-native";
+import { Text, View } from "react-native";
 import * as yup from "yup";
 
 const registerSchema = yup.object({
@@ -167,18 +161,18 @@ function RegisterForm() {
             </View>
 
             <View className=" mt-6">
-              <Text className="text-sm text-gray-500">
+              <Text className="text-sm font-medium text-gray-500 font-medium">
                 By signing up, you confirm that you agree to{" "}
                 <Link
                   href="/terms-and-conditions"
-                  className="text-azure-radiance-500 text-sm"
+                  className="text-azure-radiance-500 text-sm font-medium"
                 >
                   Terms & Conditions
                 </Link>{" "}
                 and{" "}
                 <Link
                   href="/privacy-policy"
-                  className="text-azure-radiance-500 text-sm"
+                  className="text-azure-radiance-500 text-sm font-medium"
                 >
                   Privacy Policy
                 </Link>

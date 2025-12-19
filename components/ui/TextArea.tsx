@@ -19,7 +19,9 @@ export default function TextArea({
 
   return (
     <View style={{ flex: 1, minHeight }}>
-      {label && <Text className="text-sm text-gray-600 mb-1">{label}</Text>}
+      {label && (
+        <Text className="text-sm font-medium text-gray-600 mb-1">{label}</Text>
+      )}
       <TextInput
         className={`border ${isError ? "border-red-500" : "border-gray-300"} rounded-lg px-4 py-2 text-base`}
         style={{ minHeight }}
@@ -29,7 +31,7 @@ export default function TextArea({
         {...props}
       />
       {isError && error && (
-        <Text className="text-red-500 text-xs mt-1">{error}</Text>
+        <Text className="text-red-500 text-sm font-medium mt-1">{error}</Text>
       )}
     </View>
   );

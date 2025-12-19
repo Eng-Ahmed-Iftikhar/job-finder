@@ -116,7 +116,7 @@ function SkillsSection({ values, setFieldValue, formik }: SkillsSectionProps) {
           unselectedSkills &&
           unselectedSkills.length > 0 && (
             <View>
-              <Text className="text-sm text-gray-600 mb-2">
+              <Text className="text-sm font-medium text-gray-600 mb-2">
                 Select from available skills:
               </Text>
               <View className="flex-row flex-wrap gap-2">
@@ -126,7 +126,7 @@ function SkillsSection({ values, setFieldValue, formik }: SkillsSectionProps) {
                     onPress={() => handleSelectSkill(skill.id)}
                     className="bg-gray-200 px-3 py-2 rounded-full"
                   >
-                    <Text className="text-gray-700 text-sm font-medium">
+                    <Text className="text-gray-700 text-sm font-medium font-medium">
                       {skill.name}
                     </Text>
                   </TouchableOpacity>
@@ -139,7 +139,9 @@ function SkillsSection({ values, setFieldValue, formik }: SkillsSectionProps) {
         {/* Selected skills */}
         {values.length > 0 && (
           <View>
-            <Text className="text-sm text-gray-600 mb-2">Selected skills:</Text>
+            <Text className="text-sm font-medium text-gray-600 mb-2">
+              Selected skills:
+            </Text>
             <View className="flex-row flex-wrap gap-2">
               {values.map((skillId) => (
                 <TouchableOpacity
@@ -147,10 +149,12 @@ function SkillsSection({ values, setFieldValue, formik }: SkillsSectionProps) {
                   onPress={() => handleRemoveSkill(skillId)}
                   className="bg-azure-radiance-500 px-3 py-2 rounded-full flex-row items-center gap-2"
                 >
-                  <Text className="text-white text-sm font-medium">
+                  <Text className="text-white text-sm font-medium font-medium">
                     {getSkillName(skillId)}
                   </Text>
-                  <Text className="text-white text-sm font-bold">×</Text>
+                  <Text className="text-white text-sm font-medium font-bold">
+                    ×
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -159,7 +163,7 @@ function SkillsSection({ values, setFieldValue, formik }: SkillsSectionProps) {
 
         {/* Error message */}
         {hasError && (
-          <Text className="text-red-500 text-sm mt-1">
+          <Text className="text-red-500 text-sm font-medium mt-1">
             {formik.errors.skillIds}
           </Text>
         )}

@@ -47,7 +47,7 @@ export default function ResetPasswordForm() {
   return (
     <View className="flex-1">
       <Text className="text-2xl font-semibold mb-2">Reset Password</Text>
-      <Text className="text-sm text-gray-600 mb-6">
+      <Text className="text-sm font-medium text-gray-600 mb-6">
         Choose a strong password for your account. Make sure it's at least 6
         characters long.
       </Text>
@@ -68,13 +68,17 @@ export default function ResetPasswordForm() {
           <View className="flex-1">
             {serverError && (
               <View className="mb-4 p-3 bg-red-50 rounded-lg">
-                <Text className="text-sm text-red-600">{serverError}</Text>
+                <Text className="text-sm font-medium text-red-600">
+                  {serverError}
+                </Text>
               </View>
             )}
 
             {success && (
               <View className="mb-4 p-3 bg-green-50 rounded-lg">
-                <Text className="text-sm text-green-600">{success}</Text>
+                <Text className="text-sm font-medium text-green-600">
+                  {success}
+                </Text>
               </View>
             )}
 

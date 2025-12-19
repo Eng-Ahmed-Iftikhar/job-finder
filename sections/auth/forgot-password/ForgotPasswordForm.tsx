@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, Text } from "react-native";
+import { View, Text, TouchableOpacity } from "react-native";
 import { Formik } from "formik";
 import * as Yup from "yup";
 import { router } from "expo-router";
@@ -38,7 +38,7 @@ export default function ForgotPasswordForm() {
   return (
     <View className="flex-1">
       <Text className="text-2xl font-semibold mb-2">Forgot Password</Text>
-      <Text className="text-sm text-gray-600 mb-6">
+      <Text className="text-sm font-medium text-gray-600 mb-6">
         Enter your email address and we'll send you a verification code to reset
         your password
       </Text>
@@ -59,13 +59,17 @@ export default function ForgotPasswordForm() {
           <View className="flex-1">
             {serverError && (
               <View className="mb-4 p-3 bg-red-50 rounded-lg">
-                <Text className="text-sm text-red-600">{serverError}</Text>
+                <Text className="text-sm font-medium text-red-600">
+                  {serverError}
+                </Text>
               </View>
             )}
 
             {success && (
               <View className="mb-4 p-3 bg-green-50 rounded-lg">
-                <Text className="text-sm text-green-600">{success}</Text>
+                <Text className="text-sm font-medium text-green-600">
+                  {success}
+                </Text>
               </View>
             )}
 
@@ -92,6 +96,16 @@ export default function ForgotPasswordForm() {
             >
               Continue
             </Button>
+            <View className="flex-row  mt-6 items-center gap-1">
+              <Text className="text-gray-500 text-sm font-medium">
+                Remember your password?
+              </Text>
+              <TouchableOpacity onPress={() => router.replace("/(auth)/login")}>
+                <Text className="text-sm text-azure-radiance-500 font-medium">
+                  Log in
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
       </Formik>

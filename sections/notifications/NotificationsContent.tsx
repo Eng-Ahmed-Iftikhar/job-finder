@@ -96,7 +96,7 @@ function TabButton({
       </Text>
       {typeof count === "number" && count > 0 && (
         <View className="px-2 py-0.5 bg-azure-radiance-50 rounded-full border border-azure-radiance-100">
-          <Text className="text-xs font-semibold text-azure-radiance-600">
+          <Text className="text-sm font-medium font-semibold text-azure-radiance-600">
             {count}
           </Text>
         </View>
@@ -139,13 +139,13 @@ function InterviewNotification({
             Job interview scheduled with{" "}
             <Text className="font-bold">{notification.companyName}</Text>
           </Text>
-          <Text className="text-sm text-gray-500 mt-1">
+          <Text className="text-sm font-medium text-gray-500 mt-1">
             {notification.date}
           </Text>
 
           <Pressable className="flex-row items-center gap-2 mt-3 px-3 py-2 rounded-lg border border-azure-radiance-500 bg-azure-radiance-50 w-32 ">
             <Ionicons name="chatbubble-ellipses" size={16} color={ACCENT} />
-            <Text className="text-sm font-semibold text-azure-radiance-600">
+            <Text className="text-sm font-medium font-semibold text-azure-radiance-600">
               Message
             </Text>
           </Pressable>
@@ -186,7 +186,7 @@ function ConnectionNotification({
             />
           </View>
 
-          <Text className="text-sm text-gray-600">
+          <Text className="text-sm font-medium text-gray-600">
             Connection request accepted
           </Text>
         </View>
@@ -231,7 +231,9 @@ function ConnectionNotification({
               className="flex-row items-center px-4 py-2 rounded-lg bg-azure-radiance-500 gap-1"
             >
               <Ionicons name="checkmark" size={16} color="white" />
-              <Text className="text-sm font-semibold text-white">Accept</Text>
+              <Text className="text-sm font-medium font-semibold text-white">
+                Accept
+              </Text>
             </Pressable>
 
             <Pressable
@@ -239,7 +241,7 @@ function ConnectionNotification({
               className="flex-row items-center px-4 py-2 rounded-lg border border-gray-300 gap-1"
             >
               <Ionicons name="close" size={16} color="#6B7280" />
-              <Text className="text-sm font-semibold text-gray-700">
+              <Text className="text-sm font-medium font-semibold text-gray-700">
                 Ignore
               </Text>
             </Pressable>
@@ -314,7 +316,7 @@ export default function NotificationsContent({
           <Text className="text-base font-semibold text-gray-900 mb-1 text-center">
             No notifications
           </Text>
-          <Text className="text-sm text-gray-500 text-center">
+          <Text className="text-sm font-medium text-gray-500 text-center">
             You're all caught up!
           </Text>
         </View>

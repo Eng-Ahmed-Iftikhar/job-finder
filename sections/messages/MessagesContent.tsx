@@ -136,11 +136,16 @@ function ConversationRow({
         <Text className="text-base font-semibold text-gray-900">
           {item.name}
         </Text>
-        <Text className="text-sm text-gray-500 mt-1" numberOfLines={1}>
+        <Text
+          className="text-sm font-medium text-gray-500 mt-1"
+          numberOfLines={1}
+        >
           {item.lastMessage}
         </Text>
       </View>
-      <Text className="text-xs text-gray-400">{item.timestamp}</Text>
+      <Text className="text-sm font-medium text-gray-400">
+        {item.timestamp}
+      </Text>
     </Pressable>
   );
 }
@@ -182,7 +187,8 @@ function MessageBubble({ message }: { message: Message }) {
       </Text>
       <Text
         className={
-          "text-xs mt-1 " + (message.isOwn ? "text-blue-100" : "text-gray-500")
+          "text-sm font-medium mt-1 " +
+          (message.isOwn ? "text-blue-100" : "text-gray-500")
         }
       >
         {message.timestamp}
@@ -200,7 +206,9 @@ function SelectedUserChip({
 }) {
   return (
     <View className="flex-row items-center gap-2 px-3 py-2 rounded-full bg-emerald-500 self-flex-start">
-      <Text className="text-sm font-semibold text-white">{name}</Text>
+      <Text className="text-sm font-medium font-semibold text-white">
+        {name}
+      </Text>
       <Pressable onPress={onRemove}>
         <Ionicons name="close" size={16} color="white" />
       </Pressable>
@@ -259,7 +267,7 @@ function MessagesListScreen({
           <Text className="text-base font-semibold text-gray-900 mb-1 text-center">
             No messages yet
           </Text>
-          <Text className="text-sm text-gray-500 text-center mb-4">
+          <Text className="text-sm font-medium text-gray-500 text-center mb-4">
             Click + icon to write a new message
           </Text>
         </View>
@@ -413,7 +421,7 @@ function ChatDetailScreen({
         className="flex-1 px-4 py-4"
         showsVerticalScrollIndicator={false}
       >
-        <Text className="text-xs font-semibold text-gray-400 text-center mb-4">
+        <Text className="text-sm font-medium font-semibold text-gray-400 text-center mb-4">
           16 JAN
         </Text>
 
@@ -427,7 +435,7 @@ function ChatDetailScreen({
           msg.text.includes("Google Calendar")
         ) && (
           <View className="mt-4 px-4 py-3 bg-emerald-50 rounded-lg border border-emerald-200 mb-4">
-            <Text className="text-sm font-semibold text-emerald-700">
+            <Text className="text-sm font-medium font-semibold text-emerald-700">
               Add to Google Calendar
             </Text>
           </View>

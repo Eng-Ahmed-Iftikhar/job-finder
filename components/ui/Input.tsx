@@ -3,14 +3,14 @@ import { View, Text, TextInput, TouchableOpacity } from "react-native";
 import Icon from "react-native-vector-icons/Octicons"; // or 'react-native-vector-icons/Ionicons'
 
 type InputProps = {
-  label: string;
+  label?: string;
   type?: "text" | "password";
   error?: string;
   isError?: boolean;
 } & React.ComponentProps<typeof TextInput>;
 
 export default function Input({
-  label = "email",
+  label = "",
   type = "text",
   error = "",
   isError = false,
@@ -23,7 +23,7 @@ export default function Input({
       case "text":
         return (
           <TextInput
-            className={`border min-h-12 ${isError ? "border-red-500" : "border-gray-300"}  rounded-lg px-4 py-2 text-base`}
+            className={`border min-h-12 font-medium ${isError ? "border-red-500" : "border-gray-300"}  rounded-lg px-4 py-2 text-base`}
             {...props}
           />
         );
@@ -35,7 +35,7 @@ export default function Input({
           >
             <TextInput
               secureTextEntry={!passwordVisible}
-              className="flex-1 py-2 text-base"
+              className="flex-1 py-2 text-base font-medium"
               {...props}
             />
             <TouchableOpacity
@@ -53,7 +53,7 @@ export default function Input({
       default:
         return (
           <TextInput
-            className="border min-h-12 border-gray-300 rounded-lg  text-base"
+            className="border min-h-12 font-medium border-gray-300 rounded-lg  text-base"
             {...props}
           />
         );
@@ -62,9 +62,13 @@ export default function Input({
 
   return (
     <View className=" flex-1">
-      <Text className="text-sm text-gray-600 mb-1">{label}</Text>
+      {label && (
+        <Text className="text-sm font-medium text-gray-600 mb-1 ">{label}</Text>
+      )}
       {input}
-      {isError && <Text className="text-red-500 text-xs mt-1">{error}</Text>}
+      {isError && (
+        <Text className="text-red-500 text-sm font-medium mt-1 ">{error}</Text>
+      )}
     </View>
   );
 }

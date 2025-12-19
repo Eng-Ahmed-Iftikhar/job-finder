@@ -168,17 +168,17 @@ export default function SettingsContent() {
             {/* Table Header */}
             <View className="flex-row items-center mb-3">
               <View className="flex-1">
-                <Text className="text-xs font-semibold text-gray-500 uppercase">
+                <Text className="text-sm font-medium font-semibold text-gray-500 uppercase">
                   NOTIFICATION
                 </Text>
               </View>
               <View className="w-20 items-center">
-                <Text className="text-xs font-semibold text-gray-500 uppercase">
+                <Text className="text-sm font-medium font-semibold text-gray-500 uppercase">
                   SYSTEM
                 </Text>
               </View>
               <View className="w-20 items-center">
-                <Text className="text-xs font-semibold text-gray-500 uppercase">
+                <Text className="text-sm font-medium font-semibold text-gray-500 uppercase">
                   EMAIL
                 </Text>
               </View>
@@ -191,7 +191,7 @@ export default function SettingsContent() {
                 className="flex-row items-center py-4 border-b border-gray-100"
               >
                 <View className="flex-1">
-                  <Text className="text-sm text-gray-900">
+                  <Text className="text-sm font-medium text-gray-900">
                     {notification.label}
                   </Text>
                 </View>

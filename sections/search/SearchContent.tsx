@@ -144,7 +144,7 @@ export default function SearchContent() {
       >
         {showPopularSearches && (
           <View className="px-4 pt-4">
-            <Text className="text-sm font-semibold text-gray-500 mb-3">
+            <Text className="text-sm font-medium font-semibold text-gray-500 mb-3">
               Popular searches
             </Text>
             {popularSearches.map((item) => (
@@ -186,7 +186,7 @@ export default function SearchContent() {
 
         {showJobResults && (
           <View className="px-4 pt-4">
-            <Text className="text-sm font-semibold text-gray-500 mb-3">
+            <Text className="text-sm font-medium font-semibold text-gray-500 mb-3">
               Jobs
             </Text>
             <FlatList

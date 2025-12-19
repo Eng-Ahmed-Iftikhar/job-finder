@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from ".";
 import { authApi } from "@/api/services/authApi";
 import { userApi } from "@/api/services/userApi";
-import { User, UserProfile } from "@/types/api/auth";
+import { User, UserProfile, UserRole } from "@/types/api/auth";
 
 // Define a type for the slice state
 interface UserState {
@@ -56,6 +56,7 @@ export const userSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addMatcher(authApi.endpoints.me.matchFulfilled, (state, action) => {
+        if (action.payload.profile.role !== UserRole.EMPLOYEE) return;
         state["user"] = action.payload.user;
         state["profile"] = action.payload.profile;
         state.isLoggedIn = true;
@@ -114,15 +115,18 @@ export const userSlice = createSlice({
         }
       )
       // Handle login/signup success
-      .addMatcher(authApi.endpoints.signIn.matchFulfilled, (state) => {
+      .addMatcher(authApi.endpoints.signIn.matchFulfilled, (state, action) => {
         state.isLoggedIn = true;
       })
-      .addMatcher(authApi.endpoints.signUp.matchFulfilled, (state) => {
+      .addMatcher(authApi.endpoints.signUp.matchFulfilled, (state, action) => {
         state.isLoggedIn = true;
       })
-      .addMatcher(authApi.endpoints.socialLogin.matchFulfilled, (state) => {
-        state.isLoggedIn = true;
-      })
+      .addMatcher(
+        authApi.endpoints.socialLogin.matchFulfilled,
+        (state, action) => {
+          state.isLoggedIn = true;
+        }
+      )
       .addMatcher(authApi.endpoints.logout.matchFulfilled, (state) => {
         state.isLoggedIn = false;
         state.user = null;

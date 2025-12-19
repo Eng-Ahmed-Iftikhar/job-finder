@@ -146,7 +146,7 @@ function TabButton({
         </Text>
         {typeof count === "number" && count > 0 && (
           <View className="px-2 py-0.5 bg-azure-radiance-50 rounded-full border border-azure-radiance-100">
-            <Text className="text-xs font-semibold text-azure-radiance-600">
+            <Text className="text-sm font-medium font-semibold text-azure-radiance-600">
               {count}
             </Text>
           </View>
@@ -175,7 +175,7 @@ function PendingTabButton({
     <Pressable onPress={onPress} className="mr-5 pb-2">
       <Text
         className={
-          "text-sm font-semibold " +
+          "text-sm font-medium font-semibold " +
           (active ? "text-gray-900" : "text-gray-500")
         }
       >
@@ -220,7 +220,7 @@ function ConnectionRow({ item }: { item: ConnectionItem }) {
           >
             {item.name}
           </Text>
-          <Text className="text-sm text-gray-500" numberOfLines={1}>
+          <Text className="text-sm font-medium text-gray-500" numberOfLines={1}>
             {item.location}
           </Text>
         </View>
@@ -234,7 +234,7 @@ function ConnectionRow({ item }: { item: ConnectionItem }) {
             color={ACCENT}
             style={{ marginRight: 6 }}
           />
-          <Text className="text-sm font-semibold text-azure-radiance-600">
+          <Text className="text-sm font-medium font-semibold text-azure-radiance-600">
             Message
           </Text>
         </Pressable>
@@ -259,7 +259,7 @@ function PendingRow({ item }: { item: PendingItem }) {
           >
             {item.name}
           </Text>
-          <Text className="text-sm text-gray-500" numberOfLines={1}>
+          <Text className="text-sm font-medium text-gray-500" numberOfLines={1}>
             {item.location}
           </Text>
         </View>
@@ -296,7 +296,7 @@ function EmptyState({
       <Text className="text-base font-semibold text-gray-900 mb-1 text-center">
         {title}
       </Text>
-      <Text className="text-sm text-gray-500 text-center mb-4">
+      <Text className="text-sm font-medium text-gray-500 text-center mb-4">
         {description}
       </Text>
       <Pressable
@@ -309,7 +309,9 @@ function EmptyState({
           color="white"
           style={{ marginRight: 8 }}
         />
-        <Text className="text-sm font-semibold text-white">{actionLabel}</Text>
+        <Text className="text-sm font-medium font-semibold text-white">
+          {actionLabel}
+        </Text>
       </Pressable>
     </View>
   );

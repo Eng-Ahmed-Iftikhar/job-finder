@@ -27,7 +27,9 @@ function PhoneNumberInput({
 }: PhoneNumberInputProps) {
   return (
     <View>
-      {label && <Text className="text-sm text-gray-600 mb-1">{label}</Text>}
+      {label && (
+        <Text className="text-sm font-medium text-gray-600 mb-1">{label}</Text>
+      )}
       <View className="flex-row items-center gap-2">
         <View className="w-[30%]">
           <Select
@@ -40,14 +42,16 @@ function PhoneNumberInput({
         </View>
         <View className="border flex justify-center h-12 w-[68%] border-gray-300 rounded-lg px-3">
           <TextInput
-            className="text-sm text-gray-900"
+            className="text-sm font-medium text-gray-900"
             placeholderTextColor="#9CA3AF"
             editable={!disabled}
             {...inputNumberProps}
           />
         </View>
       </View>
-      {isError && <Text className="text-red-500 text-xs mt-1">{error}</Text>}
+      {isError && (
+        <Text className="text-red-500 text-sm font-medium mt-1">{error}</Text>
+      )}
     </View>
   );
 }

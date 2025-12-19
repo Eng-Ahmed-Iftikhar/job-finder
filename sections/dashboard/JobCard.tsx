@@ -75,7 +75,7 @@ function JobCard({ job, onPress }: JobCardProps) {
           />
         </View>
         {job.publishedAt && (
-          <Text className="text-xs text-gray-500 mb-2">
+          <Text className="text-sm font-medium text-gray-500 mb-2">
             Published{" "}
             {new Date(job.publishedAt).toLocaleDateString("en-US", {
               month: "short",
@@ -85,14 +85,14 @@ function JobCard({ job, onPress }: JobCardProps) {
         )}
         <View className="mb-2 flex-row items-center gap-1">
           <Text
-            className="text-sm font-semibold text-gray-700 mb-1"
+            className="text-sm font-medium font-semibold text-gray-700 mb-1"
             numberOfLines={1}
           >
             {job.company}
           </Text>
           {job.companyAddress && (
             <Text
-              className="text-xs text-end text-gray-600 mb-1"
+              className="text-sm font-medium text-end text-gray-600 mb-1"
               numberOfLines={1}
             >
               {job.companyAddress}
@@ -107,7 +107,10 @@ function JobCard({ job, onPress }: JobCardProps) {
               size={14}
               color="#4B5563"
             />
-            <Text className="text-xs font-bold text-gray-700" numberOfLines={1}>
+            <Text
+              className="text-sm font-medium font-bold text-gray-700"
+              numberOfLines={1}
+            >
               {jobTypeObj[job.jobType]}
             </Text>
           </View>
@@ -116,14 +119,20 @@ function JobCard({ job, onPress }: JobCardProps) {
         {job.rate && (
           <View className="flex-row items-center gap-2 mb-1">
             <Icon name="cash-outline" size={14} color="#4B5563" />
-            <Text className="text-xs font-bold text-gray-700" numberOfLines={1}>
+            <Text
+              className="text-sm font-medium font-bold text-gray-700"
+              numberOfLines={1}
+            >
               {job.rate}
             </Text>
           </View>
         )}
 
         {job.description && (
-          <Text className="text-sm text-gray-700 mt-2" numberOfLines={3}>
+          <Text
+            className="text-sm font-medium text-gray-700 mt-2"
+            numberOfLines={3}
+          >
             {job.description}
           </Text>
         )}
@@ -138,14 +147,14 @@ function JobCard({ job, onPress }: JobCardProps) {
               })
             }
           >
-            <Text className="text-azure-radiance-500 text-sm font-semibold">
+            <Text className="text-azure-radiance-500 text-sm font-medium font-semibold">
               Learn more
             </Text>
           </TouchableOpacity>
 
           {job.urgent && (
             <View className="px-2 py-1 rounded-full bg-orange-100">
-              <Text className="text-orange-600 text-xs font-semibold">
+              <Text className="text-orange-600 text-sm font-medium font-semibold">
                 URGENT
               </Text>
             </View>

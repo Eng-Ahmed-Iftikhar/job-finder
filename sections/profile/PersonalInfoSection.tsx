@@ -295,13 +295,13 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
               <View>
                 {!user?.email.isVerified ? (
                   <View className="bg-amber-100 px-2 py-1 rounded">
-                    <Text className="text-amber-700 text-xs font-medium">
+                    <Text className="text-amber-700 text-sm font-medium font-medium">
                       Not Verified
                     </Text>
                   </View>
                 ) : (
                   <View className="bg-emerald-100 px-2 py-1 rounded">
-                    <Text className="text-emerald-700 text-xs font-medium">
+                    <Text className="text-emerald-700 text-sm font-medium font-medium">
                       Verified
                     </Text>
                   </View>
@@ -339,13 +339,13 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
                 <View>
                   {userProfile?.phoneNumber?.isVerified ? (
                     <View className="bg-emerald-100 px-2 py-1 rounded">
-                      <Text className="text-emerald-700 text-xs font-medium">
+                      <Text className="text-emerald-700 text-sm font-medium font-medium">
                         Verified
                       </Text>
                     </View>
                   ) : (
                     <View className="bg-amber-100 px-2 py-1 rounded">
-                      <Text className="text-amber-700 text-xs font-medium">
+                      <Text className="text-amber-700 text-sm font-medium font-medium">
                         Not Verified
                       </Text>
                     </View>
@@ -362,7 +362,7 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
           <Text className="text-xl font-bold text-gray-800 mb-2">
             Verify Email
           </Text>
-          <Text className="text-sm text-gray-600 mb-6">
+          <Text className="text-sm font-medium text-gray-600 mb-6">
             Enter the 5-digit code sent to {formik.values.email}
           </Text>
 
@@ -390,7 +390,7 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
             />
 
             {codeError && (
-              <Text className="text-red-500 text-sm mt-2 text-center">
+              <Text className="text-red-500 text-sm font-medium mt-2 text-center">
                 {codeError}
               </Text>
             )}
@@ -414,7 +414,7 @@ export const PersonalInfoSection: React.FC<PersonalInfoSectionProps> = ({
                 isSendAgain || isSending
                   ? "text-gray-400"
                   : "text-azure-radiance-500"
-              } text-sm font-medium`}
+              } text-sm font-medium font-medium`}
             >
               {isSending
                 ? "Sending..."

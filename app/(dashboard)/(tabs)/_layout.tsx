@@ -11,6 +11,7 @@ export default function DashboardTabsLayout() {
         screenOptions={{
           headerShown: false,
           tabBarActiveTintColor: "#1eadff",
+          tabBarLabelStyle: { fontSize: 11, fontWeight: "bold" },
           tabBarIconStyle: { marginTop: 4 },
         }}
       >

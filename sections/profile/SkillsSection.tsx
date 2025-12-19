@@ -11,6 +11,7 @@ import {
   useGetSkillsQuery,
   useCreateSkillMutation,
 } from "@/api/services/skillApi";
+import Input from "@/components/ui/Input";
 
 interface FormValues {
   skillIds: string[]; // array of skill IDs
@@ -82,14 +83,12 @@ export const SkillsSection: React.FC = () => {
       <Text className="text-lg font-semibold text-gray-800 mb-4">Skills</Text>
 
       <View className="flex-row gap-2 mb-4">
-        <TextInput
-          className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-gray-800"
-          placeholder="Enter a skill"
-          placeholderTextColor="#999"
+        <Input
           value={skillInput}
           onChangeText={setSkillInput}
           onSubmitEditing={handleAddSkill}
           editable={!isCreatingSkill}
+          placeholder="Enter a skill"
         />
         <TouchableOpacity
           onPress={handleAddSkill}
@@ -114,7 +113,7 @@ export const SkillsSection: React.FC = () => {
         unselectedSkills &&
         unselectedSkills.length > 0 && (
           <View className="mb-4">
-            <Text className="text-sm text-gray-600 mb-2">
+            <Text className="text-sm font-medium text-gray-600 mb-2">
               Select from available skills:
             </Text>
             <View className="flex-row flex-wrap gap-2">
@@ -124,7 +123,7 @@ export const SkillsSection: React.FC = () => {
                   onPress={() => handleSelectSkill(skill.id)}
                   className="bg-gray-200 px-3 py-2 rounded-full"
                 >
-                  <Text className="text-gray-700 text-sm font-medium">
+                  <Text className="text-gray-700 text-sm font-medium font-medium">
                     {skill.name}
                   </Text>
                 </TouchableOpacity>
@@ -145,22 +144,24 @@ export const SkillsSection: React.FC = () => {
                 onPress={() => handleRemoveSkill(skillId)}
                 className="bg-azure-radiance-500 px-3 py-2 rounded-full flex-row items-center gap-2"
               >
-                <Text className="text-white text-sm font-medium">
+                <Text className="text-white text-sm font-medium font-medium">
                   {getSkillName(skillId)}
                 </Text>
-                <Text className="text-white text-sm font-bold">×</Text>
+                <Text className="text-white text-sm font-medium font-bold">
+                  ×
+                </Text>
               </TouchableOpacity>
             );
           })
         ) : (
-          <Text className="text-gray-500 text-sm italic">
+          <Text className="text-gray-500 text-sm font-medium italic">
             No skills added yet
           </Text>
         )}
       </View>
 
       {hasError && (
-        <Text className="text-red-500 text-sm mt-2">
+        <Text className="text-red-500 text-sm font-medium mt-2">
           {formik.errors.skillIds as string}
         </Text>
       )}
