@@ -1,21 +1,25 @@
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { showSuccessNotification } from "@/store/reducers/notificationSlice";
+import * as Clipboard from "expo-clipboard";
 import React, { useState } from "react";
 import {
-  TouchableOpacity,
   Linking,
-  Alert,
   Pressable,
   StyleSheet,
+  TouchableOpacity,
   View,
 } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
-import * as Clipboard from "expo-clipboard";
 import OptionsDropdown from "./OptionsDropdown";
 import ShareDropdown from "./ShareDropdown";
 
 type JobCardMenuIconProps = {
   jobId: string;
   jobTitle: string;
-  jobCompany: string;
+  jobCompany?: {
+    id: string;
+    name: string;
+  };
 };
 
 export default function JobCardMenuIcon({
@@ -26,18 +30,22 @@ export default function JobCardMenuIcon({
   const [showOptionsMenu, setShowOptionsMenu] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const jobUrl = `https://shiftquest/jobs/${jobId}`;
+  const dispatch = useAppDispatch();
 
   const handleCopyLink = async () => {
     await Clipboard.setStringAsync(jobUrl);
     setShowShareMenu(false);
     setShowOptionsMenu(false);
-    Alert.alert("Success", "Link copied to clipboard!");
+    dispatch(showSuccessNotification("Link copied to clipboard!"));
   };
 
+  const handleSaveJob = () => {
+    setShowOptionsMenu(false);
+  };
   const handleSocialShare = (platform: string) => {
     let url = "";
     const text = encodeURIComponent(
-      `Check out this job: ${jobTitle} at ${jobCompany}`
+      `Check out this job: ${jobTitle} at ${jobCompany?.name}`
     );
 
     switch (platform) {
@@ -55,10 +63,6 @@ export default function JobCardMenuIcon({
     Linking.openURL(url);
     setShowShareMenu(false);
     setShowOptionsMenu(false);
-  };
-
-  const handleSave = () => {
-    Alert.alert("Success", "Job saved!");
   };
 
   const toggleOptionsMenu = () => {
@@ -104,8 +108,9 @@ export default function JobCardMenuIcon({
 
         {/* Options Menu Dropdown */}
         <OptionsDropdown
+          jobId={jobId}
+          onSave={handleSaveJob}
           visible={showOptionsMenu}
-          onSave={handleSave}
           onShare={() => {
             setShowOptionsMenu(false);
             setShowShareMenu(true);

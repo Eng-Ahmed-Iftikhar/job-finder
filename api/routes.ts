@@ -45,6 +45,16 @@ const API_ROUTES = {
   },
   jobs: {
     suggested: "/jobs/suggested",
+    save: "/jobs/:id/save",
+    unsave: "/jobs/:id/save",
+    savedIds: "/jobs/savedIds",
+    saved: "/jobs/saved",
+    applied: "/jobs/applied",
+    detail: "/jobs/:id",
+  },
+  companies: {
+    followedIds: "/companies/followedIds",
+    follow: "/companies/:id/follow",
   },
 };
 

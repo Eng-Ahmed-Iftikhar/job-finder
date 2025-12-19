@@ -1,139 +1,107 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   View,
   Text,
   ScrollView,
-  Image,
   Pressable,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import { Job } from "@/sections/dashboard/JobCard";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import ApplyJobSheet from "@/components/ApplyJobSheet";
 import SuccessToast from "@/components/SuccessToast";
+import AppLoader from "@/components/AppLoader";
+import EmptyState from "@/components/EmptyState";
+import { useGetJobByIdQuery } from "@/api/services/jobsApi";
+import {
+  SuggestedJobResponseItem,
+  useSaveJobMutation,
+  useUnsaveJobMutation,
+} from "@/api/services/jobsApi";
+import RelatedJobs from "@/sections/job-detail/RelatedJobs";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectSavedJobsIds } from "@/store/reducers/jobSlice";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { showSuccessNotification } from "@/store/reducers/notificationSlice";
+import {
+  useFollowCompanyMutation,
+  useUnfollowCompanyMutation,
+} from "@/api/services/companyApi";
+import { selectFollowedCompanyIds } from "@/store/reducers/companySlice";
 
 interface JobDetailContentProps {
   jobId?: string;
 }
 
-// Mock data - replace with actual API call
-const mockJobDetail: Job & {
-  description: string;
-  companyName: string;
-  companyLocation: string;
-  companyOpenJobs: number;
-  companyColor: string;
-  relatedJobs: Job[];
-} = {
-  id: "1",
-  title: "Restaurant Manager",
-  company: "Slices & Dices",
-  location: "45 Green str, Austin, TX",
-  distance: "0.9 mi from you",
-  publishedAt: "Published Jan 23",
-  shiftInfo: "Full time",
-  rate: "$ 35 / hr",
-  imageUrl:
-    "https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=800&q=60",
-  description: `Looking for an experienced Restaurant Manager. Professional mixologists dry ice icecream today's specials Aesop handwash food truck artisnal anything. No signs Heston Bloominthal enjoy your meal foraged greens nuts and berries pastry chef The Basrossa. Field to fork slowcooked the second sitting share plates biodynamic not another parfait this is cold let's have authentic street food. Craft beer drizzle we don't take reservations smoked everything tequilla and lime chicken fish tacos eat out cut brew coffee yuzu curd. Smoked anything organic kale hand roasted coffee beans throwback comfort food with a twist organic a la carte finger licking good locally sourced. Two hours sittings surfing the menu tiramisu braised lamb shoulder quality Australian produce flame grilled wagyu let's eat. Gordon Ramsey on a good day a sneeky kebab the mystery box twice cooked or reheated free wifi kimchi tacos lemon and whiskey sauce. Do you have a reservation who is Marco Pierre White anyway tamarind-glazed beef brisket another burger joint linen napkins The New York Grill.`,
-  companyName: "Slices & Dices",
-  companyLocation: "Austin, TX",
-  companyOpenJobs: 12,
-  companyColor: "#f97316",
-  relatedJobs: [
-    {
-      id: "2",
-      title: "Bartender for a restaurant – Green Street + medical insurance",
-      company: "Slices & Dices",
-      location: "Austin, TX",
-      shiftInfo: "Full time",
-      urgent: true,
-      imageUrl:
-        "https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=800&q=60",
-    },
-    {
-      id: "3",
-      title: "Restaurant Manager",
-      company: "Slices & Dices",
-      location: "Austin, TX",
-      shiftInfo: "Full time",
-      imageUrl:
-        "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60",
-    },
-    {
-      id: "4",
-      title: "Employee Training Specialist",
-      company: "Slices & Dices",
-      location: "Austin, TX",
-      shiftInfo: "Full time",
-      imageUrl:
-        "https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=800&q=60",
-    },
-  ],
+const jobTypeObj: { [key: string]: string } = {
+  FULL_TIME: "Full Time",
+  PART_TIME: "Part Time",
+  CONTRACT: "Contract",
+  INTERNSHIP: "Internship",
 };
-
-function RelatedJobCard({ job }: { job: Job }) {
-  const router = useRouter();
-
-  const handlePress = () => {
-    router.push({
-      pathname: "/(dashboard)/(tabs)/job-detail",
-      params: { id: job.id },
-    });
-  };
-
-  return (
-    <Pressable
-      className="flex-row items-center gap-3 py-3 px-4 border border-gray-200 rounded-xl mb-3"
-      onPress={handlePress}
-    >
-      <Image
-        source={{ uri: job.imageUrl }}
-        className="w-12 h-12 rounded-full"
-      />
-      <View className="flex-1">
-        <View className="flex-row items-start justify-between">
-          <Text
-            className="text-base font-semibold text-gray-900 flex-1 mr-2"
-            numberOfLines={2}
-          >
-            {job.title}
-          </Text>
-          <Ionicons name="ellipsis-vertical" size={18} color="#9CA3AF" />
-        </View>
-        <Text
-          className="text-sm font-medium text-gray-600 mt-1"
-          numberOfLines={1}
-        >
-          {job.company} • {job.location}
-        </Text>
-        {job.shiftInfo && (
-          <View className="flex-row items-center gap-1 mt-1">
-            <Ionicons name="briefcase-outline" size={14} color="#6B7280" />
-            <Text className="text-sm font-medium text-gray-600">
-              {job.shiftInfo}
-            </Text>
-          </View>
-        )}
-      </View>
-      {job.urgent && (
-        <View className="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-orange-500">
-          <Text className="text-[10px] font-semibold text-white">SHIFT</Text>
-        </View>
-      )}
-    </Pressable>
-  );
-}
-
 export default function JobDetailContent({ jobId }: JobDetailContentProps) {
   const router = useRouter();
-  const [bookmarked, setBookmarked] = useState(false);
+  const { id: routeJobId } = useLocalSearchParams<{ id?: string }>();
+  const targetJobId = jobId || (routeJobId as string | undefined);
+  const { data, isFetching, isError } = useGetJobByIdQuery(
+    { jobId: targetJobId as string },
+    { skip: !targetJobId }
+  );
+
+  const job = useMemo(
+    () => data as SuggestedJobResponseItem | undefined,
+    [data]
+  );
+  const jobTitle = job?.name ?? "Job";
+  const jobDescription = job?.description ?? "No description available.";
+  const publishedAt = job?.publishAt
+    ? new Date(job.publishAt).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+      })
+    : undefined;
+  const jobTypeLabel = job?.jobType ?? undefined;
+  const wageText = job?.wage
+    ? `${job.currency ? job.currency + " " : ""}${job.wage}${
+        job.wageRate ? `/${job.wageRate.toLowerCase()}` : ""
+      }`
+    : undefined;
+  const workMode = job?.workMode?.toUpperCase?.();
+  const isOnsite = workMode === "ONSITE";
+  const dispatch = useAppDispatch();
+  const employer = job?.employers?.[0];
+  const companyProfile = employer?.employer?.companyProfiles?.[0];
+  const company = companyProfile?.company;
+  const companyName = company?.name ?? "Unknown Company";
+  const companyLocation = companyProfile?.location
+    ? `${companyProfile.location.city || ""}${
+        companyProfile.location.state
+          ? ", " + companyProfile.location.state
+          : ""
+      }${companyProfile.location.country ? ", " + companyProfile.location.country : ""}`
+    : undefined;
+  const locationText = `${job?.location?.city || ""}${
+    job?.location?.state ? ", " + job.location.state : ""
+  }${job?.location?.country ? ", " + job.location.country : ""}`;
+  const companyColor = "#1eadff";
+  const savedJobIds = useAppSelector(selectSavedJobsIds);
+  const [saveJob, { isLoading: isSaving }] = useSaveJobMutation();
+  const [unsaveJob, { isLoading: isUnsaving }] = useUnsaveJobMutation();
+  const bookmarked = job ? savedJobIds.includes(String(job.id)) : false;
+  const followedCompanyIds = useAppSelector(selectFollowedCompanyIds);
+  const [followCompany, { isLoading: isFollowing }] =
+    useFollowCompanyMutation();
+  const [unfollowCompany, { isLoading: isUnfollowing }] =
+    useUnfollowCompanyMutation();
+  const companyId = company?.id;
+  const isFollowed = companyId
+    ? followedCompanyIds.includes(String(companyId))
+    : false;
   const [applySheetVisible, setApplySheetVisible] = useState(false);
   const [applied, setApplied] = useState(false);
   const [showSuccessToast, setShowSuccessToast] = useState(false);
   const [interviewScheduled, setInterviewScheduled] = useState(false);
-  const job = mockJobDetail;
 
   const handleApply = () => {
     setApplySheetVisible(true);
@@ -160,12 +128,57 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
   };
 
   const handleShare = () => {
-    console.log("Share job:", job.id);
+    if (job) {
+      console.log("Share job:", job.id);
+    }
   };
 
-  const handleBookmark = () => {
-    setBookmarked(!bookmarked);
+  const handleBookmark = async () => {
+    if (!job?.id || isSaving || isUnsaving) return;
+    try {
+      if (bookmarked) {
+        await unsaveJob({ jobId: String(job.id) }).unwrap();
+        dispatch(showSuccessNotification("Job removed from saved jobs."));
+      } else {
+        await saveJob({ jobId: String(job.id) }).unwrap();
+        dispatch(showSuccessNotification("Job added to saved jobs."));
+      }
+    } catch (e) {
+      console.warn("Failed to toggle save job", e);
+    }
   };
+
+  const handleFollowCompany = async () => {
+    if (!companyId || isFollowing || isUnfollowing) return;
+    try {
+      if (isFollowed) {
+        await unfollowCompany({ companyId: String(companyId) }).unwrap();
+        dispatch(showSuccessNotification(`Unfollowed ${companyName}.`));
+      } else {
+        await followCompany({ companyId: String(companyId) }).unwrap();
+        dispatch(showSuccessNotification(`Following ${companyName}.`));
+      }
+    } catch (e) {
+      console.warn("Failed to toggle follow company", e);
+    }
+  };
+
+  if (isFetching) {
+    return <AppLoader />;
+  }
+
+  if (!job || isError) {
+    return (
+      <EmptyState
+        iconName="briefcase-outline"
+        title="Job not found"
+        description="We couldn't load this job. Please try again or go back to jobs."
+        buttonText="Back to jobs"
+        buttonIcon="arrow-back"
+        onButtonPress={() => router.push("/(dashboard)/(tabs)/jobs")}
+      />
+    );
+  }
 
   return (
     <View className="flex-1 bg-white">
@@ -180,43 +193,57 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
         contentContainerStyle={{ paddingBottom: 100 }}
       >
         <View className="px-4 pt-4">
+          <TouchableOpacity
+            className="flex-row items-center gap-1 mb-4"
+            onPress={() => router.back()}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="arrow-back" size={20} color="#1eadff" />
+            <Text className="text-sm font-semibold text-azure-radiance-500">
+              Back
+            </Text>
+          </TouchableOpacity>
+
           {/* Job Title */}
           <Text className="text-2xl font-bold text-gray-900 mb-2">
-            {job.title}
+            {jobTitle}
           </Text>
 
           {/* Published Date */}
-          {job.publishedAt && (
+          {publishedAt && (
             <Text className="text-sm font-medium text-gray-500 mb-3">
-              {job.publishedAt}
+              Published {publishedAt}
             </Text>
           )}
 
-          {/* Location */}
+          {/* Work Mode / Location */}
           <View className="flex-row items-center gap-2 mb-3">
-            <Ionicons name="location-outline" size={16} color="#6B7280" />
-            <Text className="text-sm font-medium text-gray-700 flex-1">
-              {job.location}
-              {job.distance ? ` (${job.distance})` : ""}
+            <Ionicons
+              name={isOnsite ? "location-outline" : "globe-outline"}
+              size={16}
+              color="#6B7280"
+            />
+            <Text className="text-sm font-medium  text-gray-700 flex-1">
+              {isOnsite ? locationText : "Remote"}
             </Text>
           </View>
 
           {/* Job Type */}
-          {job.shiftInfo && (
+          {jobTypeLabel && (
             <View className="flex-row items-center gap-2 mb-2">
               <Ionicons name="briefcase-outline" size={16} color="#6B7280" />
-              <Text className="text-sm font-medium font-semibold text-gray-900">
-                {job.shiftInfo}
+              <Text className="text-sm font-semibold text-gray-900">
+                {jobTypeObj[jobTypeLabel]}
               </Text>
             </View>
           )}
 
           {/* Rate */}
-          {job.rate && (
+          {wageText && (
             <View className="flex-row items-center gap-2 mb-4">
               <Ionicons name="cash-outline" size={16} color="#6B7280" />
-              <Text className="text-sm font-medium font-semibold text-gray-900">
-                {job.rate}
+              <Text className="text-sm font-semibold text-gray-900">
+                {wageText}
               </Text>
             </View>
           )}
@@ -226,7 +253,7 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
             Job description
           </Text>
           <Text className="text-sm font-medium text-gray-700 leading-6 mb-6">
-            {job.description}
+            {jobDescription}
           </Text>
 
           {/* Company Section */}
@@ -234,67 +261,75 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
             onPress={() =>
               router.push({
                 pathname: "/(dashboard)/(tabs)/company-detail",
-                params: { id: job.company },
+                params: { id: companyName },
               })
             }
             className="flex-row items-center justify-between py-4 px-4 bg-gray-50 rounded-xl mb-4"
           >
             <View className="flex-row items-center gap-3 flex-1">
               <View
-                className="w-12 h-12 rounded-full items-center justify-center"
-                style={{ backgroundColor: job.companyColor }}
+                className="w-12 h-12 rounded-full items-center justify-center overflow-hidden"
+                style={{ backgroundColor: companyColor }}
               >
-                <Ionicons name="storefront" size={20} color="white" />
+                {companyProfile?.pictureUrl ? (
+                  <Image
+                    source={{ uri: companyProfile.pictureUrl }}
+                    className="w-12 h-12 rounded-full"
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <Ionicons name="storefront" size={20} color="white" />
+                )}
               </View>
               <View className="flex-1">
                 <Text
                   className="text-base font-semibold text-gray-900"
                   numberOfLines={1}
                 >
-                  {job.companyName}
+                  {companyName}
                 </Text>
                 <Text
                   className="text-sm font-medium text-gray-600"
                   numberOfLines={1}
                 >
-                  {job.companyLocation}
-                </Text>
-                <Text className="text-sm font-medium font-semibold text-azure-radiance-500 mt-1">
-                  {job.companyOpenJobs} open jobs
+                  {companyLocation || "Location not provided"}
                 </Text>
               </View>
             </View>
             <Pressable
               onPress={(e) => {
                 e.stopPropagation();
-                console.log("Follow company");
+                handleFollowCompany();
               }}
-              className="px-4 py-2 rounded-lg bg-white border border-azure-radiance-200"
+              disabled={isFollowing || isUnfollowing}
+              className={`px-4 py-2 rounded-lg ${
+                isFollowed
+                  ? "bg-azure-radiance-100 border border-azure-radiance-500"
+                  : "bg-white border border-azure-radiance-200"
+              }`}
             >
               <View className="flex-row items-center gap-1">
-                <Ionicons name="add" size={16} color="#1eadff" />
-                <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
-                  Follow
+                <Ionicons
+                  name={isFollowed ? "checkmark" : "add"}
+                  size={16}
+                  color="#1eadff"
+                />
+                <Text
+                  className={`text-sm font-semibold ${
+                    isFollowed
+                      ? "text-azure-radiance-600"
+                      : "text-azure-radiance-500"
+                  }`}
+                >
+                  {isFollowed ? "Following" : "Follow"}
                 </Text>
               </View>
             </Pressable>
           </Pressable>
-
-          {/* Related Jobs */}
-          <View className="flex-row items-center justify-between mb-3">
-            <Text className="text-lg font-bold text-gray-900">Jobs</Text>
-            <Pressable className="flex-row items-center gap-1">
-              <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
-                See all {job.companyOpenJobs} jobs
-              </Text>
-              <Ionicons name="chevron-forward" size={16} color="#1eadff" />
-            </Pressable>
-          </View>
-
-          {job.relatedJobs.map((relatedJob) => (
-            <RelatedJobCard key={relatedJob.id} job={relatedJob} />
-          ))}
         </View>
+
+        {/* Related Jobs */}
+        <RelatedJobs currentJob={job} />
       </ScrollView>
 
       {/* Floating Action Buttons */}
@@ -306,7 +341,7 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
               <Text className="font-semibold">Feb 14, 4:30 PM</Text>
             </Text>
             <Pressable onPress={handleAddToCalendar}>
-              <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
+              <Text className="text-sm font-semibold text-azure-radiance-500">
                 Add to Google Calendar
               </Text>
             </Pressable>
@@ -359,7 +394,7 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
         visible={applySheetVisible}
         onClose={() => setApplySheetVisible(false)}
         onApply={handleConfirmApply}
-        jobTitle={job.title}
+        jobTitle={jobTitle}
       />
     </View>
   );

@@ -1,8 +1,8 @@
-import React, { Suspense, useMemo } from "react";
-import { Slot, usePathname } from "expo-router";
-import { View } from "react-native";
 import AppLoader from "@/components/AppLoader";
 import Tabs from "@/components/ui/Tabs";
+import { Slot, Stack, usePathname } from "expo-router";
+import React, { Suspense, useMemo } from "react";
+import { View } from "react-native";
 
 export default function JobsTopTabsLayout() {
   const pathname = usePathname();

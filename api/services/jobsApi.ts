@@ -17,21 +17,21 @@ export interface SuggestedJobEmployerRef {
     id: string;
     emailId?: string;
     companyProfiles?: Array<{
-      id?: string;
+      id: string;
       company?: {
-        id?: string;
-        name?: string;
+        id: string;
+        name: string;
       };
       location?: {
-        id?: string;
-        city?: string;
-        state?: string;
-        country?: string;
+        id: string;
+        city: string;
+        state: string;
+        country: string;
       };
       website?: {
-        id?: string;
-        url?: string;
-        name?: string;
+        id: string;
+        url: string;
+        name: string;
       };
       address?: string;
       pictureUrl?: string;
@@ -51,6 +51,7 @@ export interface SuggestedJobResponseItem {
   wageRate?: string;
   currency?: string;
   hiringStatus?: string;
+  workMode?: string;
   status?: string;
   publishAt?: string;
   createdAt?: string;
@@ -60,17 +61,82 @@ export interface SuggestedJobResponseItem {
   employers?: SuggestedJobEmployerRef[];
 }
 
+export interface SuggestedJobResponse {
+  data: SuggestedJobResponseItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 export const jobsApi = createApi({
   reducerPath: "jobsApi",
   baseQuery: baseQueryWithReAuth,
   endpoints: (builder) => ({
-    getSuggestedJobs: builder.query<SuggestedJobResponseItem[], void>({
-      query: () => ({
+    getSuggestedJobs: builder.query<
+      SuggestedJobResponse,
+      { page?: number; pageSize?: number }
+    >({
+      query: ({ page = 1, pageSize = 10 } = {}) => ({
         url: API_ROUTES.jobs.suggested,
         method: "GET",
+        params: { page, pageSize },
+      }),
+    }),
+    getSavedJobIds: builder.query<string[], void>({
+      query: () => ({
+        url: API_ROUTES.jobs.savedIds,
+        method: "GET",
+      }),
+    }),
+    getSavedJobs: builder.query<
+      SuggestedJobResponse,
+      { page?: number; pageSize?: number }
+    >({
+      query: ({ page = 1, pageSize = 10 } = {}) => ({
+        url: API_ROUTES.jobs.saved,
+        method: "GET",
+        params: { page, pageSize },
+      }),
+    }),
+    getAppliedJobs: builder.query<
+      SuggestedJobResponse,
+      { page?: number; pageSize?: number }
+    >({
+      query: ({ page = 1, pageSize = 10 } = {}) => ({
+        url: API_ROUTES.jobs.applied,
+        method: "GET",
+        params: { page, pageSize },
+      }),
+    }),
+    getJobById: builder.query<SuggestedJobResponseItem, { jobId: string }>({
+      query: ({ jobId }) => ({
+        url: API_ROUTES.jobs.detail.replace(":id", jobId),
+        method: "GET",
+      }),
+    }),
+    saveJob: builder.mutation<{ message?: string }, { jobId: string }>({
+      query: ({ jobId }) => ({
+        url: API_ROUTES.jobs.save.replace(":id", jobId),
+        method: "POST",
+      }),
+    }),
+    unsaveJob: builder.mutation<{ message?: string }, { jobId: string }>({
+      query: ({ jobId }) => ({
+        url: API_ROUTES.jobs.unsave.replace(":id", jobId),
+        method: "DELETE",
       }),
     }),
   }),
 });
 
-export const { useGetSuggestedJobsQuery } = jobsApi;
+export const {
+  useGetSuggestedJobsQuery,
+  useGetSavedJobIdsQuery,
+  useLazyGetSuggestedJobsQuery,
+  useLazyGetSavedJobsQuery,
+  useLazyGetAppliedJobsQuery,
+  useGetSavedJobsQuery,
+  useGetJobByIdQuery,
+  useSaveJobMutation,
+  useUnsaveJobMutation,
+} = jobsApi;

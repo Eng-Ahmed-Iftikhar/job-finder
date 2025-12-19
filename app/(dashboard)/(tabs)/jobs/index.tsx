@@ -1,60 +1,42 @@
-import React, { useMemo } from "react";
-import { View, FlatList, RefreshControl, Text } from "react-native";
-import JobCard, { Job } from "@/sections/dashboard/JobCard";
-import { useGetSuggestedJobsQuery } from "@/api/services/jobsApi";
+import {
+  useGetSavedJobIdsQuery,
+  useLazyGetSuggestedJobsQuery,
+} from "@/api/services/jobsApi";
+import EmptyState from "@/components/EmptyState";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import JobCard from "@/sections/dashboard/JobCard";
+import { selectJobs } from "@/store/reducers/jobSlice";
+import { router } from "expo-router";
+import React, { useCallback, useEffect, useState } from "react";
+import { FlatList, RefreshControl, Text, View } from "react-native";
 
+const PAGE_SIZE = 10;
 export default function SuggestedJobsScreen() {
-  const { data, isLoading, isFetching, refetch, error } =
-    useGetSuggestedJobsQuery();
+  const jobs = useAppSelector(selectJobs);
+  const [page, setPage] = useState(1);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const jobs: Job[] = useMemo(() => {
-    if (!data) return [];
-    return data.map((j) => {
-      const firstEmployer = j.employers?.[0]?.employer;
-      const firstProfile = firstEmployer?.companyProfiles?.[0];
-      const company = firstProfile?.company?.name || "Company";
-      const jobType = j?.jobType;
+  const [trigger, { isFetching, data }] = useLazyGetSuggestedJobsQuery();
+  useGetSavedJobIdsQuery(); // Preload saved job IDs
 
-      // Company address with city and state
-      const companyAddress = firstProfile
-        ? [
-            firstProfile.address,
-            firstProfile.location?.city,
-            firstProfile.location?.state,
-          ]
-            .filter(Boolean)
-            .join(", ")
-        : undefined;
+  const handleRefresh = useCallback(async () => {
+    if (isRefreshing) return;
+    if (page > 1) {
+      setIsRefreshing(true);
+      setPage(1);
+    }
+  }, [page, isRefreshing]);
 
-      // Prefer job's own location; fallback to company profile location
-      const locationStr = j.location
-        ? [j.location.city, j.location.state].filter(Boolean).join(", ")
-        : firstProfile?.location
-          ? [firstProfile.location.city, firstProfile.location.state]
-              .filter(Boolean)
-              .join(", ")
-          : "";
-
-      const currencySymbol = j.currency === "USD" ? "$" : "";
-      const rate = j.wage
-        ? `${currencySymbol}${j.wage} / ${
-            j.wageRate === "HOUR" ? "hr" : j.wageRate?.toLowerCase() || ""
-          }`
-        : undefined;
-
-      return {
-        id: j.id,
-        title: j.name,
-        company,
-        companyAddress,
-        location: locationStr,
-        rate,
-        jobType,
-        publishedAt: j.publishAt,
-        description: j.description,
-      } as Job;
-    });
+  const handleEndReached = useCallback(() => {
+    if (!data?.data?.length) return;
+    setPage((prevPage) => prevPage + 1);
   }, [data]);
+
+  useEffect(() => {
+    trigger({ page, pageSize: PAGE_SIZE }).finally(() => {
+      setIsRefreshing(false);
+    });
+  }, [page, trigger]);
 
   return (
     <View className="flex-1 bg-gray-50 px-4 pt-4">
@@ -65,17 +47,26 @@ export default function SuggestedJobsScreen() {
         contentContainerStyle={{ paddingBottom: 32 }}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl
-            refreshing={isFetching || isLoading}
-            onRefresh={refetch}
-          />
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
         }
-        ListEmptyComponent={
-          !isLoading && !isFetching ? (
-            <View className="py-20 items-center">
-              <Text className="text-gray-500">No jobs to show</Text>
+        onEndReached={handleEndReached}
+        onEndReachedThreshold={0.4}
+        ListFooterComponent={
+          isFetching && page > 1 ? (
+            <View className="py-4 items-center">
+              <Text className="text-gray-500">Loading more jobs…</Text>
             </View>
           ) : null
+        }
+        ListEmptyComponent={
+          <EmptyState
+            iconName="briefcase-outline"
+            title="You haven't saved any jobs so far"
+            description="Start your search and find a job you've been looking for!"
+            buttonText="Search jobs"
+            buttonIcon="search"
+            onButtonPress={() => router.push("/(dashboard)/search")}
+          />
         }
       />
     </View>

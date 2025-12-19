@@ -66,7 +66,7 @@ export default function ErrorToast({
         opacity,
         transform: [{ translateY }],
       }}
-      className="absolute bottom-2 left-4 right-4 z-50"
+      className="absolute top-28 left-4 right-4 z-50"
     >
       <View className="bg-red-500 rounded-xl px-4 py-3 flex-row items-center justify-between shadow-lg">
         <View className="flex-row items-center flex-1">
