@@ -9,7 +9,7 @@ import EmptyState from "@/components/EmptyState";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import {
-  selectFollowedCompanyIds,
+  selectFollowedCompanies,
   selectUserConnections,
 } from "@/store/reducers/userSlice";
 import { showSuccessNotification } from "@/store/reducers/notificationSlice";
@@ -42,7 +42,7 @@ export default function CompanyDetailContent() {
     { skip: !id }
   );
 
-  const followedCompanyIds = useAppSelector(selectFollowedCompanyIds);
+  const followedCompanies = useAppSelector(selectFollowedCompanies);
   const connections = useAppSelector(selectUserConnections);
   const [followCompany, { isLoading: isFollowing }] =
     useFollowCompanyMutation();
@@ -67,7 +67,9 @@ export default function CompanyDetailContent() {
     const followerIds = new Set(company.followers.map((f) => f.followerId));
     return connections.filter((c: any) => followerIds.has(c.user.id)).length;
   }, [company?.followers, connections]);
-  const isFollowed = id ? followedCompanyIds.includes(String(id)) : false;
+  const isFollowed = id
+    ? followedCompanies.some((c) => c.id === String(id))
+    : false;
 
   const companyPosts = useMemo(() => (company as any)?.posts || [], [company]);
 

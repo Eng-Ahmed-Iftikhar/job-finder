@@ -20,11 +20,23 @@ type connections = {
   };
 }[];
 
+type followedCompany = {
+  id: string;
+  name: string;
+  address?: string;
+  location?: {
+    city?: string;
+    state?: string;
+    country?: string;
+  };
+  pictureUrl?: string;
+};
+
 interface UserState {
   user: User | null;
   profile: UserProfile | null;
   connections: connections;
-  followedCompanyIds: string[];
+  followedCompanies: followedCompany[];
   savedJobIds: string[];
   appliedJobIds: string[];
   isLoggedIn: boolean;
@@ -36,7 +48,7 @@ const initialState: UserState = {
   profile: null,
   isLoggedIn: false,
   connections: [],
-  followedCompanyIds: [],
+  followedCompanies: [],
   appliedJobIds: [],
   savedJobIds: [],
 };
@@ -83,7 +95,7 @@ export const userSlice = createSlice({
         state["user"] = action.payload.user;
         state["profile"] = action.payload.profile;
         state["connections"] = action.payload.connections;
-        state["followedCompanyIds"] = action.payload.followedCompanyIds;
+        state["followedCompanies"] = action.payload.followedCompanies ?? [];
         state["savedJobIds"] = action.payload.savedJobIds;
         state["appliedJobIds"] = action.payload.appliedJobIds ?? [];
         state.isLoggedIn = true;
@@ -199,8 +211,27 @@ export const userSlice = createSlice({
         (state, action) => {
           const companyId = (action as any).meta?.arg?.originalArgs
             ?.companyId as string | undefined;
-          if (companyId && !state.followedCompanyIds.includes(companyId)) {
-            state.followedCompanyIds.push(companyId);
+
+          // Get company data from the follow response or from cache
+          const companyData = action.payload as any;
+
+          if (companyId) {
+            // Check if already following
+            const alreadyFollowing = state.followedCompanies.some(
+              (company) => company.id === companyId
+            );
+
+            if (!alreadyFollowing) {
+              // Add company to followedCompanies array
+              // Note: You may need to fetch full company data separately
+              state.followedCompanies.push({
+                id: companyId,
+                name: companyData?.company?.name || "",
+                address: companyData?.company?.profile?.address,
+                location: companyData?.company?.profile?.location,
+                pictureUrl: companyData?.company?.profile?.pictureUrl,
+              });
+            }
           }
         }
       )
@@ -210,9 +241,29 @@ export const userSlice = createSlice({
           const companyId = (action as any).meta?.arg?.originalArgs
             ?.companyId as string | undefined;
           if (companyId) {
-            state.followedCompanyIds = state.followedCompanyIds.filter(
-              (id) => id !== companyId
+            state.followedCompanies = state.followedCompanies.filter(
+              (company) => company.id !== companyId
             );
+          }
+        }
+      )
+      .addMatcher(
+        companyApi.endpoints.getCompanyById.matchFulfilled,
+        (state, action) => {
+          // Update followedCompanies with fresh company data
+          const company = action.payload;
+          const index = state.followedCompanies.findIndex(
+            (c) => c.id === company.id
+          );
+
+          if (index !== -1) {
+            state.followedCompanies[index] = {
+              id: company.id,
+              name: company.name,
+              address: company.profile?.address,
+              location: company.profile?.location,
+              pictureUrl: company.profile?.pictureUrl,
+            };
           }
         }
       );
@@ -236,8 +287,8 @@ export const selectUser = (state: RootState) => state.user.user;
 export const selectUserProfile = (state: RootState) => state.user.profile;
 export const selectUserConnections = (state: RootState) =>
   state.user.connections;
-export const selectFollowedCompanyIds = (state: RootState) =>
-  state.user.followedCompanyIds;
+export const selectFollowedCompanies = (state: RootState) =>
+  state.user.followedCompanies;
 export const selectSavedJobIds = (state: RootState) => state.user.savedJobIds;
 export const selectAppliedJobIds = (state: RootState) =>
   state.user.appliedJobIds;

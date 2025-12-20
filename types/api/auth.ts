@@ -52,7 +52,17 @@ export interface AuthMeResponse {
       pictureUrl?: string;
     };
   }[];
-  followedCompanyIds: string[];
+  followedCompanies: {
+    id: string;
+    name: string;
+    address?: string;
+    location?: {
+      city?: string;
+      state?: string;
+      country?: string;
+    };
+    pictureUrl?: string;
+  }[];
   savedJobIds: string[];
   appliedJobIds: string[];
 }

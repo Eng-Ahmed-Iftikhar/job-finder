@@ -36,7 +36,7 @@ import {
   useFollowCompanyMutation,
   useUnfollowCompanyMutation,
 } from "@/api/services/companyApi";
-import { selectFollowedCompanyIds } from "@/store/reducers/userSlice";
+import { selectFollowedCompanies } from "@/store/reducers/userSlice";
 
 interface JobDetailContentProps {
   jobId?: string;
@@ -99,14 +99,14 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
   const bookmarked = job ? savedJobIds.includes(String(job.id)) : false;
   const [applyJob, { isLoading: isApplying }] = useApplyJobMutation();
   const appliedJobIds = useAppSelector(selectAppliedJobIds);
-  const followedCompanyIds = useAppSelector(selectFollowedCompanyIds);
+  const followedCompanies = useAppSelector(selectFollowedCompanies);
   const [followCompany, { isLoading: isFollowing }] =
     useFollowCompanyMutation();
   const [unfollowCompany, { isLoading: isUnfollowing }] =
     useUnfollowCompanyMutation();
   const companyId = company?.id;
   const isFollowed = companyId
-    ? followedCompanyIds.includes(String(companyId))
+    ? followedCompanies.some((c) => c.id === String(companyId))
     : false;
   const [applySheetVisible, setApplySheetVisible] = useState(false);
   const isApplied = appliedJobIds.includes(String(job?.id));
