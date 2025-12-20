@@ -92,7 +92,6 @@ function LocationForm() {
     },
     []
   );
-  console.log({ userProfile });
 
   return (
     <KeyboardAvoidingView

@@ -88,6 +88,12 @@ export const jobsApi = createApi({
         method: "GET",
       }),
     }),
+    getAppliedJobIds: builder.query<string[], void>({
+      query: () => ({
+        url: API_ROUTES.jobs.appliedIds,
+        method: "GET",
+      }),
+    }),
     getSavedJobs: builder.query<
       SuggestedJobResponse,
       { page?: number; pageSize?: number }
@@ -96,6 +102,16 @@ export const jobsApi = createApi({
         url: API_ROUTES.jobs.saved,
         method: "GET",
         params: { page, pageSize },
+      }),
+    }),
+    applyJob: builder.mutation<
+      { message?: string },
+      { jobId: string; coverLetter?: string }
+    >({
+      query: ({ jobId, coverLetter }) => ({
+        url: API_ROUTES.jobs.apply.replace(":id", jobId),
+        method: "POST",
+        body: coverLetter ? { coverLetter } : undefined,
       }),
     }),
     getAppliedJobs: builder.query<
@@ -132,11 +148,13 @@ export const jobsApi = createApi({
 export const {
   useGetSuggestedJobsQuery,
   useGetSavedJobIdsQuery,
+  useGetAppliedJobIdsQuery,
   useLazyGetSuggestedJobsQuery,
   useLazyGetSavedJobsQuery,
   useLazyGetAppliedJobsQuery,
   useGetSavedJobsQuery,
   useGetJobByIdQuery,
+  useApplyJobMutation,
   useSaveJobMutation,
   useUnsaveJobMutation,
 } = jobsApi;

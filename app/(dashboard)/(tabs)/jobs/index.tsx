@@ -1,7 +1,4 @@
-import {
-  useGetSavedJobIdsQuery,
-  useLazyGetSuggestedJobsQuery,
-} from "@/api/services/jobsApi";
+import { useLazyGetSuggestedJobsQuery } from "@/api/services/jobsApi";
 import EmptyState from "@/components/EmptyState";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import JobCard from "@/sections/dashboard/JobCard";
@@ -17,7 +14,6 @@ export default function SuggestedJobsScreen() {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const [trigger, { isFetching, data }] = useLazyGetSuggestedJobsQuery();
-  useGetSavedJobIdsQuery(); // Preload saved job IDs
 
   const handleRefresh = useCallback(async () => {
     if (isRefreshing) return;

@@ -4,11 +4,11 @@ import {
 } from "@/api/services/jobsApi";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { useAppSelector } from "@/hooks/useAppSelector";
-import { selectSavedJobsIds } from "@/store/reducers/jobSlice";
 import {
   showErrorNotification,
   showSuccessNotification,
 } from "@/store/reducers/notificationSlice";
+import { selectSavedJobIds } from "@/store/reducers/userSlice";
 import React from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import Icon from "react-native-vector-icons/Ionicons";
@@ -29,7 +29,7 @@ export default function OptionsDropdown({
   if (!visible) return null;
   const [saveJob] = useSaveJobMutation();
   const [unSaveJob] = useUnsaveJobMutation();
-  const saveJobIds = useAppSelector(selectSavedJobsIds);
+  const saveJobIds = useAppSelector(selectSavedJobIds);
   const dispatch = useAppDispatch();
 
   const handleSave = async () => {
@@ -53,8 +53,8 @@ export default function OptionsDropdown({
 
   return (
     <View
-      style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)" }}
-      className="absolute top-4 -left-44 bg-white rounded-xl overflow-hidden shadow-xl border border-gray-200 z-50 w-44"
+      style={{ boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", zIndex: 999 }}
+      className="absolute top-4 -left-44 bg-white rounded-xl overflow-hidden shadow-xl border border-gray-200  z-50 w-44"
     >
       <TouchableOpacity
         onPress={handleSave}

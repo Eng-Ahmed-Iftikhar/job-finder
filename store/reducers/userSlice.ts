@@ -3,12 +3,30 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from ".";
 import { authApi } from "@/api/services/authApi";
 import { userApi } from "@/api/services/userApi";
+import { jobsApi } from "@/api/services/jobsApi";
+import { companyApi } from "@/api/services/companyApi";
 import { User, UserProfile, UserRole } from "@/types/api/auth";
 
 // Define a type for the slice state
+
+type connections = {
+  id: string;
+  user: {
+    firstName: string;
+    lastName: string;
+    id: string;
+    role: string;
+    pictureUrl?: string;
+  };
+}[];
+
 interface UserState {
   user: User | null;
   profile: UserProfile | null;
+  connections: connections;
+  followedCompanyIds: string[];
+  savedJobIds: string[];
+  appliedJobIds: string[];
   isLoggedIn: boolean;
 }
 
@@ -17,6 +35,10 @@ const initialState: UserState = {
   user: null,
   profile: null,
   isLoggedIn: false,
+  connections: [],
+  followedCompanyIds: [],
+  appliedJobIds: [],
+  savedJobIds: [],
 };
 
 export const userSlice = createSlice({
@@ -57,8 +79,13 @@ export const userSlice = createSlice({
     builder
       .addMatcher(authApi.endpoints.me.matchFulfilled, (state, action) => {
         if (action.payload.profile.role !== UserRole.EMPLOYEE) return;
+
         state["user"] = action.payload.user;
         state["profile"] = action.payload.profile;
+        state["connections"] = action.payload.connections;
+        state["followedCompanyIds"] = action.payload.followedCompanyIds;
+        state["savedJobIds"] = action.payload.savedJobIds;
+        state["appliedJobIds"] = action.payload.appliedJobIds ?? [];
         state.isLoggedIn = true;
       })
       .addMatcher(authApi.endpoints.me.matchRejected, (state, action) => {
@@ -91,9 +118,10 @@ export const userSlice = createSlice({
         userApi.endpoints.updateLocation.matchFulfilled,
         (state, action) => {
           if (state.user && state.profile) {
-            state.profile.location = action.payload.location;
-            state.profile.pictureUrl = action.payload.pictureUrl || undefined;
-            state.profile.resumeUrl = action.payload.resumeUrl || undefined;
+            state.profile.location = {
+              ...action.payload.location,
+              address: action.payload.address,
+            };
           }
         }
       )
@@ -114,19 +142,7 @@ export const userSlice = createSlice({
           }
         }
       )
-      // Handle login/signup success
-      .addMatcher(authApi.endpoints.signIn.matchFulfilled, (state, action) => {
-        state.isLoggedIn = true;
-      })
-      .addMatcher(authApi.endpoints.signUp.matchFulfilled, (state, action) => {
-        state.isLoggedIn = true;
-      })
-      .addMatcher(
-        authApi.endpoints.socialLogin.matchFulfilled,
-        (state, action) => {
-          state.isLoggedIn = true;
-        }
-      )
+
       .addMatcher(authApi.endpoints.logout.matchFulfilled, (state) => {
         state.isLoggedIn = false;
         state.user = null;
@@ -135,7 +151,71 @@ export const userSlice = createSlice({
         // Even if logout API fails, we should still clear local state
         state.isLoggedIn = false;
         state.user = null;
-      });
+      })
+      .addMatcher(
+        jobsApi.endpoints.getSavedJobIds.matchFulfilled,
+        (state, action) => {
+          state.savedJobIds = action.payload;
+        }
+      )
+      .addMatcher(jobsApi.endpoints.saveJob.matchFulfilled, (state, action) => {
+        const jobId = (action as any).meta?.arg?.originalArgs?.jobId as
+          | string
+          | undefined;
+        if (jobId && !state.savedJobIds.includes(jobId)) {
+          state.savedJobIds.push(jobId);
+        }
+      })
+      .addMatcher(
+        jobsApi.endpoints.unsaveJob.matchFulfilled,
+        (state, action) => {
+          const jobId = (action as any).meta?.arg?.originalArgs?.jobId as
+            | string
+            | undefined;
+          if (jobId) {
+            state.savedJobIds = state.savedJobIds.filter((id) => id !== jobId);
+          }
+        }
+      )
+      .addMatcher(
+        jobsApi.endpoints.getAppliedJobIds.matchFulfilled,
+        (state, action) => {
+          state.appliedJobIds = action.payload;
+        }
+      )
+      .addMatcher(
+        jobsApi.endpoints.applyJob.matchFulfilled,
+        (state, action) => {
+          const jobId = (action as any).meta?.arg?.originalArgs?.jobId as
+            | string
+            | undefined;
+          if (jobId && !state.appliedJobIds.includes(jobId)) {
+            state.appliedJobIds.push(jobId);
+          }
+        }
+      )
+      .addMatcher(
+        companyApi.endpoints.followCompany.matchFulfilled,
+        (state, action) => {
+          const companyId = (action as any).meta?.arg?.originalArgs
+            ?.companyId as string | undefined;
+          if (companyId && !state.followedCompanyIds.includes(companyId)) {
+            state.followedCompanyIds.push(companyId);
+          }
+        }
+      )
+      .addMatcher(
+        companyApi.endpoints.unfollowCompany.matchFulfilled,
+        (state, action) => {
+          const companyId = (action as any).meta?.arg?.originalArgs
+            ?.companyId as string | undefined;
+          if (companyId) {
+            state.followedCompanyIds = state.followedCompanyIds.filter(
+              (id) => id !== companyId
+            );
+          }
+        }
+      );
 
     // Handle login/signup success
   },
@@ -154,6 +234,13 @@ export const {
 // Selectors
 export const selectUser = (state: RootState) => state.user.user;
 export const selectUserProfile = (state: RootState) => state.user.profile;
+export const selectUserConnections = (state: RootState) =>
+  state.user.connections;
+export const selectFollowedCompanyIds = (state: RootState) =>
+  state.user.followedCompanyIds;
+export const selectSavedJobIds = (state: RootState) => state.user.savedJobIds;
+export const selectAppliedJobIds = (state: RootState) =>
+  state.user.appliedJobIds;
 export const selectUserError = (state: RootState) => state.user;
 export const selectIsLoggedIn = (state: RootState) => state.user.isLoggedIn;
 

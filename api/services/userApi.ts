@@ -58,11 +58,9 @@ export interface UpdateLocationResponse {
     city: string;
     state: string;
     country: string;
-    address: string;
     id: string;
   };
-  pictureUrl: string | null;
-  resumeUrl: string | null;
+  address: string;
   createdAt: string;
   updatedAt: string;
 }

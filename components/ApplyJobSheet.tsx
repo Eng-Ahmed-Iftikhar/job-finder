@@ -1,13 +1,6 @@
-import React, { useState } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  TouchableOpacity,
-} from "react-native";
-import { Ionicons } from "@expo/vector-icons";
 import BottomSheet from "@/components/ui/BottomSheet";
+import React, { useState } from "react";
+import { Text, TextInput, TouchableOpacity, View } from "react-native";
 
 interface ApplyJobSheetProps {
   visible: boolean;

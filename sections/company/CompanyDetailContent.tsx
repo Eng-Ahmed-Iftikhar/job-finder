@@ -1,475 +1,90 @@
-import React, { useState, useRef } from "react";
 import {
-  View,
-  Text,
-  Pressable,
-  ScrollView,
-  TextInput,
-  FlatList,
-  Animated,
-} from "react-native";
+  useFollowCompanyMutation,
+  useGetCompanyByIdQuery,
+  useGetCompanyJobsQuery,
+  useUnfollowCompanyMutation,
+} from "@/api/services/companyApi";
+import AppLoader from "@/components/AppLoader";
+import EmptyState from "@/components/EmptyState";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import {
+  selectFollowedCompanyIds,
+  selectUserConnections,
+} from "@/store/reducers/userSlice";
+import { showSuccessNotification } from "@/store/reducers/notificationSlice";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
-import BottomSheet from "@/components/ui/BottomSheet";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import React, { useMemo, useRef, useState } from "react";
+import { Animated, Image, Pressable, Text, View } from "react-native";
+import CompanyOverviewTab from "./CompanyOverviewTab";
+import CompanyJobsTab from "./CompanyJobsTab";
+import CompanyPostsTab from "./CompanyPostsTab";
 
 type TabKey = "overview" | "jobs" | "posts";
 
-interface Job {
-  id: string;
-  title: string;
-  company: string;
-  location: string;
-  distance: string;
-  publishedDate: string;
-  employmentType: string;
-  salary: string;
-  description: string;
-  isUrgent?: boolean;
-}
-
-interface Post {
-  id: string;
-  authorName: string;
-  authorAvatar: string;
-  timestamp: string;
-  location: string;
-  content: string;
-  imageUrl?: string;
-}
-
-const mockJobs: Job[] = [
-  {
-    id: "1",
-    title: "Bartender for a restaurant – Green Street + medical insurance",
-    company: "Johnny's Best",
-    location: "Austin, TX",
-    distance: "0.9 mi from you",
-    publishedDate: "Jan 23",
-    employmentType: "Shift position • Shift starts 24 Jan 5 PM",
-    salary: "$250",
-    description:
-      "URGENT!! Bartender needed for two shifts at the restaurant tomorrow!",
-    isUrgent: true,
-  },
-  {
-    id: "2",
-    title: "Restaurant Manager",
-    company: "Slices & Dices",
-    location: "Austin, TX",
-    distance: "0.9 mi from you",
-    publishedDate: "Jan 23",
-    employmentType: "Full time",
-    salary: "$ 35 / hr",
-    description: "Looking for an experienced Restaurant Manager",
-  },
-  {
-    id: "3",
-    title: "Employee Training Specialist",
-    company: "Slices & Dices",
-    location: "Austin, TX",
-    distance: "0.9 mi from you",
-    publishedDate: "Jan 23",
-    employmentType: "Full time",
-    salary: "$ 40 / hr",
-    description: "Training specialist needed for employee development",
-  },
-];
-
-const mockPosts: Post[] = [
-  {
-    id: "1",
-    authorName: "Johnny's Best",
-    authorAvatar: "#38bdf8",
-    timestamp: "7:14 PM",
-    location: "Austin, TX",
-    content:
-      "Surf and turf quality Australian produce I'll have the pork belly a la carte closed themed cafe kombucha tatooed waiters marron two ways.",
-    imageUrl: "pizza",
-  },
-  {
-    id: "2",
-    authorName: "Johnny's Best",
-    authorAvatar: "#38bdf8",
-    timestamp: "7:14 PM",
-    location: "Austin, TX",
-    content:
-      "Surf and turf quality Australian produce I'll have the pork belly a la carte closed themed cafe kombucha tatooed waiters marron two ways.",
-    imageUrl: "pizza",
-  },
-];
-
-interface CompanyDetailContentProps {
-  companyId?: string;
-}
-
-export default function CompanyDetailContent({
-  companyId,
-}: CompanyDetailContentProps) {
+export default function CompanyDetailContent() {
   const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
   const [activeTab, setActiveTab] = useState<TabKey>("overview");
-  const [isFollowing, setIsFollowing] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
   const [isTabsSticky, setIsTabsSticky] = useState(false);
+  const dispatch = useAppDispatch();
 
-  // Filter states
-  const [selectedEmploymentTypes, setSelectedEmploymentTypes] = useState<
-    string[]
-  >([]);
-  const [selectedSalaryRange, setSelectedSalaryRange] = useState<string[]>([]);
+  const {
+    data: company,
+    isFetching: isCompanyFetching,
+    isError,
+  } = useGetCompanyByIdQuery({ companyId: id as string }, { skip: !id });
 
-  const employmentTypes = [
-    "Full time",
-    "Part time",
-    "Contract",
-    "Internship",
-    "Shift position",
-  ];
+  const { data: jobsData } = useGetCompanyJobsQuery(
+    { companyId: id as string, page: 1, pageSize: 10 },
+    { skip: !id }
+  );
 
-  const salaryRanges = ["Under $20/hr", "$20-$35/hr", "$35-$50/hr", "$50+/hr"];
+  const followedCompanyIds = useAppSelector(selectFollowedCompanyIds);
+  const connections = useAppSelector(selectUserConnections);
+  const [followCompany, { isLoading: isFollowing }] =
+    useFollowCompanyMutation();
+  const [unfollowCompany, { isLoading: isUnfollowing }] =
+    useUnfollowCompanyMutation();
 
-  const handleFollowToggle = () => {
-    setIsFollowing(!isFollowing);
-  };
+  const companyProfile = company?.profile;
+  const companyLocation = companyProfile?.location;
+  const locationText = companyLocation
+    ? `${companyLocation.city || ""}${
+        companyLocation.state ? ", " + companyLocation.state : ""
+      }${companyLocation.country ? ", " + companyLocation.country : ""}`
+    : undefined;
+  const websiteText =
+    companyProfile?.website?.url ||
+    companyProfile?.website?.name ||
+    companyProfile?.websiteId ||
+    "Website not provided";
+  const followersCount = company?.followers?.length || 0;
+  const connectionFollowersCount = useMemo(() => {
+    if (!company?.followers) return 0;
+    const followerIds = new Set(company.followers.map((f) => f.followerId));
+    return connections.filter((c: any) => followerIds.has(c.user.id)).length;
+  }, [company?.followers, connections]);
+  const isFollowed = id ? followedCompanyIds.includes(String(id)) : false;
 
-  const handleViewJob = (jobId: string) => {
-    router.push({
-      pathname: "/(dashboard)/(tabs)/job-detail",
-      params: { id: jobId },
-    });
-  };
+  const companyPosts = useMemo(() => (company as any)?.posts || [], [company]);
 
-  const toggleFilter = (
-    filter: string,
-    selectedFilters: string[],
-    setSelectedFilters: (filters: string[]) => void
-  ) => {
-    if (selectedFilters.includes(filter)) {
-      setSelectedFilters(selectedFilters.filter((f) => f !== filter));
-    } else {
-      setSelectedFilters([...selectedFilters, filter]);
+  const handleFollowToggle = async () => {
+    if (!id || isFollowing || isUnfollowing) return;
+    try {
+      if (isFollowed) {
+        await unfollowCompany({ companyId: String(id) }).unwrap();
+        dispatch(showSuccessNotification("Unfollowed company."));
+      } else {
+        await followCompany({ companyId: String(id) }).unwrap();
+        dispatch(showSuccessNotification("Following company."));
+      }
+    } catch (e) {
+      console.warn("Failed to toggle follow company", e);
     }
   };
-
-  const renderJobItem = ({ item }: { item: Job }) => (
-    <Pressable
-      onPress={() => handleViewJob(item.id)}
-      className="bg-white p-4 border-b border-gray-100"
-    >
-      <View className="flex-row items-start justify-between mb-3">
-        <View className="flex-row items-start gap-3 flex-1">
-          <View className="w-10 h-10 rounded-lg bg-orange-500 items-center justify-center">
-            <Ionicons name="restaurant" size={20} color="white" />
-          </View>
-          <View className="flex-1">
-            <Text className="text-base font-semibold text-gray-900 mb-1">
-              {item.title}
-            </Text>
-            <Text className="text-sm font-medium text-gray-500 mb-1">
-              Published {item.publishedDate}
-            </Text>
-          </View>
-        </View>
-        <Pressable className="p-1">
-          <Ionicons name="ellipsis-vertical" size={18} color="#9CA3AF" />
-        </Pressable>
-      </View>
-
-      <View className="flex-row items-center gap-1 mb-2">
-        <Text className="text-sm font-medium font-medium text-gray-900">
-          {item.company}
-        </Text>
-        <Text className="text-sm font-medium text-gray-500">
-          • {item.location} ({item.distance})
-        </Text>
-      </View>
-
-      <View className="flex-row items-center gap-2 mb-2">
-        <View className="flex-row items-center gap-1">
-          <Ionicons name="briefcase-outline" size={14} color="#6B7280" />
-          <Text className="text-sm font-medium text-gray-600">
-            {item.employmentType}
-          </Text>
-        </View>
-        <View className="flex-row items-center gap-1">
-          <Ionicons name="time-outline" size={14} color="#6B7280" />
-          <Text className="text-sm font-medium text-gray-600">
-            {item.salary}
-          </Text>
-        </View>
-      </View>
-
-      {item.isUrgent && (
-        <View className="bg-orange-50 border border-orange-200 rounded-lg px-3 py-2 mb-2">
-          <Text className="text-sm font-medium font-semibold text-orange-600">
-            {item.description}
-          </Text>
-        </View>
-      )}
-
-      {!item.isUrgent && (
-        <Text className="text-sm font-medium text-gray-600 mb-2">
-          {item.description}
-        </Text>
-      )}
-
-      <Pressable>
-        <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
-          Learn more
-        </Text>
-      </Pressable>
-    </Pressable>
-  );
-
-  const renderPostItem = ({ item }: { item: Post }) => (
-    <View className="bg-white p-4 border-b border-gray-100">
-      <View className="flex-row items-start justify-between mb-3">
-        <View className="flex-row items-start gap-3 flex-1">
-          <View
-            className="w-10 h-10 rounded-full items-center justify-center"
-            style={{ backgroundColor: item.authorAvatar }}
-          >
-            <Ionicons name="restaurant" size={20} color="white" />
-          </View>
-          <View className="flex-1">
-            <Text className="text-base font-semibold text-gray-900">
-              {item.authorName}
-            </Text>
-            <Text className="text-sm font-medium text-gray-500">
-              {item.timestamp} • {item.location}
-            </Text>
-          </View>
-        </View>
-        <Pressable className="p-1">
-          <Ionicons name="share-outline" size={20} color="#6B7280" />
-        </Pressable>
-      </View>
-
-      <Text className="text-sm font-medium text-gray-700 mb-3">
-        {item.content}
-      </Text>
-
-      {item.imageUrl && (
-        <View className="w-full h-64 bg-orange-500 rounded-lg overflow-hidden">
-          <View className="w-full h-full items-center justify-center">
-            <Ionicons name="pizza" size={80} color="white" />
-          </View>
-        </View>
-      )}
-    </View>
-  );
-
-  const renderOverviewContent = () => (
-    <View className="flex-1">
-      <View className="p-4">
-        <Text className="text-lg font-bold text-gray-900 mb-3">About</Text>
-        <Text className="text-sm font-medium text-gray-700 leading-6">
-          Looking for an experienced Restaurant Manager. Professional
-          mixologists dry ice icecream today's specials Aesop Wahlqvist Alec
-          ethically sourcing. No signs Heston Bloomihill enjoy your meal forged
-          biodynamic so to fork slowcooked the second sitting share plates
-          biodynamic we're into it. Charred Robuchon authentic street food.
-          Craft beer drizzle we don't take reservations smoked everything
-          tequila and lime forest fish foam quail brie roll off the roof on
-          chard yaazu curd. Smoked anything organic kale hand roasted coffee
-          beans comfort food just a twist organic a la carte finger licking good
-          locally sourced. Two hours sittings surfing the menu tiramisu braised
-          lamb shoulder quality Australian produce flame grilled sheep's milk
-          eat. Gordon Ramsey on a good day a sneeky kebab the mystery box twice
-          cooked or reheated free wifi kimchi tacos lemon and whiskey sauce. Do
-          you do take away reservation time who is Marco Pierre White anyway
-          tamarind-glazed beef brisket another absolute dish hot spiced honey
-          it's to die for at Metro Pizza Grill.
-        </Text>
-      </View>
-
-      {/* Jobs Section */}
-      <View className="border-t border-gray-100 p-4">
-        <Text className="text-lg font-bold text-gray-900 mb-3">Jobs</Text>
-        {mockJobs.slice(0, 3).map((job) => (
-          <Pressable
-            key={job.id}
-            onPress={() => handleViewJob(job.id)}
-            className="flex-row items-center gap-3 py-3 border-b border-gray-100"
-          >
-            <View className="w-12 h-12 rounded-lg bg-orange-500 items-center justify-center">
-              <Ionicons name="restaurant" size={24} color="white" />
-            </View>
-            <View className="flex-1">
-              <Text className="text-sm font-medium font-semibold text-gray-900 mb-1">
-                {job.title}
-              </Text>
-              <Text className="text-sm font-medium text-gray-600">
-                {job.company} • {job.location}
-              </Text>
-              <View className="flex-row items-center gap-1 mt-1">
-                <Ionicons name="briefcase-outline" size={12} color="#6B7280" />
-                <Text className="text-sm font-medium text-gray-500">
-                  {job.employmentType}
-                </Text>
-              </View>
-            </View>
-            <Pressable className="p-1">
-              <Ionicons name="ellipsis-vertical" size={18} color="#9CA3AF" />
-            </Pressable>
-          </Pressable>
-        ))}
-        <Pressable
-          onPress={() => setActiveTab("jobs")}
-          className="flex-row items-center justify-between py-3"
-        >
-          <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
-            See all 12 jobs
-          </Text>
-          <Ionicons name="chevron-forward" size={18} color="#1eadff" />
-        </Pressable>
-      </View>
-
-      {/* Posts Section */}
-      <View className="border-t border-gray-100 p-4">
-        <Text className="text-lg font-bold text-gray-900 mb-3">Posts</Text>
-        {mockPosts.slice(0, 2).map((post) => (
-          <View key={post.id} className="mb-4">
-            <View className="flex-row items-start gap-3 mb-3">
-              <View
-                className="w-10 h-10 rounded-full items-center justify-center"
-                style={{ backgroundColor: post.authorAvatar }}
-              >
-                <Ionicons name="restaurant" size={20} color="white" />
-              </View>
-              <View className="flex-1">
-                <Text className="text-sm font-medium font-semibold text-gray-900">
-                  {post.authorName}
-                </Text>
-                <Text className="text-sm font-medium text-gray-500">
-                  {post.timestamp} • {post.location}
-                </Text>
-              </View>
-              <Pressable className="p-1">
-                <Ionicons name="share-outline" size={18} color="#6B7280" />
-              </Pressable>
-            </View>
-            <Text className="text-sm font-medium text-gray-700 mb-3">
-              {post.content}
-            </Text>
-            {post.imageUrl && (
-              <View className="w-full h-48 bg-orange-500 rounded-lg overflow-hidden">
-                <View className="w-full h-full items-center justify-center">
-                  <Ionicons name="pizza" size={60} color="white" />
-                </View>
-              </View>
-            )}
-          </View>
-        ))}
-        <Pressable
-          onPress={() => setActiveTab("posts")}
-          className="flex-row items-center justify-between py-3"
-        >
-          <Text className="text-sm font-medium font-semibold text-azure-radiance-500">
-            See all 12 posts
-          </Text>
-          <Ionicons name="chevron-forward" size={18} color="#1eadff" />
-        </Pressable>
-      </View>
-    </View>
-  );
-
-  const renderJobsContent = () => (
-    <View className="flex-1">
-      {/* Search and Filter Bar */}
-      <View className="bg-white px-4 py-3 border-b border-gray-100 flex-row items-center gap-3">
-        <View className="flex-1 flex-row items-center bg-gray-50 rounded-lg px-3 h-10">
-          <Ionicons name="search" size={18} color="#9CA3AF" />
-          <TextInput
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder="Search"
-            placeholderTextColor="#9CA3AF"
-            className="flex-1 ml-2 text-sm font-medium text-gray-900"
-          />
-        </View>
-        <Pressable
-          onPress={() => setShowFilters(true)}
-          className="w-10 h-10 items-center justify-center bg-gray-50 rounded-lg"
-        >
-          <Ionicons name="options-outline" size={20} color="#374151" />
-        </Pressable>
-      </View>
-
-      {/* Jobs Count */}
-      <View className="bg-white px-4 py-3 border-b border-gray-100">
-        <Text className="text-sm font-medium text-gray-600">
-          {mockJobs.length} jobs found
-        </Text>
-      </View>
-
-      {/* Jobs List */}
-      <FlatList
-        data={mockJobs}
-        keyExtractor={(item) => item.id}
-        renderItem={renderJobItem}
-        showsVerticalScrollIndicator={false}
-        className="flex-1 bg-gray-50"
-      />
-    </View>
-  );
-
-  const renderPostsContent = () => (
-    <View className="flex-1">
-      {/* Search Bar */}
-      <View className="bg-white px-4 py-3 border-b border-gray-100">
-        <View className="flex-row items-center bg-gray-50 rounded-lg px-3 h-10">
-          <Ionicons name="search" size={18} color="#9CA3AF" />
-          <TextInput
-            value={searchQuery}
-            onChangeText={setSearchQuery}
-            placeholder="Search"
-            placeholderTextColor="#9CA3AF"
-            className="flex-1 ml-2 text-sm font-medium text-gray-900"
-          />
-        </View>
-      </View>
-
-      {/* Posts Count */}
-      <View className="bg-white px-4 py-3 border-b border-gray-100">
-        <Text className="text-sm font-medium text-gray-600">
-          {mockPosts.length} posts found
-        </Text>
-      </View>
-
-      {/* Posts List */}
-      <FlatList
-        data={mockPosts}
-        keyExtractor={(item) => item.id}
-        renderItem={renderPostItem}
-        showsVerticalScrollIndicator={false}
-        className="flex-1 bg-gray-50"
-      />
-    </View>
-  );
-
-  const renderEmptyJobs = () => (
-    <View className="flex-1 items-center justify-center py-16">
-      <View className="w-20 h-20 bg-gray-100 rounded-full items-center justify-center mb-4">
-        <Ionicons name="briefcase-outline" size={40} color="#9CA3AF" />
-      </View>
-      <Text className="text-base font-medium text-gray-900">
-        This company doesn't have any jobs yet
-      </Text>
-    </View>
-  );
-
-  const renderEmptyPosts = () => (
-    <View className="flex-1 items-center justify-center py-16">
-      <View className="w-20 h-20 bg-gray-100 rounded-full items-center justify-center mb-4">
-        <Ionicons name="image-outline" size={40} color="#9CA3AF" />
-      </View>
-      <Text className="text-base font-medium text-gray-900">
-        This company hasn't posted yet
-      </Text>
-    </View>
-  );
 
   const handleScroll = Animated.event(
     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -507,7 +122,7 @@ export default function CompanyDetailContent({
         className="flex-1 py-3 items-center"
       >
         <Text
-          className={`text-sm font-medium font-semibold ${
+          className={`text-sm font-medium  ${
             activeTab === "overview"
               ? "text-azure-radiance-500"
               : "text-gray-500"
@@ -525,7 +140,7 @@ export default function CompanyDetailContent({
         className="flex-1 py-3 items-center"
       >
         <Text
-          className={`text-sm font-medium font-semibold ${
+          className={`text-sm font-medium  ${
             activeTab === "jobs" ? "text-azure-radiance-500" : "text-gray-500"
           }`}
         >
@@ -541,7 +156,7 @@ export default function CompanyDetailContent({
         className="flex-1 py-3 items-center"
       >
         <Text
-          className={`text-sm font-medium font-semibold ${
+          className={`text-sm font-medium  ${
             activeTab === "posts" ? "text-azure-radiance-500" : "text-gray-500"
           }`}
         >
@@ -553,6 +168,23 @@ export default function CompanyDetailContent({
       </Pressable>
     </View>
   );
+
+  if (isCompanyFetching) {
+    return <AppLoader />;
+  }
+
+  if (isError || !company) {
+    return (
+      <EmptyState
+        iconName="storefront"
+        title="Company not found"
+        description="We couldn't load this company. Please try again or go back."
+        buttonText="Back"
+        buttonIcon="arrow-back"
+        onButtonPress={() => router.back()}
+      />
+    );
+  }
 
   return (
     <View className="flex-1 bg-white">
@@ -578,61 +210,81 @@ export default function CompanyDetailContent({
         {/* Header Section */}
         <View className="bg-white border-b border-gray-100">
           <View className="p-4">
+            <Pressable
+              className="flex-row items-center gap-1 mb-4"
+              onPress={() => router.back()}
+            >
+              <Ionicons name="arrow-back" size={20} color="#1eadff" />
+              <Text className="text-sm font-medium text-azure-radiance-500">
+                Back
+              </Text>
+            </Pressable>
             {/* Company Logo */}
-            <View className="w-16 h-16 rounded-full bg-azure-radiance-500 items-center justify-center mb-3">
-              <Ionicons name="storefront" size={32} color="white" />
+            <View className="w-16 h-16 rounded-full bg-azure-radiance-500 items-center justify-center mb-3 overflow-hidden">
+              {companyProfile?.pictureUrl ? (
+                <Image
+                  source={{ uri: companyProfile.pictureUrl }}
+                  className="w-16 h-16 rounded-full"
+                  resizeMode="cover"
+                />
+              ) : (
+                <Ionicons name="storefront" size={32} color="white" />
+              )}
             </View>
 
             {/* Company Name and Location */}
             <Text className="text-xl font-bold text-gray-900 mb-1">
-              Hungry Joe's
+              {company.name}
             </Text>
-            <Text className="text-sm font-medium text-gray-600 mb-2">
-              Austin, TX
-            </Text>
-
-            {/* Followers Info */}
-            <View className="flex-row items-center mb-3">
-              <Text className="text-sm font-medium">
-                <Text className="text-azure-radiance-500 font-semibold">
-                  26 followers
-                </Text>
-                <Text className="text-gray-600"> • </Text>
-                <Text className="text-azure-radiance-500 font-semibold">
-                  4 of your connections
-                </Text>
-                <Text className="text-gray-600"> follow</Text>
+            {locationText ? (
+              <Text className="text-sm font-medium text-gray-600 mb-2">
+                {locationText}
               </Text>
-            </View>
+            ) : null}
+
+            {/* Followers count */}
+            <Text className="text-sm font-medium text-gray-700 mb-2">
+              {followersCount} follower{followersCount === 1 ? "" : "s"}
+              {connectionFollowersCount > 0 && (
+                <Text className="text-green-600">
+                  {" "}
+                  • {connectionFollowersCount} of your connection
+                  {connectionFollowersCount === 1 ? "" : "s"} follow
+                </Text>
+              )}
+            </Text>
 
             {/* Website Link */}
-            <View className="flex-row items-center gap-2 mb-4">
-              <Ionicons name="link-outline" size={16} color="#1eadff" />
-              <Text className="text-sm font-medium text-azure-radiance-500 font-medium">
-                hungryjoes.com
-              </Text>
-            </View>
+            {websiteText ? (
+              <View className="flex-row items-center gap-2 mb-4">
+                <Ionicons name="link-outline" size={16} color="#1eadff" />
+                <Text className="text-sm font-medium text-azure-radiance-500">
+                  {websiteText}
+                </Text>
+              </View>
+            ) : null}
 
             {/* Follow Button */}
             <Pressable
               onPress={handleFollowToggle}
               className={`flex-row items-center justify-center gap-2 py-2.5 rounded-lg ${
-                isFollowing
+                isFollowed
                   ? "bg-gray-100 border border-gray-300"
                   : "bg-azure-radiance-500"
               }`}
+              disabled={isFollowing || isUnfollowing}
             >
               <Ionicons
-                name={isFollowing ? "checkmark" : "add"}
+                name={isFollowed ? "checkmark" : "add"}
                 size={18}
-                color={isFollowing ? "#374151" : "white"}
+                color={isFollowed ? "#374151" : "white"}
               />
               <Text
-                className={`text-sm font-medium font-semibold ${
-                  isFollowing ? "text-gray-900" : "text-white"
+                className={`text-sm font-medium ${
+                  isFollowed ? "text-gray-900" : "text-white"
                 }`}
               >
-                {isFollowing ? "Following" : "Follow"}
+                {isFollowed ? "Following" : "Follow"}
               </Text>
             </Pressable>
           </View>
@@ -642,99 +294,26 @@ export default function CompanyDetailContent({
         </View>
 
         {/* Tab Content */}
-        {activeTab === "overview" && renderOverviewContent()}
-        {activeTab === "jobs" && renderJobsContent()}
-        {activeTab === "posts" && renderPostsContent()}
+        {activeTab === "overview" && (
+          <CompanyOverviewTab
+            company={company}
+            onSeeAllJobs={() => setActiveTab("jobs")}
+            onSeeAllPosts={() => setActiveTab("posts")}
+            jobs={jobsData?.data || []}
+            posts={companyPosts}
+          />
+        )}
+        {activeTab === "jobs" && id && (
+          <CompanyJobsTab companyId={id} companyName={company.name} />
+        )}
+        {activeTab === "posts" && (
+          <CompanyPostsTab
+            posts={companyPosts}
+            isFetching={false}
+            onEndReached={() => {}}
+          />
+        )}
       </Animated.ScrollView>
-
-      {/* Filter Bottom Sheet */}
-      <BottomSheet
-        visible={showFilters}
-        onClose={() => setShowFilters(false)}
-        title="Filters"
-      >
-        <View className="py-4">
-          {/* Employment Type */}
-          <View className="px-4 mb-6">
-            <Text className="text-sm font-medium font-semibold text-gray-900 mb-3">
-              Employment type
-            </Text>
-            {employmentTypes.map((type) => (
-              <Pressable
-                key={type}
-                onPress={() =>
-                  toggleFilter(
-                    type,
-                    selectedEmploymentTypes,
-                    setSelectedEmploymentTypes
-                  )
-                }
-                className="flex-row items-center justify-between py-3 border-b border-gray-100"
-              >
-                <Text className="text-sm font-medium text-gray-700">
-                  {type}
-                </Text>
-                <View
-                  className={`w-5 h-5 rounded border-2 items-center justify-center ${
-                    selectedEmploymentTypes.includes(type)
-                      ? "bg-azure-radiance-500 border-azure-radiance-500"
-                      : "border-gray-300"
-                  }`}
-                >
-                  {selectedEmploymentTypes.includes(type) && (
-                    <Ionicons name="checkmark" size={14} color="white" />
-                  )}
-                </View>
-              </Pressable>
-            ))}
-          </View>
-
-          {/* Salary Range */}
-          <View className="px-4 mb-6">
-            <Text className="text-sm font-medium font-semibold text-gray-900 mb-3">
-              Salary range
-            </Text>
-            {salaryRanges.map((range) => (
-              <Pressable
-                key={range}
-                onPress={() =>
-                  toggleFilter(
-                    range,
-                    selectedSalaryRange,
-                    setSelectedSalaryRange
-                  )
-                }
-                className="flex-row items-center justify-between py-3 border-b border-gray-100"
-              >
-                <Text className="text-sm font-medium text-gray-700">
-                  {range}
-                </Text>
-                <View
-                  className={`w-5 h-5 rounded border-2 items-center justify-center ${
-                    selectedSalaryRange.includes(range)
-                      ? "bg-azure-radiance-500 border-azure-radiance-500"
-                      : "border-gray-300"
-                  }`}
-                >
-                  {selectedSalaryRange.includes(range) && (
-                    <Ionicons name="checkmark" size={14} color="white" />
-                  )}
-                </View>
-              </Pressable>
-            ))}
-          </View>
-
-          {/* Apply Filters Button */}
-          <View className="px-4">
-            <Pressable
-              onPress={() => setShowFilters(false)}
-              className="bg-azure-radiance-500 py-3 rounded-lg items-center"
-            >
-              <Text className="text-white font-semibold">Apply Filters</Text>
-            </Pressable>
-          </View>
-        </View>
-      </BottomSheet>
     </View>
   );
 }

@@ -136,7 +136,7 @@ function PhoneVerificationScreen() {
           </Button>
           {!canResend && (
             <CircularCountdown
-              seconds={900}
+              seconds={60}
               size={28}
               onComplete={() => setCanResend(true)}
             />

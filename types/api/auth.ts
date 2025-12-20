@@ -42,7 +42,21 @@ export type User = {
 export interface AuthMeResponse {
   user: User;
   profile: UserProfile;
+  connections: {
+    id: string;
+    user: {
+      firstName: string;
+      lastName: string;
+      id: string;
+      role: string;
+      pictureUrl?: string;
+    };
+  }[];
+  followedCompanyIds: string[];
+  savedJobIds: string[];
+  appliedJobIds: string[];
 }
+
 export interface UserEmail {
   email: string;
   isVerified: boolean;

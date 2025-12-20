@@ -12,7 +12,7 @@ import {
 import { setEmailVerified } from "@/store/reducers/userSlice";
 import { useRouter } from "expo-router";
 import { Formik } from "formik";
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { OtpInput } from "react-native-otp-entry";
 import * as yup from "yup";
@@ -26,7 +26,7 @@ const verifyEmailSchema = yup.object({
 });
 
 function VerifyEmailForm() {
-  const [isSendAgain, setIsSendAgain] = useState<boolean>(false);
+  const [isSendAgain, setIsSendAgain] = useState<boolean>(true);
   const router = useRouter();
   const dispatch = useAppDispatch();
 
@@ -34,11 +34,6 @@ function VerifyEmailForm() {
     useSendEmailVerificationMutation();
   const [verifyEmailCode, { isLoading: isVerifying }] =
     useVerifyEmailCodeMutation();
-
-  // Send verification code on mount
-  useEffect(() => {
-    handleSendCode();
-  }, []);
 
   const handleSendCode = useCallback(async () => {
     try {
@@ -157,7 +152,7 @@ function VerifyEmailForm() {
               onPress={handleSendCode}
             >
               <Text
-                className={`${isSendAgain || isSending ? "text-gray-400" : "text-azure-radiance-500"}  text-sm font-medium font-medium  `}
+                className={`${isSendAgain || isSending ? "text-gray-400" : "text-azure-radiance-500"}  text-sm font-medium  `}
               >
                 {isSending
                   ? "Sending..."
@@ -167,7 +162,7 @@ function VerifyEmailForm() {
               </Text>
               {isSendAgain && (
                 <CircularCountdown
-                  seconds={900}
+                  seconds={60}
                   size={40}
                   onComplete={() => setIsSendAgain(false)}
                 />

@@ -85,6 +85,7 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
       pictureUrl: profile.pictureUrl,
       resumeUrl: profile.resumeUrl,
     });
+    console.log({ profile });
 
     // Set current step based on profile completion
     const currentStepFromProfile = getCurrentStepFromProfile(profile);

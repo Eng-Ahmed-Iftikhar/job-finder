@@ -5,6 +5,9 @@ import Animated, { FadeInRight } from "react-native-reanimated";
 import Icon from "react-native-vector-icons/Ionicons";
 import JobCardMenuIcon from "./jobCardMenuIcon";
 import { SuggestedJobResponseItem } from "@/api/services/jobsApi";
+import { selectAppliedJobIds } from "@/store/reducers/userSlice";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { jobTypeIconObj, jobTypeObj } from "@/utils/constants";
 
 export type Job = {
   id: string;
@@ -27,22 +30,10 @@ type JobCardProps = {
   onPress?: () => void;
 };
 
-const jobTypeObj: { [key: string]: string } = {
-  FULL_TIME: "Full Time",
-  PART_TIME: "Part Time",
-  CONTRACT: "Contract",
-  INTERNSHIP: "Internship",
-};
-
-const jobTypeIconObj: { [key: string]: string } = {
-  FULL_TIME: "briefcase",
-  PART_TIME: "time",
-  CONTRACT: "document-text",
-  INTERNSHIP: "school",
-};
-
 function JobCard({ job, onPress }: JobCardProps) {
   const router = useRouter();
+  const appliedJobIds = useAppSelector(selectAppliedJobIds);
+  const isApplied = appliedJobIds.includes(String(job.id));
 
   const handlePress = () => {
     if (onPress) {
@@ -169,19 +160,27 @@ function JobCard({ job, onPress }: JobCardProps) {
           )}
 
           <View className="flex-row items-center justify-between mt-3">
-            <TouchableOpacity
-              className="px-3 py-2 rounded-lg bg-azure-radiance-50"
-              onPress={() =>
-                router.push({
-                  pathname: "/(dashboard)/(tabs)/job-detail",
-                  params: { id: job.id },
-                })
-              }
-            >
-              <Text className="text-azure-radiance-500 text-sm font-medium ">
-                Learn more
-              </Text>
-            </TouchableOpacity>
+            {isApplied ? (
+              <View className="px-3 py-2 rounded-lg bg-green-50">
+                <Text className="text-green-600 text-sm font-semibold flex-row items-center gap-1">
+                  ✓ Applied
+                </Text>
+              </View>
+            ) : (
+              <TouchableOpacity
+                className="px-3 py-2 rounded-lg bg-azure-radiance-50"
+                onPress={() =>
+                  router.push({
+                    pathname: "/(dashboard)/(tabs)/job-detail",
+                    params: { id: job.id },
+                  })
+                }
+              >
+                <Text className="text-azure-radiance-500 text-sm font-medium ">
+                  Learn more
+                </Text>
+              </TouchableOpacity>
+            )}
 
             {job.hiringStatus === "urgent" && (
               <View className="px-2 py-1 rounded-full bg-orange-100">

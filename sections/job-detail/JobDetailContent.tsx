@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -13,22 +13,30 @@ import ApplyJobSheet from "@/components/ApplyJobSheet";
 import SuccessToast from "@/components/SuccessToast";
 import AppLoader from "@/components/AppLoader";
 import EmptyState from "@/components/EmptyState";
-import { useGetJobByIdQuery } from "@/api/services/jobsApi";
+import { useGetFollowedCompanyIdsQuery } from "@/api/services/companyApi";
 import {
   SuggestedJobResponseItem,
+  useApplyJobMutation,
   useSaveJobMutation,
   useUnsaveJobMutation,
+  useGetJobByIdQuery,
 } from "@/api/services/jobsApi";
 import RelatedJobs from "@/sections/job-detail/RelatedJobs";
 import { useAppSelector } from "@/hooks/useAppSelector";
-import { selectSavedJobsIds } from "@/store/reducers/jobSlice";
+import {
+  selectSavedJobIds,
+  selectAppliedJobIds,
+} from "@/store/reducers/userSlice";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
-import { showSuccessNotification } from "@/store/reducers/notificationSlice";
+import {
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/store/reducers/notificationSlice";
 import {
   useFollowCompanyMutation,
   useUnfollowCompanyMutation,
 } from "@/api/services/companyApi";
-import { selectFollowedCompanyIds } from "@/store/reducers/companySlice";
+import { selectFollowedCompanyIds } from "@/store/reducers/userSlice";
 
 interface JobDetailContentProps {
   jobId?: string;
@@ -85,10 +93,12 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
     job?.location?.state ? ", " + job.location.state : ""
   }${job?.location?.country ? ", " + job.location.country : ""}`;
   const companyColor = "#1eadff";
-  const savedJobIds = useAppSelector(selectSavedJobsIds);
+  const savedJobIds = useAppSelector(selectSavedJobIds);
   const [saveJob, { isLoading: isSaving }] = useSaveJobMutation();
   const [unsaveJob, { isLoading: isUnsaving }] = useUnsaveJobMutation();
   const bookmarked = job ? savedJobIds.includes(String(job.id)) : false;
+  const [applyJob, { isLoading: isApplying }] = useApplyJobMutation();
+  const appliedJobIds = useAppSelector(selectAppliedJobIds);
   const followedCompanyIds = useAppSelector(selectFollowedCompanyIds);
   const [followCompany, { isLoading: isFollowing }] =
     useFollowCompanyMutation();
@@ -99,26 +109,31 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
     ? followedCompanyIds.includes(String(companyId))
     : false;
   const [applySheetVisible, setApplySheetVisible] = useState(false);
-  const [applied, setApplied] = useState(false);
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const isApplied = appliedJobIds.includes(String(job?.id));
   const [interviewScheduled, setInterviewScheduled] = useState(false);
 
   const handleApply = () => {
     setApplySheetVisible(true);
   };
 
-  const handleConfirmApply = (coverLetter: string) => {
-    setApplySheetVisible(false);
-    setApplied(true);
-    setShowSuccessToast(true);
-    // Simulate interview scheduling (in real app, this would come from API)
-    setTimeout(() => {
+  const handleConfirmApply = async (coverLetter: string) => {
+    if (!job?.id || isApplying) return;
+    try {
+      await applyJob({ jobId: String(job.id), coverLetter }).unwrap();
+      dispatch(showSuccessNotification("Application submitted successfully."));
       setInterviewScheduled(true);
-    }, 500);
+      setApplySheetVisible(false);
+    } catch (e) {
+      dispatch(
+        showErrorNotification(
+          "Failed to submit job application. Please try again."
+        )
+      );
+      console.warn("Failed to apply for job", e);
+    }
   };
 
   const handleRetractApplication = () => {
-    setApplied(false);
     setInterviewScheduled(false);
   };
 
@@ -182,11 +197,6 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
 
   return (
     <View className="flex-1 bg-white">
-      <SuccessToast
-        visible={showSuccessToast}
-        message="Applied successfully!"
-        onClose={() => setShowSuccessToast(false)}
-      />
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
@@ -261,7 +271,7 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
             onPress={() =>
               router.push({
                 pathname: "/(dashboard)/(tabs)/company-detail",
-                params: { id: companyName },
+                params: { id: companyId },
               })
             }
             className="flex-row items-center justify-between py-4 px-4 bg-gray-50 rounded-xl mb-4"
@@ -351,10 +361,11 @@ export default function JobDetailContent({ jobId }: JobDetailContentProps) {
         <View className="flex-row items-center gap-3">
           <TouchableOpacity
             className="bg-azure-radiance-500 h-14 rounded-xl flex-1 items-center justify-center"
-            onPress={applied ? handleRetractApplication : handleApply}
+            onPress={isApplied ? handleRetractApplication : handleApply}
+            disabled={isApplying}
             activeOpacity={0.8}
           >
-            {applied ? (
+            {isApplied ? (
               <View className="flex-row items-center gap-2">
                 <Ionicons name="arrow-undo" size={20} color="white" />
                 <Text className="text-white font-semibold text-base">

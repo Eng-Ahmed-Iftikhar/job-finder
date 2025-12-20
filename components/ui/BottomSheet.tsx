@@ -22,7 +22,7 @@ export default function BottomSheet({
 }: BottomSheetProps) {
   return (
     <Modal
-      animationType="slide"
+      animationType="fade"
       transparent
       visible={visible}
       onRequestClose={onClose}
@@ -43,13 +43,13 @@ export default function BottomSheet({
               </Text>
               {onClear ? (
                 <Pressable onPress={onClear} className="p-2">
-                  <Text className="text-sm font-medium font-semibold text-gray-500">
+                  <Text className="text-sm font-medium  text-gray-500">
                     Clear
                   </Text>
                 </Pressable>
               ) : (
                 <Pressable onPress={onClose} className="p-2">
-                  <Text className="text-sm font-medium font-semibold text-gray-500">
+                  <Text className="text-sm font-medium  text-gray-500">
                     Close
                   </Text>
                 </Pressable>
