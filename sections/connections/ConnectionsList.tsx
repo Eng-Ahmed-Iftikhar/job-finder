@@ -1,8 +1,10 @@
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectUserConnections } from "@/store/reducers/userSlice";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import { FlatList } from "react-native";
-import { ConnectionRow, ConnectionItem } from "./ConnectionRow";
+import { ConnectionItem, ConnectionRow } from "./ConnectionRow";
 import { EmptyState } from "./EmptyState";
-import { useAppSelector } from "@/hooks/useAppSelector";
 
 const AVATAR_COLORS = [
   "#3b82f6",
@@ -13,8 +15,11 @@ const AVATAR_COLORS = [
   "#ef4444",
 ];
 
-export function ConnectionsList({ search }: { search: string }) {
-  const connections = useAppSelector((state) => state.user.connections);
+function Connections() {
+  const connections = useAppSelector(selectUserConnections);
+  const searchParams = useLocalSearchParams();
+  const search = searchParams.search as string;
+  const router = useRouter();
 
   const connectionsData: ConnectionItem[] = connections.map((conn, index) => ({
     id: conn.id,
@@ -28,27 +33,15 @@ export function ConnectionsList({ search }: { search: string }) {
     () =>
       connectionsData.filter(
         (item) =>
-          item.name.toLowerCase().includes(search.toLowerCase()) ||
-          item.location.toLowerCase().includes(search.toLowerCase())
+          item.name.toLowerCase().includes(search?.toLowerCase() ?? "") ||
+          item.location.toLowerCase().includes(search?.toLowerCase() ?? "")
       ),
     [connectionsData, search]
   );
 
   const handleFindPeople = () => {
-    // Navigate to find people screen
+    router.push("/search");
   };
-
-  if (filteredConnections.length === 0) {
-    return (
-      <EmptyState
-        icon="person"
-        title="You don't have any connections"
-        description="It's better when you have company! Find people to follow"
-        actionLabel="Find people to connect with"
-        onAction={handleFindPeople}
-      />
-    );
-  }
 
   return (
     <FlatList
@@ -57,6 +50,16 @@ export function ConnectionsList({ search }: { search: string }) {
       renderItem={({ item }) => <ConnectionRow item={item} />}
       contentContainerStyle={{ paddingBottom: 24 }}
       showsVerticalScrollIndicator={false}
+      ListEmptyComponent={
+        <EmptyState
+          icon="person"
+          title="You don't have any connections"
+          description="It's better when you have company! Find people to follow"
+          actionLabel="Find people to connect with"
+          onAction={handleFindPeople}
+        />
+      }
     />
   );
 }
+export default Connections;

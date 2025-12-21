@@ -8,6 +8,8 @@ import { skillApi } from "./skillApi";
 import { notificationSettingsApi } from "./notificationSettingsApi";
 import { jobsApi } from "./jobsApi";
 import { companyApi } from "./companyApi";
+import { searchApi } from "./searchApi";
+import { locationApi } from "./locationApi";
 
 export const apiMiddlewares: Middleware[] = [
   authApi.middleware,
@@ -17,6 +19,8 @@ export const apiMiddlewares: Middleware[] = [
   notificationSettingsApi.middleware,
   jobsApi.middleware,
   companyApi.middleware,
+  searchApi.middleware,
+  locationApi.middleware,
 ];
 
 export const apiReducers: Record<string, Reducer> = {
@@ -27,4 +31,6 @@ export const apiReducers: Record<string, Reducer> = {
   [notificationSettingsApi.reducerPath]: notificationSettingsApi.reducer,
   [jobsApi.reducerPath]: jobsApi.reducer,
   [companyApi.reducerPath]: companyApi.reducer,
+  [searchApi.reducerPath]: searchApi.reducer,
+  [locationApi.reducerPath]: locationApi.reducer,
 };

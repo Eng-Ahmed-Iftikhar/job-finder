@@ -39,6 +39,7 @@ interface UserState {
   followedCompanies: followedCompany[];
   savedJobIds: string[];
   appliedJobIds: string[];
+  pendingConnections: string[];
   isLoggedIn: boolean;
 }
 
@@ -50,6 +51,7 @@ const initialState: UserState = {
   connections: [],
   followedCompanies: [],
   appliedJobIds: [],
+  pendingConnections: [],
   savedJobIds: [],
 };
 
@@ -98,6 +100,7 @@ export const userSlice = createSlice({
         state["followedCompanies"] = action.payload.followedCompanies ?? [];
         state["savedJobIds"] = action.payload.savedJobIds;
         state["appliedJobIds"] = action.payload.appliedJobIds ?? [];
+        state["pendingConnections"] = action.payload.pendingConnections ?? [];
         state.isLoggedIn = true;
       })
       .addMatcher(authApi.endpoints.me.matchRejected, (state, action) => {
@@ -294,5 +297,7 @@ export const selectAppliedJobIds = (state: RootState) =>
   state.user.appliedJobIds;
 export const selectUserError = (state: RootState) => state.user;
 export const selectIsLoggedIn = (state: RootState) => state.user.isLoggedIn;
+export const selectPendingConnections = (state: RootState) =>
+  state.user.pendingConnections;
 
 export default userSlice.reducer;

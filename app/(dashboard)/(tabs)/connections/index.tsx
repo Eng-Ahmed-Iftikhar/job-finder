@@ -1,6 +1,6 @@
 import React from "react";
-import ConnectionsContent from "@/sections/connections/ConnectionsContent";
+import ConnectionList from "@/sections/connections/ConnectionsList";
 
 export default function ConnectionsScreen() {
-  return <ConnectionsContent />;
+  return <ConnectionList />;
 }

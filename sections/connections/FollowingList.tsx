@@ -3,8 +3,11 @@ import { FlatList } from "react-native";
 import { FollowRow, FollowedCompany } from "./FollowRow";
 import { EmptyState } from "./EmptyState";
 import { useAppSelector } from "@/hooks/useAppSelector";
+import { useLocalSearchParams } from "expo-router";
 
-export function FollowingList({ search }: { search: string }) {
+export function FollowingList() {
+  const searchParams = useLocalSearchParams();
+  const search = (searchParams.search as string) || "";
   const followedCompanies = useAppSelector(
     (state) => state.user.followedCompanies
   );
@@ -33,18 +36,6 @@ export function FollowingList({ search }: { search: string }) {
     // Navigate to find businesses screen
   };
 
-  if (filteredFollowing.length === 0) {
-    return (
-      <EmptyState
-        icon="business"
-        title="You don't follow any businesses"
-        description="It's better when you have company! Find businesses to follow"
-        actionLabel="Find businesses to follow"
-        onAction={handleFindBusinesses}
-      />
-    );
-  }
-
   return (
     <FlatList
       data={filteredFollowing}
@@ -52,6 +43,15 @@ export function FollowingList({ search }: { search: string }) {
       renderItem={({ item }) => <FollowRow item={item} />}
       contentContainerStyle={{ paddingBottom: 24 }}
       showsVerticalScrollIndicator={false}
+      ListEmptyComponent={
+        <EmptyState
+          icon="business"
+          title="You don't follow any businesses"
+          description="It's better when you have company! Find businesses to follow"
+          actionLabel="Find businesses to follow"
+          onAction={handleFindBusinesses}
+        />
+      }
     />
   );
 }

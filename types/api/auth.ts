@@ -65,6 +65,7 @@ export interface AuthMeResponse {
   }[];
   savedJobIds: string[];
   appliedJobIds: string[];
+  pendingConnections: string[];
 }
 
 export interface UserEmail {

@@ -3,13 +3,15 @@ import { FlatList, View } from "react-native";
 import { PendingTabButton } from "./TabButton";
 import { PendingRow, PendingItem } from "./PendingRow";
 import { EmptyState } from "./EmptyState";
+import { useLocalSearchParams } from "expo-router";
 // TODO: Add pending connections data structure to user slice (inboundPendingConnections, outboundPendingConnections)
 
 type PendingTabKey = "inbound" | "outbound";
 
-export function PendingConnectionsList({ search }: { search: string }) {
+export function PendingConnectionsList() {
   const [pendingTab, setPendingTab] = useState<PendingTabKey>("inbound");
-
+  const searchParams = useLocalSearchParams();
+  const search = (searchParams.search as string) || "";
   // TODO: Get from Redux state when implemented
   const pendingInboundData: PendingItem[] = [];
   const pendingOutboundData: PendingItem[] = [];
@@ -39,13 +41,10 @@ export function PendingConnectionsList({ search }: { search: string }) {
   };
 
   const showInbound = pendingTab === "inbound";
-  const hasInbound = filteredPendingInbound.length > 0;
-  const hasOutbound = filteredPendingOutbound.length > 0;
 
   const currentData = showInbound
     ? filteredPendingInbound
     : filteredPendingOutbound;
-  const hasData = showInbound ? hasInbound : hasOutbound;
 
   return (
     <View className="flex-1">
@@ -62,23 +61,22 @@ export function PendingConnectionsList({ search }: { search: string }) {
         />
       </View>
 
-      {hasData ? (
-        <FlatList
-          data={currentData}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <PendingRow item={item} />}
-          contentContainerStyle={{ paddingBottom: 24 }}
-          showsVerticalScrollIndicator={false}
-        />
-      ) : (
-        <EmptyState
-          icon="person"
-          title="You don't have any connections"
-          description="It's better when you have company! Find people to follow"
-          actionLabel="Find people to connect with"
-          onAction={handleFindPeople}
-        />
-      )}
+      <FlatList
+        data={currentData}
+        keyExtractor={(item) => item.id}
+        renderItem={({ item }) => <PendingRow item={item} />}
+        contentContainerStyle={{ paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <EmptyState
+            icon="person"
+            title="You don't have any connections"
+            description="It's better when you have company! Find people to follow"
+            actionLabel="Find people to connect with"
+            onAction={handleFindPeople}
+          />
+        }
+      />
     </View>
   );
 }

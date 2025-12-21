@@ -60,6 +60,12 @@ const API_ROUTES = {
     detail: "/companies/:id",
     jobs: "/companies/:id/jobs",
   },
+  location: {
+    search: "/location/search",
+  },
+  search: {
+    all: "/search",
+  },
 };
 
 export default API_ROUTES;
