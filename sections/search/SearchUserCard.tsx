@@ -2,7 +2,7 @@ import Avatar from "@/components/ui/Avatar";
 import { SearchUser } from "@/types/search";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Pressable, Text, TouchableOpacity, View } from "react-native";
 
 interface SearchUserCardProps {
   user: SearchUser;
@@ -19,13 +19,10 @@ export default function SearchUserCard({ user }: SearchUserCardProps) {
   };
 
   return (
-    <Pressable
-      onPress={handlePress}
-      className="bg-white rounded-lg px-2  items-center w-32"
-    >
+    <TouchableOpacity onPress={handlePress} className=" items-center w-32">
       <Avatar
         imageUrl={user.pictureUrl}
-        size={64}
+        size={40}
         name={`${user.firstName} ${user.lastName}`}
       />
       <Text
@@ -34,6 +31,6 @@ export default function SearchUserCard({ user }: SearchUserCardProps) {
       >
         {user.firstName} {user.lastName}
       </Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 }

@@ -1,7 +1,9 @@
 import { useLocationSuggestions } from "@/hooks/useLocationSuggestions";
 import { Ionicons } from "@expo/vector-icons";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import * as Location from "expo-location";
 import {
+  ActivityIndicator,
   FlatList,
   Keyboard,
   Pressable,
@@ -9,6 +11,10 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { showErrorNotification } from "@/store/reducers/notificationSlice";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectNativeEvent } from "@/store/reducers/uiSlice";
 
 interface LocationInputProps {
   value: string;
@@ -26,7 +32,10 @@ export default function LocationInput({
 }: LocationInputProps) {
   const [input, setInput] = useState(value);
   const [locationSelected, setLocationSelected] = useState<boolean>(false);
-
+  const nativeEvent = useAppSelector(selectNativeEvent);
+  const [fetchCurrentLocation, setFetchCurrentLocation] =
+    useState<boolean>(false);
+  const dispatch = useAppDispatch();
   const { suggestions, isFetching } = useLocationSuggestions(
     input,
     locationSelected
@@ -35,6 +44,7 @@ export default function LocationInput({
 
   const handleTextChange = (text: string) => {
     setInput(text);
+    onChangeText(text);
     setLocationSelected(false);
   };
 
@@ -45,10 +55,54 @@ export default function LocationInput({
     Keyboard.dismiss();
   };
 
-  const handleUseCurrentLocation = () => {
-    onChangeText("");
-    setInput("");
+  const handleUseCurrentLocation = async () => {
+    setFetchCurrentLocation(true);
+    let { status } = await Location.requestForegroundPermissionsAsync();
+    if (status !== "granted") {
+      dispatch(showErrorNotification("User not able to access location"));
+      return;
+    }
+    let currentLocation = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.High,
+    });
+    const reverseGeocode = await Location.reverseGeocodeAsync({
+      latitude: currentLocation.coords.latitude,
+      longitude: currentLocation.coords.longitude,
+    });
+
+    const locationName = reverseGeocode[0];
+    const locationString = `${locationName.city || ""}${
+      locationName.city && locationName.region ? ", " : ""
+    }${locationName.region || ""}${locationName.region && locationName.country ? ", " : ""}${locationName.country || ""}`;
+
+    onChangeText(locationString);
+    setInput(locationString);
+    setFetchCurrentLocation(false);
+    setLocationSelected(true);
+
+    Keyboard.dismiss();
   };
+  useEffect(() => {
+    if (!nativeEvent || locationSelected) return;
+    inputRef?.current?.measure((_x, _y, width, height, pageX, pageY) => {
+      const touchX = nativeEvent?.pageX;
+      const touchY = nativeEvent?.pageY;
+      // Only proceed if touchX and touchY are numbers (i.e., from a touch event)
+      if (typeof touchX !== "number" || typeof touchY !== "number") return;
+      // console.log(touchX, touchY, pageX, pageY, width, height);
+
+      const isOutside =
+        touchX < pageX ||
+        touchX > pageX + width ||
+        touchY < pageY ||
+        touchY > pageY + height;
+
+      if (isOutside) {
+        setLocationSelected(true);
+        console.log("Clicked outside inputContainerRef");
+      }
+    });
+  }, [nativeEvent]);
 
   return (
     <View className="relative">
@@ -60,11 +114,11 @@ export default function LocationInput({
           style={{ marginRight: 8 }}
         />
         <TextInput
-          ref={inputRef}
           className="flex-1 text-base text-gray-900"
           placeholder={placeholder}
           placeholderTextColor="#9CA3AF"
           value={input}
+          ref={inputRef}
           onChangeText={handleTextChange}
           underlineColorAndroid="transparent"
         />
@@ -80,14 +134,25 @@ export default function LocationInput({
             onPress={handleUseCurrentLocation}
             className="flex-row items-center px-4 py-3 border-b border-gray-100"
           >
-            <Ionicons
-              name="navigate"
-              size={18}
-              color="#1eadff"
-              style={{ marginRight: 12 }}
-            />
+            {fetchCurrentLocation ? (
+              <ActivityIndicator
+                color="#1eadff"
+                size={18}
+                style={{ marginRight: 12 }}
+              />
+            ) : (
+              <Ionicons
+                name="navigate"
+                size={18}
+                color="#1eadff"
+                style={{ marginRight: 12 }}
+              />
+            )}
+
             <Text className="text-base font-semibold text-azure-radiance-500">
-              Use my current location
+              {fetchCurrentLocation
+                ? "Getting location..."
+                : "Use my current location"}
             </Text>
           </Pressable>
           <FlatList

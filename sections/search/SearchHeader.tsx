@@ -17,6 +17,7 @@ export default function SearchHeader() {
   const handleClose = () => {
     setLocation("");
     setSearchQuery("");
+    setSearchText("");
     router.back();
   };
 

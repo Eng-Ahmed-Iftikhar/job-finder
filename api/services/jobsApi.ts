@@ -74,12 +74,12 @@ export const jobsApi = createApi({
   endpoints: (builder) => ({
     getSuggestedJobs: builder.query<
       SuggestedJobResponse,
-      { page?: number; pageSize?: number }
+      { page?: number; pageSize?: number; search?: string }
     >({
-      query: ({ page = 1, pageSize = 10 } = {}) => ({
+      query: ({ page = 1, pageSize = 10, search } = {}) => ({
         url: API_ROUTES.jobs.suggested,
         method: "GET",
-        params: { page, pageSize },
+        params: { page, pageSize, search },
       }),
     }),
     getSavedJobIds: builder.query<string[], void>({

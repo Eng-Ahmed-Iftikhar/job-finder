@@ -6,8 +6,10 @@ export type SearchJob = {
   jobType: SuggestedJobResponseItem["jobType"];
   wage: SuggestedJobResponseItem["wage"];
   wageRate: SuggestedJobResponseItem["wageRate"];
+  currency: SuggestedJobResponseItem["currency"];
   address: string;
   location: Location;
+  publishAt: string;
   employers: EmployerRelation[];
 };
 

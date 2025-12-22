@@ -2,7 +2,7 @@ import Avatar from "@/components/ui/Avatar";
 import { SearchCompany } from "@/types/search";
 import { useRouter } from "expo-router";
 import React from "react";
-import { Pressable, Text, View } from "react-native";
+import { Text, TouchableOpacity } from "react-native";
 
 interface SearchCompanyCardProps {
   company: SearchCompany;
@@ -19,10 +19,13 @@ export default function SearchCompanyCard({ company }: SearchCompanyCardProps) {
   };
 
   return (
-    <Pressable onPress={handlePress} className=" px-2 items-center w-32">
+    <TouchableOpacity
+      onPress={handlePress}
+      className=" bg-white items-center w-32"
+    >
       <Avatar
         imageUrl={company?.pictureUrl}
-        size={64}
+        size={40}
         name={company?.company.name}
       />
       <Text
@@ -31,6 +34,6 @@ export default function SearchCompanyCard({ company }: SearchCompanyCardProps) {
       >
         {company?.company.name}
       </Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 }
