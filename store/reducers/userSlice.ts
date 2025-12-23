@@ -6,10 +6,11 @@ import { userApi } from "@/api/services/userApi";
 import { jobsApi } from "@/api/services/jobsApi";
 import { companyApi } from "@/api/services/companyApi";
 import { User, UserProfile, UserRole } from "@/types/api/auth";
+import { connectionRequestsApi } from "@/api/services/connectionRequestsApi";
 
 // Define a type for the slice state
 
-type connections = {
+type Connection = {
   id: string;
   user: {
     firstName: string;
@@ -17,8 +18,13 @@ type connections = {
     id: string;
     role: string;
     pictureUrl?: string;
+    location?: {
+      city?: string;
+      state?: string;
+      country?: string;
+    };
   };
-}[];
+};
 
 type followedCompany = {
   id: string;
@@ -35,7 +41,7 @@ type followedCompany = {
 interface UserState {
   user: User | null;
   profile: UserProfile | null;
-  connections: connections;
+  connections: Connection[];
   followedCompanies: followedCompany[];
   savedJobIds: string[];
   appliedJobIds: string[];
@@ -82,6 +88,12 @@ export const userSlice = createSlice({
       if (state.profile) {
         state.profile = { ...state.profile, ...action.payload };
       }
+    },
+    addConnection: (state, action: PayloadAction<Connection>) => {
+      if (state.connections.find((conn) => conn.id === action.payload.id)) {
+        return;
+      }
+      state.connections = [...state.connections, action.payload];
     },
     setEmailVerified: (state, action: PayloadAction<boolean>) => {
       if (state.user && state.user.email) {
@@ -248,6 +260,18 @@ export const userSlice = createSlice({
               (company) => company.id !== companyId
             );
           }
+        }
+      )
+      .addMatcher(
+        connectionRequestsApi.endpoints.acceptConnectionRequest.matchFulfilled,
+        (state, action) => {
+          console.log(action.payload);
+
+          const findedRequest = state.pendingConnections.findIndex(
+            (id) => id === action.payload.id
+          );
+          if (findedRequest) return;
+          state.connections.push(action.payload);
         }
       )
       .addMatcher(

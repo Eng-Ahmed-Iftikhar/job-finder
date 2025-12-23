@@ -17,11 +17,6 @@ userNotificationMiddleware.startListening({
       );
       return;
     }
-    listenerApi.dispatch(
-      showSuccessNotification(
-        `Welcome back, ${action.payload.profile.generalInfo?.firstName}!`
-      )
-    );
   },
 });
 

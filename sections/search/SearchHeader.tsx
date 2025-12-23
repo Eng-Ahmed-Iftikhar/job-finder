@@ -29,6 +29,7 @@ export default function SearchHeader() {
     const queryList: string[] = JSON.parse(searchQueries || "[]");
     queryList.unshift(searchText);
     setSearchQueries(JSON.stringify(Array.from(new Set(queryList))));
+    router.push("/search-suggestions");
   };
 
   return (

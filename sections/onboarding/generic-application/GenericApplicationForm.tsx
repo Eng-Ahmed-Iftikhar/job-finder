@@ -1,3 +1,4 @@
+import { useLazyMeQuery } from "@/api/services/authApi";
 import {
   useGetCvDetailsQuery,
   useUpdateCvDetailsMutation,
@@ -69,6 +70,7 @@ const formatDateForBackend = (dateStr?: string): string | undefined => {
 function GenericApplicationForm() {
   const dispatch = useDispatch();
   const router = useRouter();
+  const [getCurrentUser] = useLazyMeQuery();
   const { handleUserProfile } = useOnboarding();
   const { data: cvDetails, isLoading: isLoadingCvDetails } =
     useGetCvDetailsQuery();
@@ -113,7 +115,7 @@ function GenericApplicationForm() {
 
         // Update Redux store to mark as onboarded
         dispatch(updateIsOnboarded(true));
-
+        await getCurrentUser();
         // Navigate to dashboard
         router.replace("/(dashboard)");
       } catch (error: any) {

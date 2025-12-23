@@ -119,14 +119,14 @@ const baseQueryWithReAuth: BaseQueryFn<
     } else if (result.error.status === "FETCH_ERROR") {
       // Network error - no internet connection
       api.dispatch({
-        type: "notification/showError",
+        type: "notification/showErrorNotification",
         payload:
           result.error.error || "Network error. Please check your connection.",
       });
     } else if (result.error.status === "PARSING_ERROR") {
       // Response parsing error
       api.dispatch({
-        type: "notification/showError",
+        type: "notification/showErrorNotification",
         payload: "Failed to parse response. Please try again.",
       });
     } else if (
@@ -136,7 +136,7 @@ const baseQueryWithReAuth: BaseQueryFn<
     ) {
       // Server error
       api.dispatch({
-        type: "notification/showError",
+        type: "notification/showErrorNotification",
         payload: "Server error. Please try again later.",
       });
     }

@@ -80,7 +80,7 @@ function PhoneVerificationScreen() {
   return (
     <View className="flex-1 bg-white px-4 pt-6">
       <View className="flex-1 justify-start">
-        <View className="mb-6">
+        <View className="mb-6 flex-col gap-6 w-[80%]  mx-auto">
           <OtpInput
             numberOfDigits={5}
             type="numeric"
@@ -106,16 +106,16 @@ function PhoneVerificationScreen() {
               {error}
             </Text>
           ) : null}
-        </View>
 
-        <Button
-          onPress={handleVerifyCode}
-          disabled={isVerifying || code.length !== 5}
-          loading={isVerifying}
-          className="mb-4"
-        >
-          {isVerifying ? "Verifying..." : "Verify Phone"}
-        </Button>
+          <Button
+            onPress={handleVerifyCode}
+            disabled={isVerifying || code.length !== 5}
+            loading={isVerifying}
+            className="mb-4"
+          >
+            {isVerifying ? "Verifying..." : "Verify Phone"}
+          </Button>
+        </View>
 
         <View className="flex-row items-center justify-center gap-2 mt-4">
           <Button
@@ -125,7 +125,7 @@ function PhoneVerificationScreen() {
             className="flex-row items-center gap-2 max-w-[150px]"
           >
             <Text
-              className={`text-sm font-medium font-medium ${
+              className={`text-sm font-medium ${
                 isSending || !canResend
                   ? "text-gray-400"
                   : "text-azure-radiance-500"

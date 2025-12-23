@@ -66,7 +66,7 @@ export default function SuccessToast({
         opacity,
         transform: [{ translateY }],
       }}
-      className="absolute top-28 left-4 right-4 z-50"
+      className="absolute bottom-8 left-4 right-4 z-50"
     >
       <View className="bg-azure-radiance-500 rounded-xl px-4 py-3 flex-row items-center justify-between shadow-lg">
         <Text className="text-white font-semibold text-base flex-1">

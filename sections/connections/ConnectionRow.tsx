@@ -10,6 +10,7 @@ export type ConnectionItem = {
   name: string;
   location: string;
   color: string;
+  pictureUrl?: string;
   icon?: keyof typeof Ionicons.glyphMap;
 };
 
@@ -25,7 +26,11 @@ export function ConnectionRow({ item }: { item: ConnectionItem }) {
   return (
     <View className="flex-row items-center justify-between px-4 py-3 bg-white border-b border-gray-100">
       <View className="flex-row items-center gap-3 flex-1">
-        <ConnectionAvatar color={item.color} icon={item.icon} />
+        <ConnectionAvatar
+          color={item.color}
+          imgUrl={item.pictureUrl}
+          icon={item.icon}
+        />
         <View className="flex-1">
           <Text
             className="text-base font-semibold text-gray-900"

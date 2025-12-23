@@ -19,6 +19,11 @@ const API_ROUTES = {
     delete: "/delete-file",
     upload: "/files/upload",
   },
+  connectionRequests: {
+    me: "/connection-requests/me",
+    create: "/connection-requests",
+    accept: "/connection-requests/:id/accept",
+  },
   document: {
     list: "/documents?page=:page&pageSize=:pageSize",
     listFilter: "/documents/filters",
@@ -35,6 +40,10 @@ const API_ROUTES = {
     resume: "/users/me/resume",
     reauthenticate: "/users/me/reauthenticate",
     changePassword: "/users/me/change-password",
+  },
+  users: {
+    suggested: "/users/suggested",
+    all: "/users",
   },
   notificationSettings: {
     me: "/notification-settings/me",
@@ -58,6 +67,7 @@ const API_ROUTES = {
     followedIds: "/companies/followedIds",
     follow: "/companies/:id/follow",
     detail: "/companies/:id",
+    all: "/companies",
     jobs: "/companies/:id/jobs",
   },
   location: {

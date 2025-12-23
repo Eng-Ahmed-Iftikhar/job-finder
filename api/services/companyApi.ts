@@ -2,6 +2,7 @@ import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReAuth } from "./baseApi";
 import API_ROUTES from "@/api/routes";
 import { SuggestedJobResponse } from "./jobsApi";
+import { SuggestedCompaniesResponse } from "@/types/search/suggestedCompanies";
 
 export interface CompanyLocation {
   id: string;
@@ -86,6 +87,16 @@ export const companyApi = createApi({
         method: "DELETE",
       }),
     }),
+    getSuggestedCompanies: builder.query<
+      SuggestedCompaniesResponse,
+      { search?: string; page: number; pageSize: number; location: string }
+    >({
+      query: ({ search = "", page = 1, pageSize = 10, location }) => ({
+        url: API_ROUTES.companies.all,
+        method: "GET",
+        params: { search, page, pageSize, location },
+      }),
+    }),
   }),
 });
 
@@ -95,4 +106,5 @@ export const {
   useGetCompanyJobsQuery,
   useFollowCompanyMutation,
   useUnfollowCompanyMutation,
+  useGetSuggestedCompaniesQuery,
 } = companyApi;

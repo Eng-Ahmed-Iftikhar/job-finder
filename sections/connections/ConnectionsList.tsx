@@ -24,8 +24,15 @@ function Connections() {
   const connectionsData: ConnectionItem[] = connections.map((conn, index) => ({
     id: conn.id,
     name: `${conn.user.firstName} ${conn.user.lastName}`,
-    location: "",
+    location: [
+      conn.user.location?.city,
+      conn.user.location?.state,
+      conn.user.location?.country,
+    ]
+      .filter(Boolean)
+      .join(", "),
     color: AVATAR_COLORS[index % AVATAR_COLORS.length],
+    pictureUrl: conn.user?.pictureUrl,
     icon: "person" as const,
   }));
 

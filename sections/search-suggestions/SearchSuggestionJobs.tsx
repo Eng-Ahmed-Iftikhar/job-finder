@@ -1,70 +1,30 @@
+import { useGetSuggestedJobsQuery } from "@/api/services/jobsApi";
 import { useSearch } from "@/hooks/useSearch";
+import { SearchJob } from "@/types/search";
 import React, { useEffect } from "react";
 import { FlatList, RefreshControl, Text, View } from "react-native";
-import { Job } from "../dashboard/JobCard";
 import SearchJobResultCard from "../search/SearchJobResultCard";
-import {
-  useGetSuggestedJobsQuery,
-  useLazyGetSuggestedJobsQuery,
-} from "@/api/services/jobsApi";
-import { SearchJob } from "@/types/search";
 
-const jobsData: Job[] = [
-  {
-    id: "1",
-    title: "Bartender for a restaurant – Green Street + medical insurance",
-    company: "Johnny's Best",
-    location: "Austin, TX",
-    distance: "0.9 mi from you",
-    publishedAt: "Published Jan 23",
-    shiftInfo: "Shift position • Shift starts 24 Jan 5 PM",
-    rate: "$250",
-    urgent: true,
-    imageUrl:
-      "https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=800&q=60",
-    description: "Bartender needed for two shifts at the restaurant tomorrow!",
-  },
-  {
-    id: "2",
-    title: "Bartender for a restaurant – Green Street + medical insurance",
-    company: "Johnny's Best",
-    location: "Austin, TX",
-    distance: "0.9 mi from you",
-    publishedAt: "Published Jan 23",
-    shiftInfo: "Shift position • Shift starts 24 Jan 5 PM",
-    rate: "$250",
-    urgent: true,
-    imageUrl:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60",
-    description: "Bartender needed for two shifts at the restaurant tomorrow!",
-  },
-  {
-    id: "3",
-    title: "Bartender for a restaurant – Green Street + medical insurance",
-    company: "Johnny's Best",
-    location: "Austin, TX",
-    distance: "0.9 mi from you",
-    publishedAt: "Published Jan 23",
-    shiftInfo: "Shift position • Shift starts 24 Jan 5 PM",
-    rate: "$250",
-    urgent: true,
-    imageUrl:
-      "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=800&q=60",
-    description: "Bartender needed for two shifts at the restaurant tomorrow!",
-  },
-];
 const PAGE_SIZE = 10;
 
 function SearchSuggestionJobs() {
-  const { searchQuery } = useSearch();
+  const { searchQuery, location } = useSearch();
   const [page, setPage] = React.useState(1);
   const [jobs, setJobs] = React.useState<SearchJob[]>([]);
   const [refreshing, setRefreshing] = React.useState(false);
-  const { data, isLoading, refetch } = useGetSuggestedJobsQuery({
-    search: searchQuery,
-    page,
-    pageSize: PAGE_SIZE,
-  });
+
+  const { data, isLoading, refetch } = useGetSuggestedJobsQuery(
+    {
+      search: searchQuery,
+      location,
+      page,
+      pageSize: PAGE_SIZE,
+    },
+    {
+      refetchOnMountOrArgChange: true,
+      refetchOnFocus: true,
+    }
+  );
 
   const onEndReached = () => {
     if (jobs.length) setPage((prev) => prev + 1);

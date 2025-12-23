@@ -1,54 +1,80 @@
-import React from "react";
-import { FlatList } from "react-native";
+import React, { useEffect } from "react";
+import { FlatList, RefreshControl, Text, View } from "react-native";
 import SearchSuggestionCompanyCard from "./SearchSuggestionCompanyCard";
+import { useSearch } from "@/hooks/useSearch";
+import { useGetSuggestedCompaniesQuery } from "@/api/services/companyApi";
 
-type CompanyItem = {
-  id: string;
-  name: string;
-  location: string;
-  openJobs: number;
-  color: string;
-};
+const PAGE_SIZE = 10;
 
-const companiesData: CompanyItem[] = [
-  {
-    id: "c1",
-    name: "Bartender Haven",
-    location: "Austin, TX",
-    openJobs: 3,
-    color: "#38bdf8",
-  },
-  {
-    id: "c2",
-    name: "Bartender Haven",
-    location: "Austin, TX",
-    openJobs: 3,
-    color: "#fbbf24",
-  },
-  {
-    id: "c3",
-    name: "Bartender Haven",
-    location: "Austin, TX",
-    openJobs: 3,
-    color: "#22c55e",
-  },
-  {
-    id: "c4",
-    name: "Bartender Haven",
-    location: "Austin, TX",
-    openJobs: 3,
-    color: "#a855f7",
-  },
-];
 function SearchSuggestionCompanies() {
+  const { searchQuery, location } = useSearch();
+  const [page, setPage] = React.useState(1);
+  const [companies, setCompanies] = React.useState<any[]>([]);
+  const [refreshing, setRefreshing] = React.useState(false);
+  const { data, isLoading, refetch } = useGetSuggestedCompaniesQuery({
+    search: searchQuery,
+    location,
+    page,
+    pageSize: PAGE_SIZE,
+  });
+
+  const onEndReached = () => {
+    if (companies.length) setPage((prev) => prev + 1);
+  };
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    setPage(1);
+    await refetch().unwrap();
+    setRefreshing(false);
+  };
+
+  useEffect(() => {
+    if (data?.data) {
+      if (page === 1) {
+        setCompanies(data.data);
+        return;
+      }
+      setCompanies((prev) => {
+        // Avoid duplicates
+        const newCompanies = data.data.filter(
+          (company) => !prev.find((c) => c.id === company.id)
+        );
+        return [...prev, ...newCompanies];
+      });
+    }
+  }, [data, page]);
+
   return (
-    <FlatList
-      data={companiesData}
-      keyExtractor={(item) => item.id}
-      renderItem={({ item }) => <SearchSuggestionCompanyCard item={item} />}
-      showsVerticalScrollIndicator={false}
-      contentContainerStyle={{ paddingBottom: 24 }}
-    />
+    <View className="flex-1">
+      <View className="px-4 pt-4 flex-row justify-between items-center">
+        <Text className="text-sm font-medium text-gray-500 mb-3">
+          {data ? data.data.length : 0} companies found
+        </Text>
+      </View>
+      <View className="bg-white flex-1">
+        <FlatList
+          data={companies}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          onEndReached={onEndReached}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => <SearchSuggestionCompanyCard item={item} />}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 24 }}
+          ListEmptyComponent={
+            <View className="py-8 items-center">
+              <Text className="text-base text-gray-500 text-center">
+                {isLoading
+                  ? "Loading companies..."
+                  : `No companies found for "${searchQuery}"`}
+              </Text>
+            </View>
+          }
+        />
+      </View>
+    </View>
   );
 }
 

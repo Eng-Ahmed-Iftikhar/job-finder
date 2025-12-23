@@ -13,6 +13,7 @@ import { useAppSelector } from "@/hooks/useAppSelector";
 export default function NotificationProvider() {
   const notifications = useAppSelector(selectNotifications);
   const dispatch = useAppDispatch();
+  console.log("Notifications:", notifications);
 
   // Auto-remove notifications after their duration
   useEffect(() => {
