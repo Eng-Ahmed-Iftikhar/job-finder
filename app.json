@@ -42,7 +42,7 @@
       "@react-native-google-signin/google-signin"
     ],
     "extra": {
-      "BASE_URL": "https://14eeb56fff9f.ngrok-free.app/api",
+      "BASE_URL": "https://85c31949543e.ngrok-free.app/api",
       "GOOGLE_OAUTH": {
         "EXPO_CLIENT_ID": "597892577631-56tsuva8i2q7kfbpahf1gnkptd8625j1.apps.googleusercontent.com"
       },
