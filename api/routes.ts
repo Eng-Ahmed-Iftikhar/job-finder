@@ -76,6 +76,13 @@ const API_ROUTES = {
   search: {
     all: "/search",
   },
+  chat: {
+    create: "/chats",
+    getChats: "/chats",
+    getChat: "/chats/:chatId",
+    getMessages: "/chats/:chatId/messages",
+    sendMessage: "/chats/:chatId/messages",
+  },
 };
 
 export default API_ROUTES;

@@ -29,34 +29,28 @@ function SelectUsers({
   };
 
   return (
-    <View className="px-4 py-3 flex-row w-full items-center justify-between">
-      <View
-        style={{ flexWrap: "wrap", width: "90%" }}
-        className=" gap-1 flex-row p-2 bg-white rounded-xl text-base text-gray-900 border-2 border-azure-radiance-500"
-      >
-        {selectedUsers.map((user) => {
-          return (
-            <SelectedUser
-              key={user.id}
-              name={`${user.firstName} ${user.lastName}`}
-              onRemove={() => onRemoveUser(user.id as string)}
-            />
-          );
-        })}
-
-        <View className=" h-10 ">
-          <TextInput
-            placeholder="Type name of the user or business"
-            placeholderTextColor="#9CA3AF"
-            value={searchInput}
-            onChangeText={handleSearchChange}
+    <View
+      style={{ flexWrap: "wrap" }}
+      className=" gap-1  flex-row p-2 bg-white rounded-xl text-base text-gray-900 border-2 border-azure-radiance-500"
+    >
+      {selectedUsers.map((user) => {
+        return (
+          <SelectedUser
+            key={user.id}
+            name={`${user.firstName} ${user.lastName}`}
+            onRemove={() => onRemoveUser(user.id as string)}
           />
-        </View>
-      </View>
+        );
+      })}
 
-      <TouchableOpacity onPress={() => onCreateConversation()}>
-        <Ionicons name="send" size={20} color="#1eadff" />
-      </TouchableOpacity>
+      <View className=" h-10 ">
+        <TextInput
+          placeholder="Type name of the user or business"
+          placeholderTextColor="#9CA3AF"
+          value={searchInput}
+          onChangeText={handleSearchChange}
+        />
+      </View>
     </View>
   );
 }

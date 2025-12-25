@@ -1,0 +1,55 @@
+import {
+  Chat,
+  CHAT_TYPE,
+  ChatGroup,
+  ChatMessage,
+  ChatMessagesByDate,
+  ChatUser,
+} from "../chat";
+
+export type GetMessagesResponse = {
+  data: ChatMessage[];
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
+export type GetChatsResponse = {
+  data: {
+    chats: Chat[];
+    users: ChatUser[];
+    groups: ChatGroup[];
+    messages: ChatMessage[];
+  };
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
+export type GetChatMessagesResponse = {
+  data: ChatMessage[];
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
+export type GetChatsRequest = {
+  page: number;
+  pageSize: number;
+  search: string;
+};
+
+export type GetChatMessageRequest = {
+  id: string;
+  params: {
+    page: number;
+    pageSize: number;
+  };
+};
+
+export type CreateChatRequest = {
+  type: CHAT_TYPE;
+  userIds: string[];
+  groupName?: string;
+  groupIcon?: string;
+};

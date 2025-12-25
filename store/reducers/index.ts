@@ -6,6 +6,7 @@ import userReducer from "./userSlice";
 import notificationReducer from "./notificationSlice";
 import jobReducer from "./jobSlice";
 import uiSlice from "./uiSlice";
+import chatSlice from "./chatSlice";
 
 // ==============================|| COMBINE REDUCERS ||============================== //
 
@@ -15,6 +16,7 @@ const reducers = combineReducers({
   notification: notificationReducer,
   job: jobReducer,
   ui: uiSlice,
+  chats: chatSlice,
   ...apiReducers,
 });
 

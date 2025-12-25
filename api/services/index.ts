@@ -11,6 +11,7 @@ import { companyApi } from "./companyApi";
 import { searchApi } from "./searchApi";
 import { locationApi } from "./locationApi";
 import { connectionRequestsApi } from "./connectionRequestsApi";
+import { chatApi } from "./chatApi";
 
 export const apiMiddlewares: Middleware[] = [
   authApi.middleware,
@@ -23,6 +24,7 @@ export const apiMiddlewares: Middleware[] = [
   searchApi.middleware,
   locationApi.middleware,
   connectionRequestsApi.middleware,
+  chatApi.middleware,
 ];
 
 export const apiReducers: Record<string, Reducer> = {
@@ -36,4 +38,5 @@ export const apiReducers: Record<string, Reducer> = {
   [searchApi.reducerPath]: searchApi.reducer,
   [locationApi.reducerPath]: locationApi.reducer,
   [connectionRequestsApi.reducerPath]: connectionRequestsApi.reducer,
+  [chatApi.reducerPath]: chatApi.reducer,
 };
