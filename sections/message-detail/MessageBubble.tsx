@@ -1,41 +1,119 @@
-import { useCreateChatMessageMutation } from "@/api/services/chatApi";
+import {
+  useCreateChatMessageMutation,
+  useUpdateMessageStatusMutation,
+} from "@/api/services/chatApi";
+import { useUploadFileMutation } from "@/api/services/fileApi";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import useChat from "@/hooks/useChat";
 import { updateMessage } from "@/store/reducers/chatSlice";
 import { selectUser } from "@/store/reducers/userSlice";
-import { CHAT_MESSAGE_STATUS, ChatMessage } from "@/types/chat";
-import { useCallback, useEffect } from "react";
-import { Text, View, Image } from "react-native";
+import {
+  CHAT_MESSAGE_STATUS,
+  CHAT_MESSAGE_TYPE,
+  ChatMessage,
+  ChatMessageFile,
+} from "@/types/chat";
 import { Ionicons } from "@expo/vector-icons";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Image, Text, View } from "react-native";
+import Message from "./Message";
 
-const MessageBubble = ({ message }: { message: ChatMessage }) => {
+const MessageBubble = ({
+  message,
+}: {
+  message: ChatMessage & { file?: ChatMessageFile | null };
+}) => {
   const user = useAppSelector(selectUser);
-  const { chatUsers = [] } = useChat(message?.chatId || "");
+  const { chatUsers = [], chatMembers = [] } = useChat(message?.chatId || "");
   const dispatch = useAppDispatch();
   const [createMessage] = useCreateChatMessageMutation();
+  const [updateMessageStatus] = useUpdateMessageStatusMutation();
+
+  const [uploadFile, { isLoading: isUploadingFile }] = useUploadFileMutation();
+
   const chatUser = chatUsers.find((user) => user.userId === message.senderId);
   const isOwn = message.senderId === user?.id;
-  const pictureUrl = chatUser?.user.profile.pictureUrl || "";
 
+  const pictureUrl = chatUser?.user.profile.pictureUrl || "";
+  const abortControllerRef = useRef<AbortController | null>(null);
   const handleCreateMessage = useCallback(async () => {
     if (message.status !== CHAT_MESSAGE_STATUS.PENDING) return;
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = new AbortController();
+
+    let url = "";
+    if (
+      message.messageType === CHAT_MESSAGE_TYPE.IMAGE ||
+      message.messageType === CHAT_MESSAGE_TYPE.FILE
+    ) {
+      const formData = new FormData();
+      formData.append("file", message.file as any);
+      formData.append("fileType", "image");
+      formData.append("folderPath", "profile-images");
+      formData.append("customFilename", `profile-${Date.now()}`);
+      const fileUploadResponse = await uploadFile(formData).unwrap();
+      url = fileUploadResponse.url;
+    }
+
     const result = await createMessage({
       id: message.chatId,
       body: {
         senderId: message.senderId,
-        text: message.text || "",
+        ...(url ? { fileUrl: url } : {}),
+        ...(message.text ? { text: message.text } : {}),
         messageType: message.messageType,
       },
+      signal: abortControllerRef.current.signal,
     }).unwrap();
     dispatch(updateMessage({ id: message.id, message: result }));
 
     return result;
   }, [message, createMessage]);
 
+  const receivedUsers =
+    message.userStatuses?.filter(
+      (status) => status.receivedAt && status.userId !== user?.id
+    ) || [];
+
+  const seenUsers =
+    message.userStatuses?.filter(
+      (status) => status.seenAt && status.userId !== user?.id
+    ) || [];
+
+  const isReceivedByAllOthers = chatMembers.length === receivedUsers.length;
+  const isSeenByAllOthers = chatMembers.length === seenUsers.length;
+
+  const handleMessageSeenStatusUpdate = useCallback(async () => {
+    if (isOwn) return;
+    const userStatus = message.userStatuses?.find(
+      (status) => status.userId === user?.id && status.receivedAt
+    );
+
+    if (!userStatus?.receivedAt) return;
+
+    if (userStatus.seenAt) return;
+
+    try {
+      const now = new Date();
+      await updateMessageStatus({
+        statusId: userStatus.id,
+        seenAt: now,
+      }).unwrap();
+    } catch (error) {
+      console.log(
+        `Marking message ${message.id} in chat ${message.chatId} as seen`
+      );
+    }
+  }, [message, isOwn, user, updateMessageStatus]);
+
   useEffect(() => {
     handleCreateMessage();
   }, [handleCreateMessage]);
+
+  useEffect(() => {
+    handleMessageSeenStatusUpdate();
+  }, [handleMessageSeenStatusUpdate]);
 
   return (
     <View
@@ -52,20 +130,7 @@ const MessageBubble = ({ message }: { message: ChatMessage }) => {
       />
       {/* Message bubble */}
       <View>
-        <View
-          className={
-            "px-4 py-3 rounded-2xl max-w-xs " +
-            (isOwn
-              ? "bg-azure-radiance-500 self-end "
-              : "bg-gray-100 self-start ")
-          }
-        >
-          <Text
-            className={"text-base " + (isOwn ? "text-white" : "text-gray-900")}
-          >
-            {message.text}
-          </Text>
-        </View>
+        <Message message={message} loading={isUploadingFile} />
         <View
           className={
             `gap-3 flex-row items-center mt-2 ` +
@@ -84,10 +149,18 @@ const MessageBubble = ({ message }: { message: ChatMessage }) => {
               {message.status === CHAT_MESSAGE_STATUS.PENDING ? (
                 <Ionicons name="time" size={14} color="#6B7280" />
               ) : message.status === CHAT_MESSAGE_STATUS.SENT ? (
-                <Ionicons name="checkmark-done" size={14} color="#6B7280" />
-              ) : (
-                <Ionicons name="checkmark-done" size={14} color="#1eadff" />
-              )}
+                <>
+                  {isReceivedByAllOthers ? (
+                    <Ionicons
+                      name={"checkmark-done"}
+                      size={14}
+                      color={isSeenByAllOthers ? "#1eadff" : "gray"}
+                    />
+                  ) : (
+                    <Ionicons name="checkmark" size={14} color="#6B7280" />
+                  )}
+                </>
+              ) : null}
             </View>
           )}
         </View>

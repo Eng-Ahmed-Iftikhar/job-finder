@@ -1,9 +1,9 @@
 import {
   Chat,
+  CHAT_MESSAGE_TYPE,
   CHAT_TYPE,
   ChatGroup,
   ChatMessage,
-  ChatMessagesByDate,
   ChatUser,
 } from "../chat";
 
@@ -52,4 +52,11 @@ export type CreateChatRequest = {
   userIds: string[];
   groupName?: string;
   groupIcon?: string;
+};
+
+export type CreateChatMessageRequest = {
+  senderId: string;
+  text?: string | null;
+  fileUrl?: string | null;
+  messageType: CHAT_MESSAGE_TYPE;
 };

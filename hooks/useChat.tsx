@@ -1,6 +1,5 @@
 import {
   selectChatGroups,
-  selectChatMessagesMap,
   selectChats,
   selectChatUsers,
   selectMessages,
@@ -10,17 +9,14 @@ import { useMemo } from "react";
 import { useAppSelector } from "./useAppSelector";
 
 const useChat = (chatId: string) => {
-  const user = useAppSelector(selectUser);
-  const users = useAppSelector(selectChatUsers);
-  const groups = useAppSelector(selectChatGroups);
-  const chats = useAppSelector(selectChats);
-  const messages = useAppSelector(selectMessages);
-  const chatMessagesMap = useAppSelector(selectChatMessagesMap);
+  const user = useAppSelector(selectUser) || null;
+  const users = useAppSelector(selectChatUsers) || [];
+  const groups = useAppSelector(selectChatGroups) || [];
+  const chats = useAppSelector(selectChats) || [];
+  const messages = useAppSelector(selectMessages) || [];
 
-  const chatMessagesFromMap = chatMessagesMap.get(chatId) || [];
-
-  const chatGroup = groups.find((group) => group.chatId === chatId);
-  const chat = chats.find((chat) => chat.id === chatId);
+  const chatGroup = groups?.find((group) => group.chatId === chatId);
+  const chat = chats?.find((chat) => chat.id === chatId);
   const chatUsers = users.filter((chatsUser) => chatsUser.chatId === chatId);
   const chatMembers = chatUsers.filter(
     (chatsUser) => chatsUser.userId !== user?.id
@@ -54,9 +50,16 @@ const useChat = (chatId: string) => {
     return icon;
   }, [chatGroup, chatUsers]);
 
-  // messagesByDate is now managed in chatSlice extraReducers
-  const messagesByDate = chatMessagesFromMap;
-
+  const unreedMessagesCount = useMemo(() => {
+    if (!chat) return 0;
+    const unseenMessages = messages.filter(
+      (message) =>
+        message.chatId === chat.id &&
+        message.senderId !== user?.id &&
+        !message.userStatuses?.some((status) => status.seenAt)
+    );
+    return unseenMessages.length;
+  }, [messages, chat, user]);
   return {
     chatGroup,
     chatUsers,
@@ -64,8 +67,8 @@ const useChat = (chatId: string) => {
     chatName,
     chatIconUrl,
     chat,
+    unreedMessagesCount,
     chatMessages,
-    messagesByDate,
   };
 };
 

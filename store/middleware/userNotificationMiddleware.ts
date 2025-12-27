@@ -4,8 +4,12 @@ import {
   showErrorNotification,
   showSuccessNotification,
 } from "../reducers/notificationSlice";
-
+import { chatApi } from "@/api/services/chatApi";
+import * as Notifications from "expo-notifications";
+import { router } from "expo-router";
 export const userNotificationMiddleware = createListenerMiddleware();
+
+const unReadNotifications: string[] = [];
 
 // listen to me matchfilled to show welcome back notification
 userNotificationMiddleware.startListening({
@@ -17,6 +21,9 @@ userNotificationMiddleware.startListening({
       );
       return;
     }
+    await listenerApi
+      .dispatch(chatApi.endpoints.getAllUnreadMessage.initiate())
+      .unwrap();
   },
 });
 
@@ -26,4 +33,36 @@ userNotificationMiddleware.startListening({
   effect: async (action, listenerApi) => {
     listenerApi.dispatch(showSuccessNotification("Logged out successfully"));
   },
+});
+
+// Listen to createChatMessage success
+userNotificationMiddleware.startListening({
+  matcher: chatApi.endpoints.getAllUnreadMessage.matchFulfilled,
+  effect: async (action, listenerApi) => {
+    const unreadMessages = action.payload;
+
+    if (Array.isArray(unreadMessages) && unreadMessages.length > 0) {
+      // Show app-level notification for unread messages
+      const notificationId = await Notifications.scheduleNotificationAsync({
+        content: {
+          title: "New Unread Message",
+          body: `You have ${unreadMessages.length} unread message${unreadMessages.length > 1 ? "s" : ""}.`,
+          sound: "default",
+        },
+        trigger: null,
+      });
+      unReadNotifications.push(notificationId);
+    }
+  },
+});
+
+Notifications.addNotificationResponseReceivedListener((response) => {
+  if (unReadNotifications.includes(response.notification.request.identifier)) {
+    // redirect to messages screen
+    router.push("/messages");
+    //dismiss the notification
+    Notifications.dismissNotificationAsync(
+      response.notification.request.identifier
+    );
+  }
 });

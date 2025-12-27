@@ -8,6 +8,7 @@ import {
   selectUser,
   selectUserProfile,
 } from "@/store/reducers/userSlice";
+
 import { Redirect, Slot, useSegments } from "expo-router";
 import React, { Suspense } from "react";
 

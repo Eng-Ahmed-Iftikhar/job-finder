@@ -16,6 +16,7 @@ import { encryptTransform } from "redux-persist-transform-encrypt";
 import { Persistor } from "redux-persist/es/types";
 import { apiMiddlewares } from "../api/services";
 import { userNotificationMiddleware } from "./middleware/userNotificationMiddleware";
+import { socketMiddleware } from "./middleware/socketMiddleware";
 
 // ==============================|| REDUX PERSIST For Next.js SSR ||============================== //
 import { PersistGate } from "redux-persist/integration/react";
@@ -48,7 +49,8 @@ const store = configureStore({
       serializableCheck: false,
     })
       .prepend(userNotificationMiddleware.middleware)
-      .concat(...apiMiddlewares);
+      .concat(...apiMiddlewares)
+      .concat(socketMiddleware);
   },
 });
 

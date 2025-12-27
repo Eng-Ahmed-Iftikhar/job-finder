@@ -29,7 +29,6 @@ interface ChatState {
   messageReply: MessageReply[];
   messageUserStatus: MessageUserStatus[];
   chatBlock: ChatBlock[];
-  chatMessagesMap: Map<string, ChatMessagesByDate[]>;
 }
 
 const initialState: ChatState = {
@@ -41,7 +40,6 @@ const initialState: ChatState = {
   messageReactions: [],
   messageReply: [],
   messageUserStatus: [],
-  chatMessagesMap: new Map<string, ChatMessagesByDate[]>(),
 };
 
 const chatSlice = createSlice({
@@ -62,106 +60,31 @@ const chatSlice = createSlice({
       state,
       action: PayloadAction<{ id: string; message: ChatMessage }>
     ) {
-      const updatedMessage = action.payload;
-      const index = state.messages.findIndex(
-        (msg) => msg.id === updatedMessage.id
+      const previousMessage = state.messages.find(
+        (msg) => msg.id === action.payload.id
       );
-      if (index !== -1) {
-        state.messages[index] = {
-          ...state.messages[index],
-          ...updatedMessage.message,
-        };
-
-        // Update chatMessagesMap for the relevant chatId
-        const chatId = updatedMessage.message.chatId;
-        const messages = state.messages.filter((msg) => msg.chatId === chatId);
-        const messagesByDate: ChatMessagesByDate[] = [];
-        messages.forEach((msg) => {
-          const dateKey =
-            new Date(msg.createdAt).getDay() +
-            "-" +
-            new Date(msg.createdAt).getMonth() +
-            "-" +
-            new Date(msg.createdAt).getFullYear();
-
-          let dateGroup = messagesByDate.find((group) => {
-            const groupDateKey =
-              new Date(group.date).getDay() +
-              "-" +
-              new Date(group.date).getMonth() +
-              "-" +
-              new Date(group.date).getFullYear();
-            return groupDateKey === dateKey ? group : null;
-          });
-
-          if (!dateGroup) {
-            dateGroup = { date: new Date(msg.createdAt), messages: [msg] };
-            messagesByDate.push(dateGroup);
-          } else {
-            const previousMessages =
-              messagesByDate[messagesByDate.indexOf(dateGroup)].messages;
-            const alreadyHaveMessage = previousMessages.find(
-              (m) => m.id === msg.id
-            );
-            if (!alreadyHaveMessage) {
-              messagesByDate[messagesByDate.indexOf(dateGroup)].messages.push(
-                msg
-              );
-            } else {
-              // If the message exists, update it in place
-              const msgIdx = previousMessages.findIndex((m) => m.id === msg.id);
-              if (msgIdx !== -1) {
-                previousMessages[msgIdx] = msg;
-              }
-            }
-          }
-        });
-        state.chatMessagesMap.set(chatId, messagesByDate);
+      if (previousMessage) {
+        state.messages = state.messages.map((msg) =>
+          msg.id === action.payload.id
+            ? { ...msg, ...action.payload.message }
+            : msg
+        );
+      } else {
+        state.messages.push(action.payload.message);
       }
     },
     addMessage(state, action: PayloadAction<ChatMessage>) {
       const message = action.payload;
       state.messages.push(message);
-
-      // Update chatMessagesMap for the relevant chatId
-      const chatId = message.chatId;
-      const messages = state.messages.filter((msg) => msg.chatId === chatId);
-      const messagesByDate: ChatMessagesByDate[] = [];
-      messages.forEach((msg) => {
-        const dateKey =
-          new Date(msg.createdAt).getDay() +
-          "-" +
-          new Date(msg.createdAt).getMonth() +
-          "-" +
-          new Date(msg.createdAt).getFullYear();
-
-        let dateGroup = messagesByDate.find((group) => {
-          const groupDateKey =
-            new Date(group.date).getDay() +
-            "-" +
-            new Date(group.date).getMonth() +
-            "-" +
-            new Date(group.date).getFullYear();
-          return groupDateKey === dateKey ? group : null;
-        });
-
-        if (!dateGroup) {
-          dateGroup = { date: new Date(msg.createdAt), messages: [msg] };
-          messagesByDate.push(dateGroup);
-        } else {
-          const previousMessages =
-            messagesByDate[messagesByDate.indexOf(dateGroup)].messages;
-          const alreadyHaveMessage = previousMessages.find(
-            (m) => m.id === msg.id
-          );
-          if (!alreadyHaveMessage) {
-            messagesByDate[messagesByDate.indexOf(dateGroup)].messages.push(
-              msg
-            );
-          }
-        }
-      });
-      state.chatMessagesMap.set(chatId, messagesByDate);
+    },
+    upsertMessage(state, action: PayloadAction<ChatMessage>) {
+      const message = action.payload;
+      const index = state.messages.findIndex((msg) => msg.id === message.id);
+      if (index !== -1) {
+        state.messages[index] = message;
+      } else {
+        state.messages.push(message);
+      }
     },
     removeMessage(state, action: PayloadAction<string>) {
       state.messages = state.messages.filter(
@@ -195,20 +118,24 @@ const chatSlice = createSlice({
       }
     },
     addChat(state, action: PayloadAction<Chat>) {
-      state.chats.push(action.payload);
+      if (state.chats.find((chat) => chat.id === action.payload.id)) {
+        return;
+      }
+      state.chats.unshift(action.payload);
+      state.chatUsers = _.uniqBy(
+        [...state.chatUsers, ...action.payload.users],
+        "id"
+      );
+      state.chatGroups = _.uniqBy(
+        [
+          ...state.chatGroups,
+          ...(action.payload.group ? [action.payload.group] : []),
+        ],
+        "id"
+      );
     },
     removeChat(state, action: PayloadAction<string>) {
       state.chats = state.chats.filter((chat) => chat.id !== action.payload);
-    },
-    updateChatMessagesMap(
-      state,
-      action: PayloadAction<{
-        chatId: string;
-        messagesByDate: ChatMessagesByDate[];
-      }>
-    ) {
-      const { chatId, messagesByDate } = action.payload;
-      state.chatMessagesMap.set(chatId, messagesByDate);
     },
   },
   extraReducers: (builder) => {
@@ -221,6 +148,14 @@ const chatSlice = createSlice({
         if (!exists) {
           state.chats.unshift(newChat);
         }
+        state.chatUsers = _.uniqBy(
+          [...state.chatUsers, ...newChat.users],
+          "id"
+        );
+        state.chatGroups = _.uniqBy(
+          [...state.chatGroups, ...(newChat.group ? [newChat.group] : [])],
+          "id"
+        );
       }
     );
     builder.addMatcher(
@@ -263,50 +198,28 @@ const chatSlice = createSlice({
             "id"
           );
         }
-
-        // Group messages by date and update chatMessagesMap
-        if (response.data && response.data.length > 0) {
-          const chatId = response.data[0].chatId;
-          const messages = state.messages.filter(
-            (msg) => msg.chatId === chatId
-          );
-          const messagesByDate: ChatMessagesByDate[] = [];
-          messages.forEach((msg) => {
-            const dateKey =
-              new Date(msg.createdAt).getDay() +
-              "-" +
-              new Date(msg.createdAt).getMonth() +
-              "-" +
-              new Date(msg.createdAt).getFullYear();
-
-            let dateGroup = messagesByDate.find((group) => {
-              const groupDateKey =
-                new Date(group.date).getDay() +
-                "-" +
-                new Date(group.date).getMonth() +
-                "-" +
-                new Date(group.date).getFullYear();
-              return groupDateKey === dateKey ? group : null;
-            });
-
-            if (!dateGroup) {
-              dateGroup = { date: new Date(msg.createdAt), messages: [msg] };
-              messagesByDate.push(dateGroup);
-            } else {
-              const previousMessages =
-                messagesByDate[messagesByDate.indexOf(dateGroup)].messages;
-              const alreadyHaveMessage = previousMessages.find(
-                (m) => m.id === msg.id
-              );
-              if (!alreadyHaveMessage) {
-                messagesByDate[messagesByDate.indexOf(dateGroup)].messages.push(
-                  msg
-                );
-              }
-            }
-          });
-          state.chatMessagesMap.set(chatId, messagesByDate);
+      }
+    );
+    builder.addMatcher(
+      chatApi.endpoints.getAllUnreadMessage.matchFulfilled,
+      (state, action) => {
+        const unreadMessages = action.payload;
+        state.messages = _.uniqBy([...state.messages, ...unreadMessages], "id");
+      }
+    );
+    builder.addMatcher(
+      chatApi.endpoints.getChat.matchFulfilled,
+      (state, action) => {
+        const chat = action.payload;
+        const exists = state.chats.some((c) => c.id === chat.id);
+        if (!exists) {
+          state.chats.unshift(chat);
         }
+        state.chatUsers = _.uniqBy([...state.chatUsers, ...chat.users], "id");
+        state.chatGroups = _.uniqBy(
+          [...state.chatGroups, ...(chat.group ? [chat.group] : [])],
+          "id"
+        );
       }
     );
   },
@@ -321,7 +234,7 @@ export const {
   removeChat,
   removeMessage,
   setMessages,
-  updateChatMessagesMap,
+  upsertMessage,
 } = chatSlice.actions;
 
 export const selectChats = (state: RootState) => state.chats.chats;
@@ -335,7 +248,5 @@ export const selectMessageReply = (state: RootState) =>
 export const selectMessageUserStatus = (state: RootState) =>
   state.chats.messageUserStatus;
 export const selectChatBlock = (state: RootState) => state.chats.chatBlock;
-export const selectChatMessagesMap = (state: RootState) =>
-  state.chats.chatMessagesMap;
 
 export default chatSlice.reducer;

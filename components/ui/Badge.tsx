@@ -24,8 +24,8 @@ function Badge({
   return (
     <View
       className={
-        "absolute rounded-full bg-red-500 items-center justify-center border-2 border-white " +
-        (isSmall ? "w-4 h-4 -top-1 -right-1" : "w-5 h-5 -top-2 -right-2")
+        " rounded-full bg-red-500 items-center justify-center border-2 border-white " +
+        (isSmall ? "w-4 h-4" : "w-5 h-5 ")
       }
     >
       <Text

@@ -11,6 +11,7 @@ export type Chat = {
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
+  countUnseenMessages: { senderId: string; count: number }[];
   users: ChatUser[];
   group?: ChatGroup | null;
   messages: ChatMessage[];
@@ -134,4 +135,10 @@ export type ChatBlock = {
   blocker: User;
   blocked: User;
   chat?: Chat | null;
+};
+
+export type ChatMessageFile = {
+  uri: string;
+  type: string;
+  name: string;
 };

@@ -18,6 +18,7 @@
       "bundleIdentifier": "com.jobfinderoffical.app"
     },
     "android": {
+      "useNextNotificationsApi": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/logo.png",
         "backgroundColor": "#ffffff"
@@ -42,7 +43,7 @@
       "@react-native-google-signin/google-signin"
     ],
     "extra": {
-      "BASE_URL": "https://ce731a7c2f45.ngrok-free.app/api",
+      "BASE_URL": "https://73c58b18d677.ngrok-free.app/api",
       "GOOGLE_OAUTH": {
         "EXPO_CLIENT_ID": "597892577631-56tsuva8i2q7kfbpahf1gnkptd8625j1.apps.googleusercontent.com"
       },

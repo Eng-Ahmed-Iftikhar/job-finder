@@ -5,8 +5,9 @@ import {
   GetChatsRequest,
   GetChatMessageRequest,
   GetChatMessagesResponse,
+  CreateChatMessageRequest,
 } from "@/types/api/chat";
-import { Chat, ChatMessage } from "@/types/chat";
+import { Chat, ChatMessage, MessageUserStatus } from "@/types/chat";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReAuth } from "./baseApi";
 
@@ -28,6 +29,11 @@ export const chatApi = createApi({
         params,
       }),
     }),
+    getChat: builder.query<Chat, string>({
+      query: (id) => ({
+        url: API_ROUTES.chat.getChat.replace(":chatId", id),
+      }),
+    }),
     getChatMessages: builder.query<
       GetChatMessagesResponse,
       GetChatMessageRequest
@@ -41,13 +47,32 @@ export const chatApi = createApi({
       ChatMessage,
       {
         id: string;
-        body: { senderId: string; text: string; messageType: string };
+        body: CreateChatMessageRequest;
+        signal?: AbortSignal;
       }
     >({
-      query: ({ id, body }) => ({
+      query: ({ id, body, signal }) => ({
         url: API_ROUTES.chat.sendMessage.replace(":chatId", id),
         method: "POST",
         body,
+        signal,
+      }),
+    }),
+    updateMessageStatus: builder.mutation<
+      MessageUserStatus,
+      { statusId: string; receivedAt?: Date; seenAt?: Date }
+    >({
+      query: ({ statusId, receivedAt, seenAt }) => ({
+        url: API_ROUTES.chat.statusUpdate.replace(":statusId", statusId),
+        method: "PATCH",
+        body: { receivedAt, seenAt },
+      }),
+    }),
+
+    getAllUnreadMessage: builder.query<ChatMessage[], void>({
+      query: () => ({
+        url: API_ROUTES.chat.unReadMessages,
+        method: "GET",
       }),
     }),
   }),
@@ -59,4 +84,7 @@ export const {
   useLazyGetChatsQuery,
   useGetChatMessagesQuery,
   useCreateChatMessageMutation,
+  useUpdateMessageStatusMutation,
+  useGetAllUnreadMessageQuery,
+  useGetChatQuery,
 } = chatApi;

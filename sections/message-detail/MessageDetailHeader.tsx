@@ -12,7 +12,7 @@ function MessageDetailHeader() {
   const { chatName } = useChat(id);
 
   const handleBack = useCallback(() => {
-    router.back();
+    router.push("/messages");
   }, [router]);
 
   return (

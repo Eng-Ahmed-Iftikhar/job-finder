@@ -1,11 +1,18 @@
 import Avatar from "@/components/ui/Avatar";
+import Badge from "@/components/ui/Badge";
 import useChat from "@/hooks/useChat";
 import { Chat } from "@/types/chat";
 import { useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
+import LastMessage from "./LastMessage";
 
 function ConversationRow({ item }: { item: Chat }) {
-  const { chatMessages: messages, chatName, chatIconUrl } = useChat(item.id);
+  const {
+    chatMessages: messages,
+    chatName,
+    chatIconUrl,
+    unreedMessagesCount,
+  } = useChat(item.id);
   const router = useRouter();
 
   const chatMessages = messages.filter((message) => message.chatId === item.id);
@@ -28,19 +35,20 @@ function ConversationRow({ item }: { item: Chat }) {
     >
       <Avatar name={chatName} imageUrl={chatIconUrl} />
       <View className="flex-1">
-        <Text className="text-base font-semibold text-gray-900">
-          {chatName}
-        </Text>
-        <Text
-          className="text-sm font-medium text-gray-500 mt-1"
-          numberOfLines={1}
-        >
-          {lastMessage?.text || "No messages yet."}
-        </Text>
+        <View className="flex-row items-center gap-2">
+          <Text className="text-base font-semibold text-gray-900">
+            {chatName}
+          </Text>
+          {unreedMessagesCount > 0 && <Badge count={unreedMessagesCount} />}
+        </View>
+        <LastMessage lastMessage={lastMessage} />
       </View>
       <Text className="text-sm font-medium text-gray-400">
         {lastMessage
-          ? new Date(lastMessage.createdAt).toLocaleTimeString()
+          ? new Date(lastMessage.createdAt).toLocaleTimeString(undefined, {
+              hour: "2-digit",
+              minute: "2-digit",
+            })
           : ""}
       </Text>
     </Pressable>
