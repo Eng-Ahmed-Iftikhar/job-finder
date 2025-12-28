@@ -14,7 +14,7 @@ import {
 import { useLocalSearchParams } from "expo-router";
 import { KeyboardAvoidingView, Platform, SafeAreaView } from "react-native";
 
-type MessagePaypoad = CreateChatMessageRequest & {
+type MessagePayload = CreateChatMessageRequest & {
   id: string;
   createdAt: Date;
   status: CHAT_MESSAGE_STATUS;
@@ -29,7 +29,7 @@ function ChatDetailScreen() {
   const dispatch = useAppDispatch();
 
   const handleSendMessage = (text: string) => {
-    const newMessage: MessagePaypoad = {
+    const newMessage: MessagePayload = {
       id: Math.random().toString(36).substring(7),
       text,
       messageType: CHAT_MESSAGE_TYPE.TEXT,
@@ -46,7 +46,7 @@ function ChatDetailScreen() {
     type: string;
     name: string;
   }) => {
-    const newMessage: MessagePaypoad = {
+    const newMessage: MessagePayload = {
       id: Math.random().toString(36).substring(7),
       file: image,
       messageType: CHAT_MESSAGE_TYPE.IMAGE,
@@ -58,6 +58,25 @@ function ChatDetailScreen() {
 
     dispatch(addMessage(newMessage));
   };
+
+  const handleSelectFile = async (file: {
+    uri: string;
+    type: string;
+    name: string;
+  }) => {
+    const newMessage: MessagePayload = {
+      id: Math.random().toString(36).substring(7),
+      file,
+      messageType: CHAT_MESSAGE_TYPE.FILE,
+      createdAt: new Date(),
+      status: CHAT_MESSAGE_STATUS.PENDING,
+      chatId: id,
+      senderId: user?.id || "",
+    };
+
+    dispatch(addMessage(newMessage));
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       <KeyboardAvoidingView
@@ -70,6 +89,7 @@ function ChatDetailScreen() {
         <SendActions
           onSendMessage={handleSendMessage}
           onSelectImage={handleSelectImage}
+          onAttachFile={handleSelectFile}
         />
       </KeyboardAvoidingView>
     </SafeAreaView>

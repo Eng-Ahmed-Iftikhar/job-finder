@@ -11,3 +11,18 @@ export const getMimeType = (fileName: string) => {
       return "application/pdf";
   }
 };
+
+export const getMimeTypeImage = (fileName: string) => {
+  const extension = fileName.split(".").pop()?.toLowerCase();
+  switch (extension) {
+    case "jpg":
+    case "jpeg":
+      return "image/jpeg";
+    case "png":
+      return "image/png";
+    case "gif":
+      return "image/gif";
+    default:
+      return "image/jpeg";
+  }
+};

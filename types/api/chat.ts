@@ -1,3 +1,17 @@
+// Edit Chat Group
+export interface EditChatGroupRequest {
+  name?: string;
+  description?: string;
+  iconUrl?: string;
+}
+
+export interface EditChatGroupResponse {
+  id: string;
+  name: string;
+  description: string;
+  iconUrl: string;
+  // Add other fields as needed
+}
 import {
   Chat,
   CHAT_MESSAGE_TYPE,

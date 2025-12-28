@@ -41,7 +41,8 @@ function ConversationRow({ item }: { item: Chat }) {
           </Text>
           {unreedMessagesCount > 0 && <Badge count={unreedMessagesCount} />}
         </View>
-        <LastMessage lastMessage={lastMessage} />
+
+        <LastMessage chatId={item.id} lastMessage={lastMessage} />
       </View>
       <Text className="text-sm font-medium text-gray-400">
         {lastMessage

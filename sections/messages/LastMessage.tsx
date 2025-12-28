@@ -8,9 +8,17 @@ import { Text, View } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { selectUser } from "@/store/reducers/userSlice";
 import { useAppSelector } from "@/hooks/useAppSelector";
+import useChat from "@/hooks/useChat";
 
-function LastMessage({ lastMessage }: { lastMessage: ChatMessage }) {
+function LastMessage({
+  lastMessage,
+  chatId,
+}: {
+  lastMessage: ChatMessage;
+  chatId: string;
+}) {
   const user = useAppSelector(selectUser);
+  const { chatGroup, chatUsers = [] } = useChat(chatId);
 
   if (!lastMessage) {
     return <Text>No messages yet.</Text>;
@@ -32,6 +40,10 @@ function LastMessage({ lastMessage }: { lastMessage: ChatMessage }) {
     lastMessage.userStatuses?.length !== 0 &&
     seenUsers?.length === lastMessage.userStatuses?.length;
 
+  const currentUserInChat = chatUsers.find(
+    (userInChat) => userInChat.user.id === lastMessage.senderId
+  );
+
   const Icon = (
     <Ionicons
       name={
@@ -44,7 +56,6 @@ function LastMessage({ lastMessage }: { lastMessage: ChatMessage }) {
             : "checkmark"
       }
       size={16}
-      className="mt-1"
       color={isSeen ? "#1eadff" : "#9CA3AF"}
     />
   );
@@ -52,10 +63,17 @@ function LastMessage({ lastMessage }: { lastMessage: ChatMessage }) {
     return (
       <View className="flex-row items-center gap-2">
         {isOwn && Icon}
-        <Text
-          className="text-sm font-medium text-gray-500 mt-1"
-          numberOfLines={1}
-        >
+        {chatGroup && (
+          <Text className="text-sm ">
+            {isOwn
+              ? "me"
+              : currentUserInChat?.user.profile.firstName +
+                " " +
+                currentUserInChat?.user.profile.lastName}
+            {":"}
+          </Text>
+        )}
+        <Text className="text-sm font-medium text-gray-500" numberOfLines={1}>
           {lastMessage?.text || "No messages yet."}
         </Text>
       </View>
@@ -66,15 +84,34 @@ function LastMessage({ lastMessage }: { lastMessage: ChatMessage }) {
       <View className="flex-row items-center  gap-2">
         {isOwn && Icon}
 
-        <Text className="text-sm font-medium text-gray-500 mt-1">📷 Photo</Text>
+        {chatGroup && (
+          <Text className="text-sm ">
+            {isOwn
+              ? "me"
+              : currentUserInChat?.user.profile.firstName +
+                " " +
+                currentUserInChat?.user.profile.lastName}
+            {":"}
+          </Text>
+        )}
+        <Text className="text-sm font-medium text-gray-500 ">📷 Photo</Text>
       </View>
     );
   }
   return (
     <View className="flex-row items-center gap-2">
       {isOwn && Icon}
-
-      <Text className="text-sm font-medium text-gray-500 mt-1">📎 File</Text>
+      {chatGroup && (
+        <Text className="text-sm ">
+          {isOwn
+            ? "me"
+            : currentUserInChat?.user.profile.firstName +
+              " " +
+              currentUserInChat?.user.profile.lastName}
+          {":"}
+        </Text>
+      )}
+      <Text className="text-sm font-medium text-gray-500 ">📎 File</Text>
     </View>
   );
 }

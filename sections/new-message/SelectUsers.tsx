@@ -12,14 +12,12 @@ type SelectUsersProps = {
   onSearchChange: (text: string) => void;
   selectedUsers?: Array<SelectedUserType>;
   onRemoveUser: (userId: string) => void;
-  onCreateConversation: () => void;
 };
 
 function SelectUsers({
   onSearchChange,
   selectedUsers = [],
   onRemoveUser,
-  onCreateConversation,
 }: SelectUsersProps) {
   const [searchInput, setSearchInput] = React.useState("");
 

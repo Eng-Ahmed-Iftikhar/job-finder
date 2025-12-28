@@ -50,9 +50,10 @@ export type ChatGroup = {
   id: string;
   chatId: string;
   name: string;
-  icon?: string | null;
+  description?: string;
+  iconUrl?: string;
   createdAt: Date;
-  deletedAt?: Date | null;
+  deletedAt?: Date;
   chat: Chat;
 };
 

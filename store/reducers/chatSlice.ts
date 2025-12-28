@@ -25,9 +25,6 @@ interface ChatState {
   chats: Chat[];
   chatUsers: ChatUser[];
   chatGroups: ChatGroup[];
-  messageReactions: MessageReaction[];
-  messageReply: MessageReply[];
-  messageUserStatus: MessageUserStatus[];
   chatBlock: ChatBlock[];
 }
 
@@ -37,9 +34,6 @@ const initialState: ChatState = {
   chats: [],
   chatUsers: [],
   chatGroups: [],
-  messageReactions: [],
-  messageReply: [],
-  messageUserStatus: [],
 };
 
 const chatSlice = createSlice({
@@ -222,6 +216,22 @@ const chatSlice = createSlice({
         );
       }
     );
+
+    // Update chatGroups on editChatGroup
+    builder.addMatcher(
+      chatApi.endpoints.editChatGroup.matchFulfilled,
+      (state, action) => {
+        const updatedGroup = action.payload;
+        console.log({ updatedGroup });
+
+        const idx = state.chatGroups.findIndex((g) => g.id === updatedGroup.id);
+        if (idx !== -1) {
+          state.chatGroups[idx] = { ...state.chatGroups[idx], ...updatedGroup };
+        } else {
+          state.chatGroups.push(updatedGroup as ChatGroup);
+        }
+      }
+    );
   },
 });
 
@@ -241,12 +251,6 @@ export const selectChats = (state: RootState) => state.chats.chats;
 export const selectMessages = (state: RootState) => state.chats.messages;
 export const selectChatUsers = (state: RootState) => state.chats.chatUsers;
 export const selectChatGroups = (state: RootState) => state.chats.chatGroups;
-export const selectMessageReactions = (state: RootState) =>
-  state.chats.messageReactions;
-export const selectMessageReply = (state: RootState) =>
-  state.chats.messageReply;
-export const selectMessageUserStatus = (state: RootState) =>
-  state.chats.messageUserStatus;
 export const selectChatBlock = (state: RootState) => state.chats.chatBlock;
 
 export default chatSlice.reducer;

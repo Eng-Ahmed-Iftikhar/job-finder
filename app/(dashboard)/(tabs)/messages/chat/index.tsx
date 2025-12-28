@@ -1,4 +1,4 @@
-import ChatDetailScreen from "@/screens/dashboard/MessageDetail";
+import ChatDetailScreen from "@/screens/dashboard/messages/MessageDetail";
 import React from "react";
 
 function ChatDetail() {

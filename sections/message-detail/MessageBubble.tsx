@@ -73,16 +73,16 @@ const MessageBubble = ({
 
   const receivedUsers =
     message.userStatuses?.filter(
-      (status) => status.receivedAt && status.userId !== user?.id
+      (status) => status.receivedAt && status.userId !== message.senderId
     ) || [];
 
   const seenUsers =
     message.userStatuses?.filter(
-      (status) => status.seenAt && status.userId !== user?.id
+      (status) => status.seenAt && status.userId !== message.senderId
     ) || [];
 
-  const isReceivedByAllOthers = chatMembers.length === receivedUsers.length;
-  const isSeenByAllOthers = chatMembers.length === seenUsers.length;
+  const isReceivedByAllOthers = chatUsers.length === receivedUsers.length;
+  const isSeenByAllOthers = chatUsers.length === seenUsers.length;
 
   const handleMessageSeenStatusUpdate = useCallback(async () => {
     if (isOwn) return;

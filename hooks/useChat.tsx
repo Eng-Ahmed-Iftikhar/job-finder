@@ -39,8 +39,9 @@ const useChat = (chatId: string) => {
 
   const chatIconUrl = useMemo(() => {
     let icon = "";
-    if (chatGroup?.icon) {
-      icon = chatGroup.icon;
+
+    if (chatGroup?.iconUrl) {
+      icon = chatGroup.iconUrl;
     } else {
       const chatUsersPics = chatMembers.map(
         (chatUser) => chatUser.user.profile.pictureUrl || ""

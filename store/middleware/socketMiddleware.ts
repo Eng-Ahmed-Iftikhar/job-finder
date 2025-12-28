@@ -71,7 +71,7 @@ export const socketMiddleware: Middleware =
         storeAPI.dispatch(upsertMessage(message));
       });
 
-      socket.on(CHAT_SOCKET_EVENT.MESSAGE_RECEIVED, (message) => {
+      socket.on(CHAT_SOCKET_EVENT.MESSAGE_RECEIVED, (message: ChatMessage) => {
         storeAPI.dispatch(upsertMessage(message));
       });
       socket.on(CHAT_SOCKET_EVENT.MESSAGE_SEEN, (message) => {

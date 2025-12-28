@@ -6,6 +6,8 @@ import {
   GetChatMessageRequest,
   GetChatMessagesResponse,
   CreateChatMessageRequest,
+  EditChatGroupRequest,
+  EditChatGroupResponse,
 } from "@/types/api/chat";
 import { Chat, ChatMessage, MessageUserStatus } from "@/types/chat";
 import { createApi } from "@reduxjs/toolkit/query/react";
@@ -27,6 +29,18 @@ export const chatApi = createApi({
         url: API_ROUTES.chat.getChats,
         method: "GET",
         params,
+      }),
+    }),
+
+    editChatGroup: builder.mutation<
+      EditChatGroupResponse,
+      { chatId: string; body: EditChatGroupRequest }
+    >({
+      query: ({ chatId, body }) => ({
+        url: API_ROUTES.chat.editGroup.replace(":chatId", chatId),
+
+        method: "PATCH",
+        body,
       }),
     }),
     getChat: builder.query<Chat, string>({
@@ -87,4 +101,5 @@ export const {
   useUpdateMessageStatusMutation,
   useGetAllUnreadMessageQuery,
   useGetChatQuery,
+  useEditChatGroupMutation,
 } = chatApi;

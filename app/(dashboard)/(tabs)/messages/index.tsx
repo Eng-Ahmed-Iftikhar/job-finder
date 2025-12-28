@@ -1,6 +1,6 @@
-import MessagesListScreen from "@/screens/dashboard/Messages";
 import React from "react";
+import MessagesScreen from "@/screens/dashboard/messages/Messages";
 
-export default function MessagesScreen() {
-  return <MessagesListScreen />;
+export default function MessagesScreenRoute() {
+  return <MessagesScreen />;
 }
