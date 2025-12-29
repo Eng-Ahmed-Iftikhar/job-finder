@@ -18,6 +18,7 @@ import {
   CHAT_TYPE,
   ChatGroup,
   ChatMessage,
+  ChatMessagesByDate,
   ChatUser,
 } from "../chat";
 
@@ -29,20 +30,16 @@ export type GetMessagesResponse = {
 };
 
 export type GetChatsResponse = {
-  data: {
-    chats: Chat[];
-    users: ChatUser[];
-    groups: ChatGroup[];
-    messages: ChatMessage[];
-  };
+  data: Chat[];
   page: number;
   pageSize: number;
   total: number;
 };
 
 export type GetChatMessagesResponse = {
-  data: ChatMessage[];
+  data: ChatMessagesByDate[];
   page: number;
+  chatId: string;
   pageSize: number;
   total: number;
 };

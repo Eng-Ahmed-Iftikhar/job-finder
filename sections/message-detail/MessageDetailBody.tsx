@@ -2,9 +2,10 @@ import {
   useGetChatMessagesQuery,
   useGetChatQuery,
 } from "@/api/services/chatApi";
+import AppLoader from "@/components/AppLoader";
 import useChat from "@/hooks/useChat";
 import { useLocalSearchParams } from "expo-router";
-import React, { useState, useRef, useEffect, useCallback, memo } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   FlatList,
@@ -13,45 +14,42 @@ import {
   View,
 } from "react-native";
 import MessageBubble from "./MessageBubble";
-
-import AppLoader from "@/components/AppLoader";
-import { formatMessagesByDate } from "@/utils/chat";
+import MessgesHeader from "./MessgesHeader";
 
 const PAGE_SIZE = 20;
 const MessageDetailBody = () => {
   const param = useLocalSearchParams();
   const id = typeof param.id === "string" ? param.id : "";
-  const { chatMessages = [], chat } = useChat(id);
-
+  const { chat } = useChat(id);
   const { isLoading } = useGetChatQuery(id, {
     skip: chat ? true : false,
     refetchOnMountOrArgChange: true,
   });
 
-  const messagesByDate = React.useMemo(
-    () => formatMessagesByDate(chatMessages),
-    [chatMessages]
-  );
   const [page, setPage] = useState<number>(1);
+
   const flatListRef = useRef<FlatList>(null);
 
   const { data: messagesData, isLoading: isMessagesLoading } =
     useGetChatMessagesQuery(
       {
-        id,
+        id: chat?.id || "",
         params: { page, pageSize: PAGE_SIZE },
       },
-      { skip: chat ? false : true }
+      { skip: !chat }
     );
-  const messages = messagesData?.data || [];
+
   const totalMessages = messagesData?.total || 0;
+  const resPage = messagesData?.page || 0;
+  const resPageSize = messagesData?.pageSize || PAGE_SIZE;
+  const receivedCount = Number(resPage) * Number(resPageSize);
 
   // Handler for when user scrolls to the top (onEndReached for inverted FlatList)
   const handleEndReached = useCallback(() => {
-    if (messages.length && messages.length < totalMessages) {
-      setPage((prevPage) => prevPage + 1);
-    }
-  }, [messages, totalMessages]);
+    if (receivedCount >= totalMessages) return;
+    setPage((prevPage) => prevPage + 1);
+  }, [receivedCount, totalMessages]);
+
   // Scroll to bottom when messagesByDate changes (new message)
   useEffect(() => {
     if (flatListRef.current) {
@@ -59,7 +57,7 @@ const MessageDetailBody = () => {
         flatListRef.current?.scrollToOffset({ offset: 999999, animated: true });
       }, 100);
     }
-  }, [messagesByDate]);
+  }, []);
 
   if (isLoading) {
     return (
@@ -80,22 +78,17 @@ const MessageDetailBody = () => {
       )}
       <SectionList
         className="flex-1"
-        sections={messagesByDate
-          .sort((a, b) => b.date.getTime() - a.date.getTime())
-          .map((group) => ({
-            title: new Date(group.date).toLocaleDateString(undefined, {
-              year: "numeric",
-              month: "short",
-              day: "numeric",
-            }),
-            data: group.messages,
-          }))}
+        sections={chat?.messagesWithDates || []}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => <MessageBubble message={item} />}
-        renderSectionFooter={({ section: { title } }) => (
-          <Text className="text-sm font-medium text-gray-400 text-center mb-4 mt-10">
-            {title}
-          </Text>
+        renderItem={({ item }) => (
+          <MessageBubble
+            key={item.id}
+            messageId={item.id}
+            chatId={chat?.id || ""}
+          />
+        )}
+        renderSectionFooter={({ section: { date } }) => (
+          <MessgesHeader date={date} />
         )}
         inverted
         showsVerticalScrollIndicator={false}

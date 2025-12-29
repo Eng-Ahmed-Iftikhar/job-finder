@@ -1,27 +1,25 @@
-import {
-  selectChatGroups,
-  selectChats,
-  selectChatUsers,
-  selectMessages,
-} from "@/store/reducers/chatSlice";
+import { selectChats } from "@/store/reducers/chatSlice";
 import { selectUser } from "@/store/reducers/userSlice";
 import { useMemo } from "react";
 import { useAppSelector } from "./useAppSelector";
 
 const useChat = (chatId: string) => {
   const user = useAppSelector(selectUser) || null;
-  const users = useAppSelector(selectChatUsers) || [];
-  const groups = useAppSelector(selectChatGroups) || [];
-  const chats = useAppSelector(selectChats) || [];
-  const messages = useAppSelector(selectMessages) || [];
 
-  const chatGroup = groups?.find((group) => group.chatId === chatId);
-  const chat = chats?.find((chat) => chat.id === chatId);
-  const chatUsers = users.filter((chatsUser) => chatsUser.chatId === chatId);
-  const chatMembers = chatUsers.filter(
+  const chats = useAppSelector(selectChats) || [];
+
+  const chat = useMemo(
+    () => chats?.find((ch) => ch?.id === chatId),
+    [chats, chatId]
+  );
+
+  const chatGroup = chat?.group || null;
+
+  const chatUsers =
+    chat?.users?.filter((chatsUser) => chatsUser.chatId === chatId) || [];
+  const chatMembers = chatUsers?.filter(
     (chatsUser) => chatsUser.userId !== user?.id
   );
-  const chatMessages = messages.filter((message) => message.chatId === chatId);
 
   const chatName = useMemo(() => {
     let name = "N/A";
@@ -40,8 +38,8 @@ const useChat = (chatId: string) => {
   const chatIconUrl = useMemo(() => {
     let icon = "";
 
-    if (chatGroup?.iconUrl) {
-      icon = chatGroup.iconUrl;
+    if (chatGroup) {
+      icon = chatGroup?.iconUrl || "";
     } else {
       const chatUsersPics = chatMembers.map(
         (chatUser) => chatUser.user.profile.pictureUrl || ""
@@ -53,14 +51,10 @@ const useChat = (chatId: string) => {
 
   const unreedMessagesCount = useMemo(() => {
     if (!chat) return 0;
-    const unseenMessages = messages.filter(
-      (message) =>
-        message.chatId === chat.id &&
-        message.senderId !== user?.id &&
-        !message.userStatuses?.some((status) => status.seenAt)
-    );
-    return unseenMessages.length;
-  }, [messages, chat, user]);
+    const unseenMessages = 0;
+    return unseenMessages;
+  }, [chat, user]);
+
   return {
     chatGroup,
     chatUsers,
@@ -69,7 +63,6 @@ const useChat = (chatId: string) => {
     chatIconUrl,
     chat,
     unreedMessagesCount,
-    chatMessages,
   };
 };
 

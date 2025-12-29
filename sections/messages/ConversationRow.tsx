@@ -5,17 +5,19 @@ import { Chat } from "@/types/chat";
 import { useRouter } from "expo-router";
 import { Pressable, Text, View } from "react-native";
 import LastMessage from "./LastMessage";
+import moment from "moment";
 
 function ConversationRow({ item }: { item: Chat }) {
   const {
-    chatMessages: messages,
+    chat,
     chatName,
     chatIconUrl,
-    unreedMessagesCount,
-  } = useChat(item.id);
+    unreedMessagesCount = 0,
+  } = useChat(item?.id);
   const router = useRouter();
 
-  const chatMessages = messages.filter((message) => message.chatId === item.id);
+  const chatMessages =
+    chat?.messagesWithDates?.flatMap((section) => section.data) || [];
   const sortedMessages = [...chatMessages].sort(
     (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
   );
@@ -42,15 +44,10 @@ function ConversationRow({ item }: { item: Chat }) {
           {unreedMessagesCount > 0 && <Badge count={unreedMessagesCount} />}
         </View>
 
-        <LastMessage chatId={item.id} lastMessage={lastMessage} />
+        <LastMessage chatId={item?.id} lastMessage={lastMessage} />
       </View>
       <Text className="text-sm font-medium text-gray-400">
-        {lastMessage
-          ? new Date(lastMessage.createdAt).toLocaleTimeString(undefined, {
-              hour: "2-digit",
-              minute: "2-digit",
-            })
-          : ""}
+        {lastMessage ? moment(lastMessage.createdAt).format("hh:mm A") : ""}
       </Text>
     </Pressable>
   );

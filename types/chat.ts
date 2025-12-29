@@ -11,10 +11,11 @@ export type Chat = {
   createdAt: Date;
   updatedAt: Date;
   deletedAt?: Date | null;
+  userId: string;
   countUnseenMessages: { senderId: string; count: number }[];
   users: ChatUser[];
-  group?: ChatGroup | null;
-  messages: ChatMessage[];
+  group?: ChatGroup;
+  messagesWithDates: ChatMessagesByDate[];
   blocks: ChatBlock[];
 };
 
@@ -88,7 +89,7 @@ export type ChatMessage = {
 
 export type ChatMessagesByDate = {
   date: Date;
-  messages: ChatMessage[];
+  data: ChatMessage[];
 };
 
 export type MessageReaction = {

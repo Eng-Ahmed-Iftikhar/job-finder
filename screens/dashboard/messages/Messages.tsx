@@ -57,14 +57,14 @@ function MessagesScreen() {
       </View>
 
       <FlatList
-        data={chats}
+        data={chats || []}
         refreshControl={
           <RefreshControl
             refreshing={isRefreshing}
             onRefresh={handleOnRefresh}
           />
         }
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item?.id}
         renderItem={({ item }) => <ConversationRow item={item} />}
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}

@@ -73,19 +73,31 @@ export const chatApi = createApi({
       }),
     }),
     updateMessageStatus: builder.mutation<
-      MessageUserStatus,
-      { statusId: string; receivedAt?: Date; seenAt?: Date }
+      ChatMessage,
+      {
+        statusId: string;
+        receivedAt?: Date;
+        seenAt?: Date;
+        signal?: AbortSignal;
+      }
     >({
-      query: ({ statusId, receivedAt, seenAt }) => ({
+      query: ({ statusId, receivedAt, seenAt, signal }) => ({
         url: API_ROUTES.chat.statusUpdate.replace(":statusId", statusId),
         method: "PATCH",
         body: { receivedAt, seenAt },
+        signal,
       }),
     }),
 
     getAllUnreadMessage: builder.query<ChatMessage[], void>({
       query: () => ({
         url: API_ROUTES.chat.unReadMessages,
+        method: "GET",
+      }),
+    }),
+    getChatMessageDates: builder.query<Date[], string>({
+      query: (chatId) => ({
+        url: API_ROUTES.chat.messageDates.replace(":chatId", chatId),
         method: "GET",
       }),
     }),
@@ -102,4 +114,5 @@ export const {
   useGetAllUnreadMessageQuery,
   useGetChatQuery,
   useEditChatGroupMutation,
+  useGetChatMessageDatesQuery,
 } = chatApi;

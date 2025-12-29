@@ -86,6 +86,7 @@ const API_ROUTES = {
     chatunReadMessages: "/chats/:chatId/unread-messages",
     statusUpdate: "/chats/message-status-update/:statusId",
     editGroup: "/chats/:chatId/group",
+    messageDates: "/chats/:chatId/message-dates",
   },
 };
 

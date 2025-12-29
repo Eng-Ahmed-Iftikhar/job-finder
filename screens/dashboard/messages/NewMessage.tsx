@@ -18,18 +18,14 @@ import {
 } from "@/types/chat";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { showErrorNotification } from "@/store/reducers/notificationSlice";
-import {
-  addMessage,
-  selectChats,
-  selectChatUsers,
-} from "@/store/reducers/chatSlice";
+import { addMessage, selectChats } from "@/store/reducers/chatSlice";
 import { SafeAreaView } from "react-native";
 
 function NewMessageScreen() {
   const [search, setSearch] = useState("");
   const router = useRouter();
   const dispatch = useAppDispatch();
-  const chatUsers = useAppSelector(selectChatUsers);
+
   const chats = useAppSelector(selectChats);
 
   const connections = useAppSelector(selectUserConnections);
@@ -84,50 +80,38 @@ function NewMessageScreen() {
     };
     const response = await createChat(createChatPayload).unwrap();
     return response;
-  }, []);
+  }, [selectedUsers, createChat]);
 
   const handleSendMessage = async (message: string) => {
     try {
-      if (selectedUsers.length === 1) {
-        const existingChat = chatUsers.find(
-          (chatUser) => chatUser.userId === selectedUsers[0].id
-        );
-        const chat = chats.find((c) => c.id === existingChat?.chatId);
-        if (chat?.type === CHAT_TYPE.PRIVATE) {
-          router.push({
-            pathname: "/messages/chat",
-            params: { id: chat.id },
-          });
-          const newMessage = {
-            id: Math.random().toString(36).substring(7),
-            text: message,
-            messageType: CHAT_MESSAGE_TYPE.TEXT,
-            createdAt: new Date(),
-            status: CHAT_MESSAGE_STATUS.PENDING,
-            chatId: chat.id,
-            senderId: user?.id || "",
-          };
-
-          dispatch(addMessage(newMessage));
-          return;
-        }
+      const newMessage = {
+        id: Math.random().toString(36).substring(7),
+        text: message,
+        messageType: CHAT_MESSAGE_TYPE.TEXT,
+        createdAt: new Date(),
+        status: CHAT_MESSAGE_STATUS.PENDING,
+        chatId: "",
+        senderId: user?.id || "",
+      };
+      const chat = await handleExistingChat();
+      if (chat) {
+        Object.assign(newMessage, { chatId: chat.id });
+        router.push({
+          pathname: "/messages/chat",
+          params: { id: chat.id },
+        });
+        dispatch(addMessage(newMessage));
+        return;
       }
-      const response = await handleCreateChat();
 
-      dispatch(
-        addMessage({
-          id: "temp-id",
-          chatId: response.id,
-          senderId: user?.id as string,
-          messageType: CHAT_MESSAGE_TYPE.TEXT,
-          text: message,
-          status: CHAT_MESSAGE_STATUS.PENDING,
-          createdAt: new Date(),
-        })
-      );
+      const response = await handleCreateChat();
       const chatId = response.id;
+      Object.assign(newMessage, { chatId });
+      dispatch(addMessage(newMessage));
       router.push({ pathname: "/messages/chat", params: { id: chatId } });
     } catch (error) {
+      console.log(error);
+
       dispatch(
         showErrorNotification("Failed to create chat. Please try again.")
       );
@@ -136,13 +120,15 @@ function NewMessageScreen() {
   const handleExistingChat = useCallback(async () => {
     let newChat: Chat | null = null;
     if (selectedUsers.length === 1) {
-      const existingChat = chatUsers.find(
-        (chatUser) => chatUser.userId === selectedUsers[0].id
+      const chat = chats.find((c) =>
+        c.users.some(
+          (chatUser) =>
+            chatUser.userId === selectedUsers[0].id &&
+            c.type === CHAT_TYPE.PRIVATE
+        )
       );
-      const chat = chats.find((c) => c.id === existingChat?.chatId);
-      if (chat?.type === CHAT_TYPE.PRIVATE) {
-        newChat = chat;
-      }
+
+      newChat = chat as Chat;
     }
     return newChat;
   }, []);

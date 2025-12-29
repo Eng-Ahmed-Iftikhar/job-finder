@@ -25,15 +25,9 @@ function LastMessage({
   }
   const isOwn = lastMessage.senderId === user?.id;
 
-  const receivedUsers = lastMessage.userStatuses?.filter(
-    (status) => status.receivedAt
-  );
+  const receivedUsers =
+    lastMessage.userStatuses?.filter((status) => status.receivedAt) || [];
   const seenUsers = lastMessage.userStatuses?.filter((status) => status.seenAt);
-
-  const isReceived =
-    lastMessage?.userStatuses &&
-    lastMessage.userStatuses?.length !== 0 &&
-    receivedUsers?.length === lastMessage.userStatuses?.length;
 
   const isSeen =
     lastMessage?.userStatuses &&
@@ -50,7 +44,7 @@ function LastMessage({
         lastMessage.status === CHAT_MESSAGE_STATUS.PENDING
           ? "time"
           : lastMessage.status === CHAT_MESSAGE_STATUS.SENT
-            ? isReceived
+            ? receivedUsers?.length > 0
               ? "checkmark-done"
               : "checkmark"
             : "checkmark"

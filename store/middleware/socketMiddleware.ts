@@ -27,7 +27,7 @@ export const socketMiddleware: Middleware =
       socket.connect();
 
       socket.on("connect", () => {
-        storeAPI.dispatch(socketConnected());
+        storeAPI.dispatch(socketConnected(socket));
         socket?.emit(CHAT_SOCKET_ROOM.USERS);
       });
 
@@ -36,12 +36,16 @@ export const socketMiddleware: Middleware =
       });
 
       socket.on(CHAT_SOCKET_EVENT.NEW_CHAT, (chat: Chat) => {
+        const state = storeAPI.getState();
+        const userId = state.user.user?.id;
+        if (userId === chat.userId) return;
         storeAPI.dispatch(addChat(chat));
       });
 
       socket.on(CHAT_SOCKET_EVENT.NEW_MESSAGE, async (message: ChatMessage) => {
         const state = storeAPI.getState();
         const userId = state.user.user?.id;
+        if (userId === message.senderId) return;
         // Only trigger one notification per chatId until dismissed
         const alreadyNotified = newMessageNotifications.find(
           (n) => n.chatMessage.id === message.id
@@ -62,19 +66,34 @@ export const socketMiddleware: Middleware =
           });
         }
 
-        if (userId !== message.senderId) {
-          socket?.emit(CHAT_SOCKET_EVENT.MESSAGE_RECEIVED, {
-            id: message.id,
-            userId,
-          });
-        }
-        storeAPI.dispatch(upsertMessage(message));
+        socket?.emit(CHAT_SOCKET_EVENT.MESSAGE_RECEIVED, {
+          id: message.id,
+          userId,
+        });
+
+        const updatedStatuses = message.userStatuses?.map((status) => {
+          if (status.userId === userId) {
+            return { ...status, receivedAt: new Date() };
+          }
+          return status;
+        });
+
+        storeAPI.dispatch(
+          upsertMessage({ ...message, userStatuses: updatedStatuses })
+        );
       });
 
       socket.on(CHAT_SOCKET_EVENT.MESSAGE_RECEIVED, (message: ChatMessage) => {
+        const state = storeAPI.getState();
+        const userId = state.user.user?.id;
+        if (userId !== message.senderId) return;
         storeAPI.dispatch(upsertMessage(message));
       });
+
       socket.on(CHAT_SOCKET_EVENT.MESSAGE_SEEN, (message) => {
+        const state = storeAPI.getState();
+        const userId = state.user.user?.id;
+        if (userId !== message.senderId) return;
         storeAPI.dispatch(upsertMessage(message));
       });
     }
