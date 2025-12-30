@@ -1,5 +1,7 @@
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { useAppSelector } from "@/hooks/useAppSelector";
+import useChat from "@/hooks/useChat";
+import BlockedChat from "@/sections/message-detail/BlockedChat";
 import MessageDetailBody from "@/sections/message-detail/MessageDetailBody";
 import MessageDetailHeader from "@/sections/message-detail/MessageDetailHeader";
 import SendActions from "@/sections/new-message/SendActions";
@@ -12,7 +14,13 @@ import {
   ChatMessageFile,
 } from "@/types/chat";
 import { useLocalSearchParams } from "expo-router";
-import { KeyboardAvoidingView, Platform, SafeAreaView } from "react-native";
+import { useCallback, useMemo } from "react";
+import {
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  View,
+} from "react-native";
 
 type MessagePayload = CreateChatMessageRequest & {
   id: string;
@@ -27,55 +35,64 @@ function ChatDetailScreen() {
   const user = useAppSelector(selectUser);
   const id = typeof param.id === "string" ? param.id : "";
   const dispatch = useAppDispatch();
+  const { chat, chatGroup } = useChat(id);
+  const blockedUser = chat?.blocks?.find(
+    (block) => block.userId !== user?.id && !block.deletedAt
+  );
 
-  const handleSendMessage = (text: string) => {
-    const newMessage: MessagePayload = {
-      id: Math.random().toString(36).substring(7),
-      text,
-      messageType: CHAT_MESSAGE_TYPE.TEXT,
-      createdAt: new Date(),
-      status: CHAT_MESSAGE_STATUS.PENDING,
-      chatId: id,
-      senderId: user?.id || "",
-    };
-    dispatch(addMessage(newMessage));
-  };
+  const youBlockedChat = useMemo(() => {
+    if (chatGroup) return false;
+    return Boolean(blockedUser);
+  }, [blockedUser, chatGroup]);
+  const handleSendMessage = useCallback(
+    (text: string) => {
+      const newMessage: MessagePayload = {
+        id: Math.random().toString(36).substring(7),
+        text,
+        messageType: CHAT_MESSAGE_TYPE.TEXT,
+        createdAt: new Date(),
+        status: CHAT_MESSAGE_STATUS.PENDING,
+        chatId: id,
+        senderId: user?.id || "",
+      };
+      dispatch(addMessage(newMessage));
+    },
+    [dispatch, id, user]
+  );
 
-  const handleSelectImage = async (image: {
-    uri: string;
-    type: string;
-    name: string;
-  }) => {
-    const newMessage: MessagePayload = {
-      id: Math.random().toString(36).substring(7),
-      file: image,
-      messageType: CHAT_MESSAGE_TYPE.IMAGE,
-      createdAt: new Date(),
-      status: CHAT_MESSAGE_STATUS.PENDING,
-      chatId: id,
-      senderId: user?.id || "",
-    };
+  const handleSelectImage = useCallback(
+    async (image: { uri: string; type: string; name: string }) => {
+      const newMessage: MessagePayload = {
+        id: Math.random().toString(36).substring(7),
+        file: image,
+        messageType: CHAT_MESSAGE_TYPE.IMAGE,
+        createdAt: new Date(),
+        status: CHAT_MESSAGE_STATUS.PENDING,
+        chatId: id,
+        senderId: user?.id || "",
+      };
 
-    dispatch(addMessage(newMessage));
-  };
+      dispatch(addMessage(newMessage));
+    },
+    [dispatch, id, user]
+  );
 
-  const handleSelectFile = async (file: {
-    uri: string;
-    type: string;
-    name: string;
-  }) => {
-    const newMessage: MessagePayload = {
-      id: Math.random().toString(36).substring(7),
-      file,
-      messageType: CHAT_MESSAGE_TYPE.FILE,
-      createdAt: new Date(),
-      status: CHAT_MESSAGE_STATUS.PENDING,
-      chatId: id,
-      senderId: user?.id || "",
-    };
+  const handleSelectFile = useCallback(
+    async (file: { uri: string; type: string; name: string }) => {
+      const newMessage: MessagePayload = {
+        id: Math.random().toString(36).substring(7),
+        file,
+        messageType: CHAT_MESSAGE_TYPE.FILE,
+        createdAt: new Date(),
+        status: CHAT_MESSAGE_STATUS.PENDING,
+        chatId: id,
+        senderId: user?.id || "",
+      };
 
-    dispatch(addMessage(newMessage));
-  };
+      dispatch(addMessage(newMessage));
+    },
+    [dispatch, id, user]
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -86,11 +103,15 @@ function ChatDetailScreen() {
       >
         <MessageDetailHeader />
         <MessageDetailBody />
-        <SendActions
-          onSendMessage={handleSendMessage}
-          onSelectImage={handleSelectImage}
-          onAttachFile={handleSelectFile}
-        />
+        {youBlockedChat ? (
+          <BlockedChat />
+        ) : (
+          <SendActions
+            onSendMessage={handleSendMessage}
+            onSelectImage={handleSelectImage}
+            onAttachFile={handleSelectFile}
+          />
+        )}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

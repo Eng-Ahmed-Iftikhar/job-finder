@@ -15,8 +15,10 @@ import {
 } from "react-native";
 import MessageBubble from "./MessageBubble";
 import MessgesHeader from "./MessgesHeader";
+import { ChatMessage } from "@/types/chat";
 
 const PAGE_SIZE = 20;
+
 const MessageDetailBody = () => {
   const param = useLocalSearchParams();
   const id = typeof param.id === "string" ? param.id : "";
@@ -30,14 +32,17 @@ const MessageDetailBody = () => {
 
   const flatListRef = useRef<FlatList>(null);
 
-  const { data: messagesData, isLoading: isMessagesLoading } =
-    useGetChatMessagesQuery(
-      {
-        id: chat?.id || "",
-        params: { page, pageSize: PAGE_SIZE },
-      },
-      { skip: !chat }
-    );
+  const {
+    data: messagesData,
+    isLoading: isMessagesLoading,
+    isFetching: isMessagesFetching,
+  } = useGetChatMessagesQuery(
+    {
+      id: chat?.id || "",
+      params: { page, pageSize: PAGE_SIZE },
+    },
+    { skip: !chat, refetchOnMountOrArgChange: true }
+  );
 
   const totalMessages = messagesData?.total || 0;
   const resPage = messagesData?.page || 0;
@@ -59,6 +64,20 @@ const MessageDetailBody = () => {
     }
   }, []);
 
+  const renderItem = useCallback(
+    ({ item }: { item: ChatMessage }) => (
+      <MessageBubble key={item.id} message={item} />
+    ),
+    []
+  );
+
+  const renderSectionFooter = useCallback(
+    ({ section: { date } }: { section: { date: Date } }) => (
+      <MessgesHeader date={date} />
+    ),
+    []
+  );
+
   if (isLoading) {
     return (
       <View className="flex-1 relative justify-center items-center">
@@ -68,7 +87,7 @@ const MessageDetailBody = () => {
   }
   return (
     <View className="flex-1 bg-white">
-      {isMessagesLoading && (
+      {(isMessagesLoading || isMessagesFetching) && (
         <View className="flex-row items-center justify-center py-2 gap-3">
           <ActivityIndicator />
           <Text className="text-center text-gray-500 py-2">
@@ -80,16 +99,8 @@ const MessageDetailBody = () => {
         className="flex-1"
         sections={chat?.messagesWithDates || []}
         keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <MessageBubble
-            key={item.id}
-            messageId={item.id}
-            chatId={chat?.id || ""}
-          />
-        )}
-        renderSectionFooter={({ section: { date } }) => (
-          <MessgesHeader date={date} />
-        )}
+        renderItem={renderItem}
+        renderSectionFooter={renderSectionFooter}
         inverted
         showsVerticalScrollIndicator={false}
         onEndReached={handleEndReached}

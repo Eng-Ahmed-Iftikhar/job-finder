@@ -13,10 +13,12 @@ enableMapSet();
 // Define the initial state for the UI slice
 interface ChatState {
   chats: Chat[];
+  newMessages: ChatMessage[];
 }
 
 const initialState: ChatState = {
   chats: [],
+  newMessages: [],
 };
 
 const chatSlice = createSlice({
@@ -53,6 +55,29 @@ const chatSlice = createSlice({
         state.chats[chatIndex] = {
           ...chat,
           messagesWithDates,
+        };
+      }
+    },
+    addUnreadCount(
+      state,
+      action: PayloadAction<{ chatId: string; senderId: string }>
+    ) {
+      const { chatId, senderId } = action.payload;
+      const chatIndex = state.chats.findIndex((chat) => chat.id === chatId);
+      if (chatIndex !== -1) {
+        const chat = state.chats[chatIndex];
+        const unseenCounts = chat.unseenMessageCounts || [];
+        const countEntry = unseenCounts.find(
+          (count) => count.senderId === senderId
+        );
+        if (countEntry) {
+          countEntry.count += 1;
+        } else {
+          unseenCounts.push({ senderId, count: 1 });
+        }
+        state.chats[chatIndex] = {
+          ...chat,
+          unseenMessageCounts: unseenCounts,
         };
       }
     },
@@ -118,7 +143,10 @@ const chatSlice = createSlice({
           const messageIndex = data.findIndex((m) => m.id === id);
           if (messageIndex !== -1) {
             data[messageIndex] = message;
+          } else {
+            data.push(message);
           }
+
           messagesWithDates[dateGroupIndex]["data"] = data;
         }
         state.chats[chatIndex] = {
@@ -241,6 +269,94 @@ const chatSlice = createSlice({
         };
       }
     );
+    builder.addMatcher(
+      chatApi.endpoints.blockChat.matchFulfilled,
+      (state, action) => {
+        const blockChat = action.payload;
+        const chatId = blockChat.chatId;
+        const chatIdx = state.chats.findIndex((chat) => chat.id === chatId);
+        if (chatIdx === -1) return;
+
+        const chat = state.chats[chatIdx];
+        const blocks = chat.blocks || [];
+        const blockIdx = blocks.findIndex((block) => block.id === blockChat.id);
+        if (blockIdx !== -1) {
+          // Update existing block
+          state.chats[chatIdx] = {
+            ...chat,
+            blocks: blocks.map((block) =>
+              block.id === blockChat.id ? blockChat : block
+            ),
+          };
+        } else {
+          // Add new block
+          state.chats[chatIdx] = {
+            ...chat,
+            blocks: [...blocks, blockChat],
+          };
+        }
+      }
+    );
+    builder.addMatcher(
+      chatApi.endpoints.unblockChat.matchFulfilled,
+      (state, action) => {
+        const unblockChat = action.payload;
+        const chatId = unblockChat.chatId;
+        const chatIdx = state.chats.findIndex((chat) => chat.id === chatId);
+        if (chatIdx === -1) return;
+        const chat = state.chats[chatIdx];
+        state.chats[chatIdx] = {
+          ...chat,
+          blocks: chat.blocks.map((block) =>
+            block.id === unblockChat.id ? unblockChat : block
+          ),
+        };
+      }
+    );
+    builder.addMatcher(
+      chatApi.endpoints.muteChat.matchFulfilled,
+      (state, action) => {
+        const chatMute = action.payload;
+
+        const chatId = chatMute.chatId;
+        const chatIdx = state.chats.findIndex((chat) => chat.id === chatId);
+        if (chatIdx === -1) return;
+        const chat = state.chats[chatIdx];
+        const mutes = chat.mutes || [];
+        const chatMuteIndex = mutes.findIndex(
+          (mute) => mute.id === chatMute.id
+        );
+        if (chatMuteIndex !== -1) {
+          // Update existing mute
+          state.chats[chatIdx] = {
+            ...chat,
+            mutes: mutes.map((mute) =>
+              mute.id === chatMute.id ? chatMute : mute
+            ),
+          };
+        } else {
+          // Add new mute
+          state.chats[chatIdx] = {
+            ...chat,
+            mutes: [...mutes, chatMute],
+          };
+        }
+      }
+    );
+    builder.addMatcher(
+      chatApi.endpoints.unMuteChat.matchFulfilled,
+      (state, action) => {
+        const unMuteChat = action.payload;
+        const chatId = unMuteChat.chatId;
+        const chatIdx = state.chats.findIndex((chat) => chat.id === chatId);
+        if (chatIdx === -1) return;
+        const chat = state.chats[chatIdx];
+        state.chats[chatIdx] = {
+          ...chat,
+          mutes: chat.mutes.filter((mute) => mute.id !== unMuteChat.id),
+        };
+      }
+    );
   },
 });
 
@@ -252,6 +368,7 @@ export const {
   removeChat,
   removeMessage,
   upsertMessage,
+  addUnreadCount,
   updateMessage,
 } = chatSlice.actions;
 

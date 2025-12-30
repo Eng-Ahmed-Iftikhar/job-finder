@@ -6,9 +6,11 @@ import { Middleware } from "@reduxjs/toolkit";
 import * as Notifications from "expo-notifications";
 
 import { Socket } from "socket.io-client";
-import { addChat, upsertMessage } from "../reducers/chatSlice";
+import { addChat, addUnreadCount, upsertMessage } from "../reducers/chatSlice";
 import { socketConnected, socketDisconnected } from "../reducers/socketSlice";
 import { router } from "expo-router";
+import { RootState } from "../reducers";
+import moment from "moment";
 
 let socket: Socket | null = null;
 
@@ -43,15 +45,27 @@ export const socketMiddleware: Middleware =
       });
 
       socket.on(CHAT_SOCKET_EVENT.NEW_MESSAGE, async (message: ChatMessage) => {
-        const state = storeAPI.getState();
+        const state = storeAPI.getState() as RootState;
         const userId = state.user.user?.id;
+        const chats = state.chats.chats || [];
+        const chat = chats.find((c) => c.id === message.chatId);
+        const chatUser = chat?.users?.find(
+          (cu) => cu.userId === message.senderId
+        );
+        const mutedEntry = chat?.mutes.find(
+          (mute) =>
+            mute.chatUserId === chatUser?.id &&
+            moment(mute.mutedTill).isAfter(moment())
+        );
+        const isMuted = Boolean(mutedEntry);
+
         if (userId === message.senderId) return;
         // Only trigger one notification per chatId until dismissed
         const alreadyNotified = newMessageNotifications.find(
           (n) => n.chatMessage.id === message.id
         );
 
-        if (!alreadyNotified) {
+        if (!alreadyNotified && !isMuted) {
           const notificationId = await Notifications.scheduleNotificationAsync({
             content: {
               title: "New Message Received",
@@ -77,6 +91,9 @@ export const socketMiddleware: Middleware =
           }
           return status;
         });
+        storeAPI.dispatch(
+          addUnreadCount({ chatId: message.chatId, senderId: message.senderId })
+        );
 
         storeAPI.dispatch(
           upsertMessage({ ...message, userStatuses: updatedStatuses })

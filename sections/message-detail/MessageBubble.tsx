@@ -6,34 +6,25 @@ import { useUploadFileMutation } from "@/api/services/fileApi";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import useChat from "@/hooks/useChat";
-import { updateMessage } from "@/store/reducers/chatSlice";
+
 import { selectUser } from "@/store/reducers/userSlice";
-import {
-  CHAT_MESSAGE_STATUS,
-  CHAT_MESSAGE_TYPE,
-  ChatMessage,
-  ChatMessageFile,
-} from "@/types/chat";
+import { CHAT_MESSAGE_STATUS, ChatMessage } from "@/types/chat";
 import { Ionicons } from "@expo/vector-icons";
+import { usePathname } from "expo-router";
 import moment from "moment";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { Image, Text, View } from "react-native";
 import Message from "./Message";
-import { usePathname } from "expo-router";
 
 type MessageBubbleProps = {
-  messageId: string;
-  chatId: string;
+  message: ChatMessage;
 };
 
-const MessageBubble = ({ messageId, chatId }: MessageBubbleProps) => {
+const MessageBubble = ({ message }: MessageBubbleProps) => {
   // All hooks must be called unconditionally, before any return
   const user = useAppSelector(selectUser);
   const pathname = usePathname();
-  const { chat, chatUsers = [] } = useChat(chatId);
-  const message = chat?.messagesWithDates
-    .flatMap((group) => group.data)
-    .find((msg) => msg.id === messageId) as ChatMessage | undefined;
+  const { chatUsers = [] } = useChat(message.chatId);
 
   const [createMessage, { isLoading: isCreating }] =
     useCreateChatMessageMutation();
@@ -51,65 +42,17 @@ const MessageBubble = ({ messageId, chatId }: MessageBubbleProps) => {
   const isOwn = (message?.senderId ?? message?.senderId) === user?.id;
   const pictureUrl = chatUser?.user.profile.pictureUrl || "";
 
-  // Prevent double execution (e.g., React Strict Mode)
-  const handleCreateMessage = useCallback(async () => {
-    if (hasCreatedRef.current) return;
-    if (!message) return;
-    if (message.status !== CHAT_MESSAGE_STATUS.PENDING) return;
-    if (!isOwn) return;
-    if (isCreating) return;
-    hasCreatedRef.current = true;
-    abortControllerRef.current?.abort();
-    abortControllerRef.current = new AbortController();
-    console.log(user?.id, "sdfdasf", message.id);
-
-    let url = "";
-    if (
-      message.messageType === CHAT_MESSAGE_TYPE.IMAGE ||
-      message.messageType === CHAT_MESSAGE_TYPE.FILE
-    ) {
-      const formData = new FormData();
-      formData.append("file", (message as any)?.file);
-      formData.append("fileType", "image");
-      formData.append("folderPath", "profile-images");
-      formData.append("customFilename", `profile-${Date.now()}`);
-      const fileUploadResponse = await uploadFile(formData).unwrap();
-      url = fileUploadResponse.url;
-    }
-
-    const result = await createMessage({
-      id: message.chatId,
-      body: {
-        senderId: message.senderId,
-        ...(url ? { fileUrl: url } : {}),
-        ...(message.text ? { text: message.text } : {}),
-        messageType: message.messageType,
-      },
-      signal: abortControllerRef.current.signal,
-    }).unwrap();
-    console.log("after");
-
-    dispatch(updateMessage({ id: message.id, message: result }));
-
-    return result;
-  }, [
-    message,
-    createMessage,
-    uploadFile,
-    abortControllerRef,
-    isOwn,
-    isCreating,
-  ]);
-
   // Seen/received logic
   const receivedUsers =
     message?.userStatuses?.filter((status) => status.receivedAt) || [];
   const seenUsers =
     message?.userStatuses?.filter((status) => status.seenAt) || [];
+
   const chatUserWithoutSender = chatUsers.filter(
-    (chatUser) => chatUser.userId !== (message?.senderId ?? message?.senderId)
+    (chatUser) => chatUser.userId !== message?.senderId
   );
   const isSeenByAllOthers = chatUserWithoutSender.length === seenUsers.length;
+
   const userStatus = message?.userStatuses?.find(
     (status) =>
       status.userId === user?.id && status.receivedAt && !status.seenAt
@@ -134,12 +77,6 @@ const MessageBubble = ({ messageId, chatId }: MessageBubbleProps) => {
       console.error("Failed to update message seen status", error);
     }
   }, [userStatus, updateMessageStatus, isOwn]);
-
-  useEffect(() => {
-    hasCreatedRef.current = false;
-    if (pathname !== `/messages/chat`) return;
-    handleCreateMessage();
-  }, [handleCreateMessage, message?.id, pathname]);
 
   useEffect(() => {
     if (pathname !== `/messages/chat`) return;
@@ -201,4 +138,4 @@ const MessageBubble = ({ messageId, chatId }: MessageBubbleProps) => {
   );
 };
 
-export default memo(MessageBubble);
+export default MessageBubble;

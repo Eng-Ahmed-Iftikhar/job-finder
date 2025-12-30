@@ -29,7 +29,7 @@ function Modal({
   children,
   showCloseButton = true,
   closeOnBackdropPress = true,
-  animationDuration = 300,
+  animationDuration = 200,
 }: ModalProps) {
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(screenHeight)).current;

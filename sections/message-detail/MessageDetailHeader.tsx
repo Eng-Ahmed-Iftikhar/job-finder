@@ -9,15 +9,23 @@ function MessageDetailHeader() {
   const param = useLocalSearchParams();
   const router = useRouter();
   const id = typeof param.id === "string" ? param.id : "";
-  const { chatName, chatIconUrl } = useChat(id);
+  const { chatName, chatIconUrl, chatGroup } = useChat(id);
 
   const handleBack = useCallback(() => {
     router.push("/messages");
   }, [router]);
 
   const handleAvatarPress = useCallback(() => {
+    if (chatGroup) {
+      router.push({
+        pathname: "/messages/chat/group",
+        params: { id },
+      });
+      return;
+    }
+
     router.push({
-      pathname: "/messages/chat/group",
+      pathname: "/messages/chat/profile",
       params: { id },
     });
   }, [router, id]);

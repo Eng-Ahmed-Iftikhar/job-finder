@@ -12,11 +12,12 @@ export type Chat = {
   updatedAt: Date;
   deletedAt?: Date | null;
   userId: string;
-  countUnseenMessages: { senderId: string; count: number }[];
+  unseenMessageCounts: { senderId: string; count: number }[];
   users: ChatUser[];
   group?: ChatGroup;
   messagesWithDates: ChatMessagesByDate[];
   blocks: ChatBlock[];
+  mutes: ChatMute[];
 };
 
 export enum CHAT_USER_ROLE {
@@ -40,13 +41,27 @@ export type ChatUser = {
     profile: {
       firstName: string;
       lastName: string;
+      location?: {
+        city: string;
+        state: string;
+        country: string;
+      };
       pictureUrl?: string | null;
     };
   };
+
   messageStatuses: MessageUserStatus[];
   lastReadMessage?: ChatMessage | null;
 };
 
+export type ChatMute = {
+  id: string;
+  chatUserId: string;
+  chatId: string;
+  mutedTill: Date;
+  createdAt: Date;
+  deletedAt?: Date | null;
+};
 export type ChatGroup = {
   id: string;
   chatId: string;
@@ -129,14 +144,12 @@ export type MessageUserStatus = {
 
 export type ChatBlock = {
   id: string;
-  blockedBy: string;
-  blockedTo: string;
-  chatId?: string | null;
+  userId: string;
+  chatId: string;
   createdAt: Date;
-  deletedAt?: Date | null;
-  blocker: User;
-  blocked: User;
-  chat?: Chat | null;
+  deletedAt?: Date;
+  user?: User;
+  chat?: Chat;
 };
 
 export type ChatMessageFile = {

@@ -14,7 +14,7 @@ const useChat = (chatId: string) => {
   );
 
   const chatGroup = chat?.group || null;
-
+  const chatMutes = chat?.mutes || [];
   const chatUsers =
     chat?.users?.filter((chatsUser) => chatsUser.chatId === chatId) || [];
   const chatMembers = chatUsers?.filter(
@@ -49,11 +49,14 @@ const useChat = (chatId: string) => {
     return icon;
   }, [chatGroup, chatUsers]);
 
+  const chatUnseenCounts = chat?.unseenMessageCounts || [];
+  const currentUserUnseenCount = chatUnseenCounts.filter(
+    (count) => count.senderId !== user?.id
+  );
   const unreedMessagesCount = useMemo(() => {
     if (!chat) return 0;
-    const unseenMessages = 0;
-    return unseenMessages;
-  }, [chat, user]);
+    return currentUserUnseenCount.reduce((acc, count) => acc + count.count, 0);
+  }, [chat]);
 
   return {
     chatGroup,
@@ -63,6 +66,7 @@ const useChat = (chatId: string) => {
     chatIconUrl,
     chat,
     unreedMessagesCount,
+    chatMutes,
   };
 };
 

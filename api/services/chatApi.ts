@@ -1,15 +1,15 @@
 import API_ROUTES from "@/api/routes";
 import {
-  CreateChatRequest,
-  GetChatsResponse,
-  GetChatsRequest,
-  GetChatMessageRequest,
-  GetChatMessagesResponse,
   CreateChatMessageRequest,
+  CreateChatRequest,
   EditChatGroupRequest,
   EditChatGroupResponse,
+  GetChatMessageRequest,
+  GetChatMessagesResponse,
+  GetChatsRequest,
+  GetChatsResponse,
 } from "@/types/api/chat";
-import { Chat, ChatMessage, MessageUserStatus } from "@/types/chat";
+import { Chat, ChatBlock, ChatMessage, ChatMute, ChatUser } from "@/types/chat";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReAuth } from "./baseApi";
 
@@ -101,6 +101,46 @@ export const chatApi = createApi({
         method: "GET",
       }),
     }),
+    blockChat: builder.mutation<
+      ChatBlock,
+      { id: string; body: { userId: string } }
+    >({
+      query: ({ id, body }) => ({
+        url: API_ROUTES.chat.blockChat.replace(":chatId", id),
+        method: "POST",
+        body,
+      }),
+    }),
+    unblockChat: builder.mutation<
+      ChatBlock,
+      { chatId: string; blockId: string }
+    >({
+      query: ({ chatId, blockId }) => ({
+        url: API_ROUTES.chat.unblockChat
+          .replace(":chatId", chatId)
+          .replace(":blockId", blockId),
+        method: "DELETE",
+      }),
+    }),
+    muteChat: builder.mutation<
+      ChatMute,
+      { chatId: string; body: { chatUserId: string; mutedTill: string } }
+    >({
+      query: ({ chatId, body }) => ({
+        url: API_ROUTES.chat.muteChat.replace(":chatId", chatId),
+
+        method: "POST",
+        body,
+      }),
+    }),
+    unMuteChat: builder.mutation<ChatMute, { chatId: string; muteId: string }>({
+      query: ({ chatId, muteId }) => ({
+        url: API_ROUTES.chat.unMuteChat
+          .replace(":chatId", chatId)
+          .replace(":muteId", muteId),
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -115,4 +155,8 @@ export const {
   useGetChatQuery,
   useEditChatGroupMutation,
   useGetChatMessageDatesQuery,
+  useBlockChatMutation,
+  useUnblockChatMutation,
+  useMuteChatMutation,
+  useUnMuteChatMutation,
 } = chatApi;

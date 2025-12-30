@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import Modal from "@/components/ui/Modal";
-import Icon from "react-native-vector-icons/AntDesign";
+import { Ionicons } from "@expo/vector-icons";
 
 interface ConfirmationModalProps {
   visible: boolean;
@@ -12,7 +12,7 @@ interface ConfirmationModalProps {
   confirmText?: string;
   cancelText?: string;
   confirmButtonColor?: string;
-  icon?: string;
+  icon?: keyof typeof Ionicons.glyphMap;
   iconColor?: string;
 }
 
@@ -25,7 +25,7 @@ function ConfirmationModal({
   confirmText = "Confirm",
   cancelText = "Cancel",
   confirmButtonColor = "bg-azure-radiance-500",
-  icon = "exclamationcircleo",
+  icon = "alert-circle-outline",
   iconColor = "#EF4444",
 }: ConfirmationModalProps) {
   const handleConfirm = () => {
@@ -44,7 +44,7 @@ function ConfirmationModal({
       <View className="items-center">
         {/* Icon */}
         <View className="w-16 h-16 rounded-full bg-red-50 items-center justify-center mb-4">
-          <Icon name={icon} size={32} color={iconColor} />
+          <Ionicons name={icon} size={32} color={iconColor} />
         </View>
 
         {/* Message */}

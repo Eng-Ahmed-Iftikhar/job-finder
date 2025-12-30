@@ -82,132 +82,132 @@ function NewMessageScreen() {
     return response;
   }, [selectedUsers, createChat]);
 
-  const handleSendMessage = async (message: string) => {
-    try {
-      const newMessage = {
-        id: Math.random().toString(36).substring(7),
-        text: message,
-        messageType: CHAT_MESSAGE_TYPE.TEXT,
-        createdAt: new Date(),
-        status: CHAT_MESSAGE_STATUS.PENDING,
-        chatId: "",
-        senderId: user?.id || "",
-      };
-      const chat = await handleExistingChat();
-      if (chat) {
-        Object.assign(newMessage, { chatId: chat.id });
-        router.push({
-          pathname: "/messages/chat",
-          params: { id: chat.id },
-        });
-        dispatch(addMessage(newMessage));
-        return;
-      }
-
-      const response = await handleCreateChat();
-      const chatId = response.id;
-      Object.assign(newMessage, { chatId });
-      dispatch(addMessage(newMessage));
-      router.push({ pathname: "/messages/chat", params: { id: chatId } });
-    } catch (error) {
-      console.log(error);
-
-      dispatch(
-        showErrorNotification("Failed to create chat. Please try again.")
-      );
-    }
-  };
   const handleExistingChat = useCallback(async () => {
     let newChat: Chat | null = null;
     if (selectedUsers.length === 1) {
-      const chat = chats.find((c) =>
-        c.users.some(
-          (chatUser) =>
-            chatUser.userId === selectedUsers[0].id &&
-            c.type === CHAT_TYPE.PRIVATE
-        )
+      const chat = chats.find(
+        (c) =>
+          c.users.find((chatUser) => chatUser.userId === selectedUsers[0].id) &&
+          c.type === CHAT_TYPE.PRIVATE
       );
 
       newChat = chat as Chat;
     }
     return newChat;
-  }, []);
+  }, [selectedUsers, chats]);
 
-  const handleSelectImage = async (image: {
-    uri: string;
-    type: string;
-    name: string;
-  }) => {
-    try {
-      const newChat = await handleExistingChat();
-      const newMessage = {
-        id: Math.random().toString(36).substring(7),
-        file: image,
-        messageType: CHAT_MESSAGE_TYPE.IMAGE,
-        createdAt: new Date(),
-        status: CHAT_MESSAGE_STATUS.PENDING,
-        chatId: newChat?.id || "",
-        senderId: user?.id || "",
-      };
+  const handleSendMessage = useCallback(
+    async (message: string) => {
+      try {
+        const newMessage = {
+          id: Math.random().toString(36).substring(7),
+          text: message,
+          messageType: CHAT_MESSAGE_TYPE.TEXT,
+          createdAt: new Date(),
+          status: CHAT_MESSAGE_STATUS.PENDING,
+          chatId: "",
+          senderId: user?.id || "",
+        };
+        const chat = await handleExistingChat();
+        if (chat) {
+          Object.assign(newMessage, { chatId: chat.id });
+          router.push({
+            pathname: "/messages/chat",
+            params: { id: chat.id },
+          });
+          dispatch(addMessage(newMessage));
+          return;
+        }
 
-      if (newChat) {
-        router.push({
-          pathname: "/messages/chat",
-          params: { id: newChat.id },
-        });
+        const response = await handleCreateChat();
+        const chatId = response.id;
+        Object.assign(newMessage, { chatId });
         dispatch(addMessage(newMessage));
+        router.push({ pathname: "/messages/chat", params: { id: chatId } });
+      } catch (error) {
+        console.log(error);
 
-        return;
+        dispatch(
+          showErrorNotification("Failed to create chat. Please try again.")
+        );
       }
+    },
+    [selectedUsers, user, handleCreateChat, handleExistingChat]
+  );
 
-      const response = await handleCreateChat();
-      Object.assign(newMessage, { chatId: response.id });
+  const handleSelectImage = useCallback(
+    async (image: { uri: string; type: string; name: string }) => {
+      try {
+        const newChat = await handleExistingChat();
+        const newMessage = {
+          id: Math.random().toString(36).substring(7),
+          file: image,
+          messageType: CHAT_MESSAGE_TYPE.IMAGE,
+          createdAt: new Date(),
+          status: CHAT_MESSAGE_STATUS.PENDING,
+          chatId: newChat?.id || "",
+          senderId: user?.id || "",
+        };
 
-      dispatch(addMessage(newMessage));
-    } catch (error) {
-      dispatch(
-        showErrorNotification("Failed to create chat. Please try again.")
-      );
-    }
-  };
+        if (newChat) {
+          router.push({
+            pathname: "/messages/chat",
+            params: { id: newChat.id },
+          });
+          dispatch(addMessage(newMessage));
 
-  const handleSelectFile = async (file: {
-    uri: string;
-    type: string;
-    name: string;
-  }) => {
-    try {
-      const newMessage = {
-        id: Math.random().toString(36).substring(7),
-        file,
-        messageType: CHAT_MESSAGE_TYPE.FILE,
-        createdAt: new Date(),
-        status: CHAT_MESSAGE_STATUS.PENDING,
-        senderId: user?.id || "",
-        chatId: "",
-      };
-      const newChat = await handleExistingChat();
+          return;
+        }
 
-      if (newChat) {
-        Object.assign(newMessage, { chatId: newChat.id });
-        router.push({
-          pathname: "/messages/chat",
-          params: { id: newChat.id },
-        });
+        const response = await handleCreateChat();
+        Object.assign(newMessage, { chatId: response.id });
+
         dispatch(addMessage(newMessage));
-        return;
+      } catch (error) {
+        dispatch(
+          showErrorNotification("Failed to create chat. Please try again.")
+        );
       }
+    },
+    [selectedUsers, user, handleCreateChat, handleExistingChat]
+  );
 
-      const response = await handleCreateChat();
-      Object.assign(newMessage, { chatId: response.id });
+  const handleSelectFile = useCallback(
+    async (file: { uri: string; type: string; name: string }) => {
+      try {
+        const newMessage = {
+          id: Math.random().toString(36).substring(7),
+          file,
+          messageType: CHAT_MESSAGE_TYPE.FILE,
+          createdAt: new Date(),
+          status: CHAT_MESSAGE_STATUS.PENDING,
+          senderId: user?.id || "",
+          chatId: "",
+        };
+        const newChat = await handleExistingChat();
 
-      dispatch(addMessage(newMessage));
-    } catch (error) {
-      dispatch(
-        showErrorNotification("Failed to create chat. Please try again.")
-      );
-    }
-  };
+        if (newChat) {
+          Object.assign(newMessage, { chatId: newChat.id });
+          router.push({
+            pathname: "/messages/chat",
+            params: { id: newChat.id },
+          });
+          dispatch(addMessage(newMessage));
+          return;
+        }
+
+        const response = await handleCreateChat();
+        Object.assign(newMessage, { chatId: response.id });
+
+        dispatch(addMessage(newMessage));
+      } catch (error) {
+        dispatch(
+          showErrorNotification("Failed to create chat. Please try again.")
+        );
+      }
+    },
+    [selectedUsers, user, handleCreateChat, handleExistingChat]
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
