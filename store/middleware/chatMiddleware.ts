@@ -16,13 +16,13 @@ chatListenerMiddleware.startListening({
     const userId = state.user.user?.id || "";
     const chats = state.chats.chats || [];
     const chat = chats.find((c) => c.id === payload.chatId);
-
-    const chatUser = chat?.users?.find((cu) => cu.userId === payload.senderId);
+    const currentChatUser = chat?.users?.find((cu) => cu.userId === userId);
+    const chatUser = chat?.users?.find((cu) => cu.id === payload.senderId);
     const blockedEntry = chat?.blocks?.find(
-      (block) => block.userId !== chatUser?.userId && !block.deletedAt
+      (block) => block.chatUserId !== chatUser?.id && !block.deletedAt
     );
     if (
-      payload.senderId !== userId ||
+      payload.senderId !== currentChatUser?.id ||
       (blockedEntry && chat?.type === CHAT_TYPE.PRIVATE)
     ) {
       return;

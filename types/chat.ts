@@ -144,11 +144,11 @@ export type MessageUserStatus = {
 
 export type ChatBlock = {
   id: string;
-  userId: string;
+  chatUserId: string;
   chatId: string;
   createdAt: Date;
   deletedAt?: Date;
-  user?: User;
+  chatUser?: ChatUser | null;
   chat?: Chat;
 };
 

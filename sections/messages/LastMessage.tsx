@@ -18,12 +18,12 @@ function LastMessage({
   chatId: string;
 }) {
   const user = useAppSelector(selectUser);
-  const { chatGroup, chatUsers = [] } = useChat(chatId);
+  const { chatGroup, chatUsers = [], currentChatUser } = useChat(chatId);
 
   if (!lastMessage) {
     return <Text>No messages yet.</Text>;
   }
-  const isOwn = lastMessage.senderId === user?.id;
+  const isOwn = lastMessage.senderId === currentChatUser?.id;
 
   const receivedUsers =
     lastMessage.userStatuses?.filter((status) => status.receivedAt) || [];
@@ -35,7 +35,7 @@ function LastMessage({
     seenUsers?.length === lastMessage.userStatuses?.length;
 
   const currentUserInChat = chatUsers.find(
-    (userInChat) => userInChat.user.id === lastMessage.senderId
+    (userInChat) => userInChat.id === lastMessage.senderId
   );
 
   const Icon = (

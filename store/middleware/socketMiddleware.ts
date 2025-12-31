@@ -49,9 +49,8 @@ export const socketMiddleware: Middleware =
         const userId = state.user.user?.id;
         const chats = state.chats.chats || [];
         const chat = chats.find((c) => c.id === message.chatId);
-        const chatUser = chat?.users?.find(
-          (cu) => cu.userId === message.senderId
-        );
+        const currentChatUser = chat?.users?.find((cu) => cu.userId === userId);
+        const chatUser = chat?.users?.find((cu) => cu.id === message.senderId);
         const mutedEntry = chat?.mutes.find(
           (mute) =>
             mute.chatUserId === chatUser?.id &&
@@ -59,7 +58,7 @@ export const socketMiddleware: Middleware =
         );
         const isMuted = Boolean(mutedEntry);
 
-        if (userId === message.senderId) return;
+        if (currentChatUser?.id === message.senderId) return;
         // Only trigger one notification per chatId until dismissed
         const alreadyNotified = newMessageNotifications.find(
           (n) => n.chatMessage.id === message.id
@@ -101,16 +100,22 @@ export const socketMiddleware: Middleware =
       });
 
       socket.on(CHAT_SOCKET_EVENT.MESSAGE_RECEIVED, (message: ChatMessage) => {
-        const state = storeAPI.getState();
+        const state = storeAPI.getState() as RootState;
         const userId = state.user.user?.id;
-        if (userId !== message.senderId) return;
+        const chats = state.chats.chats || [];
+        const chat = chats.find((c) => c.id === message.chatId);
+        const currentChatUser = chat?.users?.find((cu) => cu.userId === userId);
+        if (currentChatUser?.id !== message.senderId) return;
         storeAPI.dispatch(upsertMessage(message));
       });
 
       socket.on(CHAT_SOCKET_EVENT.MESSAGE_SEEN, (message) => {
-        const state = storeAPI.getState();
+        const state = storeAPI.getState() as RootState;
         const userId = state.user.user?.id;
-        if (userId !== message.senderId) return;
+        const chats = state.chats.chats || [];
+        const chat = chats.find((c) => c.id === message.chatId);
+        const currentChatUser = chat?.users?.find((cu) => cu.userId === userId);
+        if (currentChatUser?.id !== message.senderId) return;
         storeAPI.dispatch(upsertMessage(message));
       });
     }

@@ -9,7 +9,14 @@ import {
   GetChatsRequest,
   GetChatsResponse,
 } from "@/types/api/chat";
-import { Chat, ChatBlock, ChatMessage, ChatMute, ChatUser } from "@/types/chat";
+import {
+  Chat,
+  ChatBlock,
+  ChatGroup,
+  ChatMessage,
+  ChatMute,
+  ChatUser,
+} from "@/types/chat";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReAuth } from "./baseApi";
 
@@ -141,6 +148,18 @@ export const chatApi = createApi({
         method: "DELETE",
       }),
     }),
+    deleteChatGroup: builder.mutation<ChatGroup, string>({
+      query: (chatId) => ({
+        url: API_ROUTES.chat.deleteGroup.replace(":chatId", chatId),
+        method: "DELETE",
+      }),
+    }),
+    deleteChat: builder.mutation<{ chatId: string }, string>({
+      query: (chatId) => ({
+        url: API_ROUTES.chat.deleteChat.replace(":chatId", chatId),
+        method: "DELETE",
+      }),
+    }),
   }),
 });
 
@@ -159,4 +178,6 @@ export const {
   useUnblockChatMutation,
   useMuteChatMutation,
   useUnMuteChatMutation,
+  useDeleteChatGroupMutation,
+  useDeleteChatMutation,
 } = chatApi;

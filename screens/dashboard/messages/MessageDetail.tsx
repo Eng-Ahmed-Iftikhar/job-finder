@@ -2,6 +2,7 @@ import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import useChat from "@/hooks/useChat";
 import BlockedChat from "@/sections/message-detail/BlockedChat";
+import DeletedGroup from "@/sections/message-detail/DeletedGroup";
 import MessageDetailBody from "@/sections/message-detail/MessageDetailBody";
 import MessageDetailHeader from "@/sections/message-detail/MessageDetailHeader";
 import SendActions from "@/sections/new-message/SendActions";
@@ -35,15 +36,21 @@ function ChatDetailScreen() {
   const user = useAppSelector(selectUser);
   const id = typeof param.id === "string" ? param.id : "";
   const dispatch = useAppDispatch();
-  const { chat, chatGroup } = useChat(id);
+  const { chat, chatGroup, currentChatUser } = useChat(id);
   const blockedUser = chat?.blocks?.find(
-    (block) => block.userId !== user?.id && !block.deletedAt
+    (block) => block.chatUserId !== currentChatUser?.id && !block.deletedAt
   );
 
   const youBlockedChat = useMemo(() => {
     if (chatGroup) return false;
     return Boolean(blockedUser);
   }, [blockedUser, chatGroup]);
+
+  const chatGroupDeleted = useMemo(() => {
+    if (!chatGroup) return false;
+    return Boolean(chatGroup.deletedAt);
+  }, [chatGroup]);
+
   const handleSendMessage = useCallback(
     (text: string) => {
       const newMessage: MessagePayload = {
@@ -53,11 +60,11 @@ function ChatDetailScreen() {
         createdAt: new Date(),
         status: CHAT_MESSAGE_STATUS.PENDING,
         chatId: id,
-        senderId: user?.id || "",
+        senderId: currentChatUser?.id || "",
       };
       dispatch(addMessage(newMessage));
     },
-    [dispatch, id, user]
+    [dispatch, id, currentChatUser]
   );
 
   const handleSelectImage = useCallback(
@@ -69,12 +76,12 @@ function ChatDetailScreen() {
         createdAt: new Date(),
         status: CHAT_MESSAGE_STATUS.PENDING,
         chatId: id,
-        senderId: user?.id || "",
+        senderId: currentChatUser?.id || "",
       };
 
       dispatch(addMessage(newMessage));
     },
-    [dispatch, id, user]
+    [dispatch, id, currentChatUser]
   );
 
   const handleSelectFile = useCallback(
@@ -86,12 +93,12 @@ function ChatDetailScreen() {
         createdAt: new Date(),
         status: CHAT_MESSAGE_STATUS.PENDING,
         chatId: id,
-        senderId: user?.id || "",
+        senderId: currentChatUser?.id || "",
       };
 
       dispatch(addMessage(newMessage));
     },
-    [dispatch, id, user]
+    [dispatch, id, currentChatUser]
   );
 
   return (
@@ -105,6 +112,8 @@ function ChatDetailScreen() {
         <MessageDetailBody />
         {youBlockedChat ? (
           <BlockedChat />
+        ) : chatGroupDeleted ? (
+          <DeletedGroup />
         ) : (
           <SendActions
             onSendMessage={handleSendMessage}

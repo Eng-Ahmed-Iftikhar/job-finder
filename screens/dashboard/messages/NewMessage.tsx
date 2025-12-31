@@ -106,11 +106,14 @@ function NewMessageScreen() {
           createdAt: new Date(),
           status: CHAT_MESSAGE_STATUS.PENDING,
           chatId: "",
-          senderId: user?.id || "",
+          senderId: "",
         };
         const chat = await handleExistingChat();
         if (chat) {
-          Object.assign(newMessage, { chatId: chat.id });
+          Object.assign(newMessage, {
+            chatId: chat.id,
+            senderId: chat.users.find((u) => u.userId === user?.id)?.id || "",
+          });
           router.push({
             pathname: "/messages/chat",
             params: { id: chat.id },
@@ -121,7 +124,10 @@ function NewMessageScreen() {
 
         const response = await handleCreateChat();
         const chatId = response.id;
-        Object.assign(newMessage, { chatId });
+        Object.assign(newMessage, {
+          chatId: chatId,
+          senderId: response.users.find((u) => u.userId === user?.id)?.id || "",
+        });
         dispatch(addMessage(newMessage));
         router.push({ pathname: "/messages/chat", params: { id: chatId } });
       } catch (error) {
@@ -146,7 +152,7 @@ function NewMessageScreen() {
           createdAt: new Date(),
           status: CHAT_MESSAGE_STATUS.PENDING,
           chatId: newChat?.id || "",
-          senderId: user?.id || "",
+          senderId: newChat?.users.find((u) => u.userId === user?.id)?.id || "",
         };
 
         if (newChat) {
@@ -160,7 +166,10 @@ function NewMessageScreen() {
         }
 
         const response = await handleCreateChat();
-        Object.assign(newMessage, { chatId: response.id });
+        Object.assign(newMessage, {
+          chatId: response.id,
+          senderId: response.users.find((u) => u.userId === user?.id)?.id || "",
+        });
 
         dispatch(addMessage(newMessage));
       } catch (error) {
@@ -181,13 +190,17 @@ function NewMessageScreen() {
           messageType: CHAT_MESSAGE_TYPE.FILE,
           createdAt: new Date(),
           status: CHAT_MESSAGE_STATUS.PENDING,
-          senderId: user?.id || "",
+          senderId: "",
           chatId: "",
         };
         const newChat = await handleExistingChat();
 
         if (newChat) {
-          Object.assign(newMessage, { chatId: newChat.id });
+          Object.assign(newMessage, {
+            chatId: newChat.id,
+            senderId:
+              newChat.users.find((u) => u.userId === user?.id)?.id || "",
+          });
           router.push({
             pathname: "/messages/chat",
             params: { id: newChat.id },
@@ -197,7 +210,10 @@ function NewMessageScreen() {
         }
 
         const response = await handleCreateChat();
-        Object.assign(newMessage, { chatId: response.id });
+        Object.assign(newMessage, {
+          chatId: response.id,
+          senderId: response.users.find((u) => u.userId === user?.id)?.id || "",
+        });
 
         dispatch(addMessage(newMessage));
       } catch (error) {

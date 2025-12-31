@@ -357,6 +357,34 @@ const chatSlice = createSlice({
         };
       }
     );
+    builder.addMatcher(
+      chatApi.endpoints.deleteChatGroup.matchFulfilled,
+      (state, action) => {
+        const deletedGroup = action.payload;
+        const chats = state.chats;
+        const chatIndex = chats.findIndex(
+          (chat) => chat.id === deletedGroup.chatId
+        );
+        if (chatIndex !== -1) {
+          state.chats[chatIndex] = {
+            ...chats[chatIndex],
+            group: {
+              ...chats[chatIndex].group,
+              ...(deletedGroup as ChatGroup),
+            },
+          };
+        }
+      }
+    );
+    builder.addMatcher(
+      chatApi.endpoints.deleteChat.matchFulfilled,
+      (state, action) => {
+        const chat = action.payload;
+        console.log("Deleted chat:", chat);
+
+        state.chats = state.chats.filter((c) => c.id !== chat.chatId);
+      }
+    );
   },
 });
 

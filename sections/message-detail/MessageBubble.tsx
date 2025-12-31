@@ -24,23 +24,16 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
   // All hooks must be called unconditionally, before any return
   const user = useAppSelector(selectUser);
   const pathname = usePathname();
-  const { chatUsers = [] } = useChat(message.chatId);
+  const { chatUsers = [], currentChatUser } = useChat(message.chatId);
 
-  const [createMessage, { isLoading: isCreating }] =
-    useCreateChatMessageMutation();
   const [updateMessageStatus] = useUpdateMessageStatusMutation();
-  const [uploadFile, { isLoading: isUploadingFile }] = useUploadFileMutation();
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const statusControllerRef = useRef<AbortController | null>(null);
-  const hasCreatedRef = useRef(false);
-  const hasStatusRef = useRef(false);
-  const dispatch = useAppDispatch();
 
-  const chatUser = chatUsers.find(
-    (user) => user.userId === (message?.senderId ?? message?.senderId)
-  );
-  const isOwn = (message?.senderId ?? message?.senderId) === user?.id;
-  const pictureUrl = chatUser?.user.profile.pictureUrl || "";
+  const statusControllerRef = useRef<AbortController | null>(null);
+
+  const hasStatusRef = useRef(false);
+
+  const isOwn = message?.senderId === currentChatUser?.id;
+  const pictureUrl = currentChatUser?.user.profile.pictureUrl || "";
 
   // Seen/received logic
   const receivedUsers =
@@ -49,7 +42,7 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
     message?.userStatuses?.filter((status) => status.seenAt) || [];
 
   const chatUserWithoutSender = chatUsers.filter(
-    (chatUser) => chatUser.userId !== message?.senderId
+    (chatUser) => chatUser.id !== message?.senderId
   );
   const isSeenByAllOthers = chatUserWithoutSender.length === seenUsers.length;
 
@@ -102,7 +95,7 @@ const MessageBubble = ({ message }: MessageBubbleProps) => {
       />
       {/* Message bubble */}
       <View>
-        <Message message={message} loading={isUploadingFile} />
+        <Message message={message} />
         <View
           className={
             `gap-3 flex-row items-center mt-2 ` +

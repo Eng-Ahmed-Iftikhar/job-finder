@@ -265,12 +265,6 @@ export const userSlice = createSlice({
       .addMatcher(
         connectionRequestsApi.endpoints.acceptConnectionRequest.matchFulfilled,
         (state, action) => {
-          console.log(action.payload);
-
-          const findedRequest = state.pendingConnections.findIndex(
-            (id) => id === action.payload.id
-          );
-          if (findedRequest) return;
           state.connections.push(action.payload);
         }
       )

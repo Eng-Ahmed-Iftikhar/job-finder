@@ -7,6 +7,12 @@ import GroupMemberList from "./GroupMemberList";
 import GroupMenu from "./GroupMenu";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import useChat from "@/hooks/useChat";
+import { useDeleteChatGroupMutation } from "@/api/services/chatApi";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import {
+  showErrorNotification,
+  showSuccessNotification,
+} from "@/store/reducers/notificationSlice";
 
 interface ChatGroupDetailsProps {
   // Add props as needed, e.g. group data
@@ -19,9 +25,22 @@ const ChatGroupDetails: React.FC<ChatGroupDetailsProps> = () => {
   // Mock group data; replace with actual data fetching logic
   const [menuVisible, setMenuVisible] = useState(false);
   const { chatGroup = null, chatUsers = [] } = useChat(chatId);
-
+  const [deleteChatGroup] = useDeleteChatGroupMutation();
+  const dispatch = useAppDispatch();
   const handleBack = () => {
     router.back();
+  };
+
+  const handleDeleteGroup = async () => {
+    try {
+      await deleteChatGroup(chatId).unwrap();
+      dispatch(showSuccessNotification("Group deleted successfully."));
+
+      router.back();
+    } catch (error) {
+      console.error("Failed to delete group:", error);
+      dispatch(showErrorNotification("Failed to delete group."));
+    }
   };
 
   return (
@@ -59,9 +78,7 @@ const ChatGroupDetails: React.FC<ChatGroupDetailsProps> = () => {
             onBlock={() => {
               // TODO: Implement block group logic
             }}
-            onDelete={() => {
-              // TODO: Implement delete group logic
-            }}
+            onDelete={handleDeleteGroup}
           />
 
           <View className="items-center mb-8">

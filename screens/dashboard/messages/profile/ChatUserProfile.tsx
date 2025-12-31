@@ -48,7 +48,7 @@ function ChatUserProfile() {
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const [userAction, setUserAction] = useState<"block" | "unmute">("block");
   const blockedUser = chat?.blocks?.find(
-    (block) => block.userId === chatUser?.userId && !block.deletedAt
+    (block) => block.chatUserId === chatUser?.id && !block.deletedAt
   );
 
   const mutedEntry = chatMutes.find(

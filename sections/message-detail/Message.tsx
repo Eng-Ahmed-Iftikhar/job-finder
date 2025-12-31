@@ -1,18 +1,17 @@
-import { useAppSelector } from "@/hooks/useAppSelector";
-import { selectUser } from "@/store/reducers/userSlice";
+import FullScreenImageModal from "@/components/FullScreenImageModal";
+import useChat from "@/hooks/useChat";
 import { CHAT_MESSAGE_TYPE, ChatMessage, ChatMessageFile } from "@/types/chat";
+import { Ionicons } from "@expo/vector-icons";
 import React, { useState } from "react";
 import {
-  Text,
-  View,
-  Image,
   ActivityIndicator,
-  TouchableOpacity,
-  Platform,
+  Image,
   Linking,
+  Platform,
+  Text,
+  TouchableOpacity,
+  View,
 } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import FullScreenImageModal from "@/components/FullScreenImageModal";
 
 type MessageProps = {
   message: ChatMessage & { file?: ChatMessageFile | null };
@@ -20,8 +19,8 @@ type MessageProps = {
 };
 
 function Message({ message, loading = false }: MessageProps) {
-  const user = useAppSelector(selectUser);
-  const isOwn = message.senderId === user?.id;
+  const { currentChatUser } = useChat(message.chatId);
+  const isOwn = message.senderId === currentChatUser?.id;
   const [showImageModal, setShowImageModal] = useState(false);
 
   if (message.messageType === CHAT_MESSAGE_TYPE.IMAGE) {

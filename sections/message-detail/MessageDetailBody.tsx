@@ -97,7 +97,11 @@ const MessageDetailBody = () => {
       )}
       <SectionList
         className="flex-1"
-        sections={chat?.messagesWithDates || []}
+        sections={
+          chat?.messagesWithDates.filter(
+            (section) => section.data.length > 0
+          ) || []
+        }
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
         renderSectionFooter={renderSectionFooter}

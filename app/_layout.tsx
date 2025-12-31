@@ -11,6 +11,7 @@ import AppLoader from "@/components/AppLoader";
 import NotificationProvider from "@/components/NotificationProvider";
 import { GestureResponderEvent, Pressable } from "react-native";
 import { setNativeEvent } from "@/store/reducers/uiSlice";
+import GestureRoot from "@/components/GestureRoot";
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
@@ -37,27 +38,31 @@ export default function RootLayout() {
         <Pressable className="flex-1" onPress={handleOnPress}>
           <StatusBar style="dark" />
           <NotificationProvider />
-
-          <AuthGuard>
-            <Suspense fallback={<AppLoader />}>
-              <Stack>
-                <Stack.Screen name="index" options={{ headerShown: false }} />
-                <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-                <Stack.Screen
-                  name="(dashboard)"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="(profile)"
-                  options={{ headerShown: false }}
-                />
-                <Stack.Screen
-                  name="(onboarding)"
-                  options={{ headerShown: false }}
-                />
-              </Stack>
-            </Suspense>
-          </AuthGuard>
+          <GestureRoot>
+            <AuthGuard>
+              <Suspense fallback={<AppLoader />}>
+                <Stack>
+                  <Stack.Screen name="index" options={{ headerShown: false }} />
+                  <Stack.Screen
+                    name="(auth)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="(dashboard)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="(profile)"
+                    options={{ headerShown: false }}
+                  />
+                  <Stack.Screen
+                    name="(onboarding)"
+                    options={{ headerShown: false }}
+                  />
+                </Stack>
+              </Suspense>
+            </AuthGuard>
+          </GestureRoot>
         </Pressable>
       </SafeAreaView>
     </ReduxPersisted>

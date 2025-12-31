@@ -20,6 +20,9 @@ const useChat = (chatId: string) => {
   const chatMembers = chatUsers?.filter(
     (chatsUser) => chatsUser.userId !== user?.id
   );
+  const currentChatUser = chatUsers.find(
+    (chatsUser) => chatsUser.userId === user?.id
+  );
 
   const chatName = useMemo(() => {
     let name = "N/A";
@@ -51,8 +54,9 @@ const useChat = (chatId: string) => {
 
   const chatUnseenCounts = chat?.unseenMessageCounts || [];
   const currentUserUnseenCount = chatUnseenCounts.filter(
-    (count) => count.senderId !== user?.id
+    (count) => count.senderId !== currentChatUser?.id
   );
+
   const unreedMessagesCount = useMemo(() => {
     if (!chat) return 0;
     return currentUserUnseenCount.reduce((acc, count) => acc + count.count, 0);
@@ -61,6 +65,7 @@ const useChat = (chatId: string) => {
   return {
     chatGroup,
     chatUsers,
+    currentChatUser,
     chatMembers,
     chatName,
     chatIconUrl,

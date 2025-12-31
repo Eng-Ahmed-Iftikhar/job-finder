@@ -9,13 +9,14 @@ import {
 } from "@/api/services/connectionRequestsApi";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { selectUser, selectUserConnections } from "@/store/reducers/userSlice";
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import {
   showErrorNotification,
   showSuccessNotification,
 } from "@/store/reducers/notificationSlice";
 import Avatar from "@/components/ui/Avatar";
+import { useLazyMeQuery } from "@/api/services/authApi";
 
 function SearchSuggestionUserCard({ item }: { item: UserListItem }) {
   const router = useRouter();
@@ -28,7 +29,6 @@ function SearchSuggestionUserCard({ item }: { item: UserListItem }) {
     useCreateConnectionRequestMutation();
   const [acceptConnectionRequest, { isLoading: isAccepting }] =
     useAcceptConnectionRequestMutation();
-  console.log(userConnections);
 
   const isConnected = userConnections.find(
     (connection) => connection.user?.id === item.id
