@@ -1,32 +1,12 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReAuth } from "./baseApi";
 import API_ROUTES from "@/api/routes";
-
-export interface ConnectionRequest {
-  id: string;
-  senderId: string;
-  receiverId: string;
-  status: string;
-  createdAt: string;
-  updatedAt: string;
-  deletedAt: string | null;
-}
-
-export interface ConnectionRequestsResponse {
-  data: ConnectionRequest[];
-  total: number;
-  page: number;
-  pageSize: number;
-}
-
-export interface CreateConnectionRequestPayload {
-  receiverId: string;
-}
-
-export interface CreateConnectionRequestResponse {
-  message: string;
-  request: ConnectionRequest;
-}
+import {
+  ConnectionRequestsResponse,
+  CreateConnectionRequestPayload,
+  CreateConnectionRequestResponse,
+} from "@/types/api/connection-request";
+import { ConnectionRequest } from "@/types/connection-request";
 
 export const connectionRequestsApi = createApi({
   reducerPath: "connectionRequestsApi",
@@ -34,32 +14,31 @@ export const connectionRequestsApi = createApi({
   endpoints: (builder) => ({
     getMeConnectionRequests: builder.query<
       ConnectionRequestsResponse,
-      { page?: number; pageSize?: number }
+      {
+        page?: number;
+        pageSize?: number;
+        search?: string;
+        status: "INBOUND" | "OUTBOUND";
+      }
     >({
-      query: ({ page = 1, pageSize = 10 }) => ({
+      query: ({ page = 1, pageSize = 10, search, status }) => ({
         url: API_ROUTES.connectionRequests.me,
         method: "GET",
-        params: { page, pageSize },
+        params: { page, pageSize, search, status },
       }),
     }),
     acceptConnectionRequest: builder.mutation<
-      {
-        id: string;
-        receiverId: string;
-        senderId: string;
-        status: string;
-        user: {
-          firstName: string;
-          lastName: string;
-          id: string;
-          role: string;
-          pictureUrl?: string;
-        };
-      }, // ConnectionRequest},
+      ConnectionRequest, // ConnectionRequest},
       string
     >({
       query: (requestId) => ({
         url: API_ROUTES.connectionRequests.accept.replace(":id", requestId),
+        method: "PATCH",
+      }),
+    }),
+    rejectConnectionRequest: builder.mutation<ConnectionRequest, string>({
+      query: (requestId) => ({
+        url: API_ROUTES.connectionRequests.reject.replace(":id", requestId),
         method: "PATCH",
       }),
     }),
@@ -73,11 +52,21 @@ export const connectionRequestsApi = createApi({
         body,
       }),
     }),
+    getMeConnectionRequestsCount: builder.query<number, void>({
+      query: () => ({
+        url: API_ROUTES.connectionRequests.countMe,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
 export const {
   useGetMeConnectionRequestsQuery,
+  useLazyGetMeConnectionRequestsQuery,
   useCreateConnectionRequestMutation,
   useAcceptConnectionRequestMutation,
+  useGetMeConnectionRequestsCountQuery,
+  useLazyGetMeConnectionRequestsCountQuery,
+  useRejectConnectionRequestMutation,
 } = connectionRequestsApi;

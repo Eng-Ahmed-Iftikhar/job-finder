@@ -1,4 +1,4 @@
-import { CONNECTIONS_TABS } from "@/types/connections";
+import { CONNECTIONS_TABS } from "@/types/connection";
 
 export const jobTypeIconObj: { [key: string]: string } = {
   FULL_TIME: "briefcase",

@@ -11,6 +11,7 @@ import {
 
 import { Redirect, Slot, useSegments } from "expo-router";
 import React, { Suspense } from "react";
+import { View } from "react-native";
 
 function DashboardLayout() {
   const segments = useSegments();

@@ -10,8 +10,8 @@ import {
   showErrorNotification,
   showSuccessNotification,
 } from "@/store/reducers/notificationSlice";
-import { UserPhoneNumber } from "@/types/api/auth";
 import { OnboardingSteps } from "@/types/onboarding";
+import { PhoneNumber } from "@/types/user";
 import React, { useCallback, useState } from "react";
 import { Text, View } from "react-native";
 import { OtpInput } from "react-native-otp-entry";
@@ -57,7 +57,7 @@ function PhoneVerificationScreen() {
       }).unwrap();
       handleUserProfile({
         phoneNumber: {
-          ...(userProfile?.phoneNumber as UserPhoneNumber),
+          ...(userProfile?.phoneNumber as PhoneNumber),
           isVerified: true,
         },
       });

@@ -1,4 +1,4 @@
-import { SuggestedJobResponseItem } from "@/api/services/jobsApi";
+import { SuggestedJobResponseItem } from "./api/job";
 
 export type SearchJob = {
   id: string;
@@ -28,11 +28,9 @@ export type Employer = {
 };
 
 export type CompanyProfile = {
-  company: Company;
-};
-
-export type Company = {
-  name: string;
+  company: {
+    name: string;
+  };
 };
 
 export type SearchUser = {

@@ -3,18 +3,25 @@ import { useAppSelector } from "@/hooks/useAppSelector";
 import AppLoader from "./AppLoader";
 import { useEffect } from "react";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { useLazyGetMeConnectionRequestsCountQuery } from "@/api/services/connectionRequestsApi";
+import { useLazyGetMeConnectionsCountQuery } from "@/api/services/connectionApi";
 
 function AuthGuard({ children }: { children: React.ReactNode }) {
   const { access_token } = useAppSelector((state) => state.auth);
   const dispatch = useAppDispatch();
   const [trigger, { isLoading, isFetching }] = useLazyMeQuery();
+  const [triggerCount] = useLazyGetMeConnectionRequestsCountQuery();
+  const [triggerConnectionsCount] = useLazyGetMeConnectionsCountQuery();
 
   useEffect(() => {
     if (access_token) {
-      trigger();
-      dispatch({ type: "socket/connect" });
+      trigger().then(async () => {
+        dispatch({ type: "socket/connect" });
+        await triggerCount();
+        await triggerConnectionsCount();
+      });
     }
-  }, [access_token, trigger]);
+  }, [access_token, trigger, triggerCount, triggerConnectionsCount, dispatch]);
 
   const gettingUser = isLoading || isFetching;
   if (gettingUser) {

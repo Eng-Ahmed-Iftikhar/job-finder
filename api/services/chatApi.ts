@@ -15,7 +15,6 @@ import {
   ChatGroup,
   ChatMessage,
   ChatMute,
-  ChatUser,
 } from "@/types/chat";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReAuth } from "./baseApi";

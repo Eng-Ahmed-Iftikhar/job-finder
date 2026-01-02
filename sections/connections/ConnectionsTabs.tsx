@@ -1,13 +1,11 @@
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { CONNECTIONS_TABS, ConnectionsTab } from "@/types/connection";
 import React, { useCallback } from "react";
 import { ScrollView, View } from "react-native";
-import { TabButton } from "./TabButton";
-import { CONNECTIONS_TABS, ConnectionsTab } from "@/types/connections";
-import { useAppSelector } from "@/hooks/useAppSelector";
-import {
-  selectFollowedCompanies,
-  selectPendingConnections,
-  selectUserConnections,
-} from "@/store/reducers/userSlice";
+import TabButton from "./TabButton";
+
+import { selectConnectionRequestsCount } from "@/store/reducers/connectionRequestSlice";
+import { selectConnectionsCount } from "@/store/reducers/connectionSlice";
 import { usePathname, useRouter } from "expo-router";
 
 const connectionsTabs: ConnectionsTab[] = [
@@ -15,26 +13,28 @@ const connectionsTabs: ConnectionsTab[] = [
     key: CONNECTIONS_TABS.CONNECTIONS,
     label: "Connections",
     path: "/connections",
+    name: ["connections"],
   },
   {
     key: CONNECTIONS_TABS.FOLLOWING,
     label: "Following",
     path: "/connections/following",
+    name: ["following"],
   },
   {
     key: CONNECTIONS_TABS.PENDING,
     label: "Pending connections",
     path: "/connections/pending",
+    name: ["inbound", "outbound"],
   },
 ];
 
 function ConnectionsTabs() {
   const pathname = usePathname();
   const router = useRouter();
+  const connectionCounts = useAppSelector(selectConnectionsCount);
+  const connectionRequestsCount = useAppSelector(selectConnectionRequestsCount);
 
-  const connections = useAppSelector(selectUserConnections);
-  const followedCompanies = useAppSelector(selectFollowedCompanies);
-  const pendingConnections = useAppSelector(selectPendingConnections);
   const handleTabPress = useCallback(
     (path: string) => {
       router.push(path);
@@ -53,19 +53,24 @@ function ConnectionsTabs() {
           let count = 0;
           switch (connectionsTab.key) {
             case CONNECTIONS_TABS.CONNECTIONS:
-              count = connections.length;
+              count = connectionCounts;
               break;
             case CONNECTIONS_TABS.FOLLOWING:
-              count = followedCompanies.length;
+              count = 0;
               break;
             case CONNECTIONS_TABS.PENDING:
-              count = pendingConnections.length;
+              count = connectionRequestsCount;
               break;
             default:
               count = 0;
           }
-
-          const isActive = pathname === connectionsTab.path;
+          const lastPath = pathname.split("/").pop() || "";
+          let isActive = false;
+          if (Array.isArray(connectionsTab.name)) {
+            isActive = connectionsTab.name.includes(lastPath);
+          } else {
+            isActive = lastPath === connectionsTab.name;
+          }
 
           return (
             <TabButton

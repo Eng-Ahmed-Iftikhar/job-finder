@@ -1,7 +1,6 @@
 import React from "react";
 import { Pressable, Text, View } from "react-native";
-
-export function TabButton({
+function TabButton({
   label,
   count,
   active,
@@ -41,31 +40,4 @@ export function TabButton({
   );
 }
 
-export function PendingTabButton({
-  label,
-  active,
-  onPress,
-}: {
-  label: string;
-  active: boolean;
-  onPress: () => void;
-}) {
-  return (
-    <Pressable onPress={onPress} className="mr-5 pb-2">
-      <Text
-        className={
-          "text-sm font-semibold " +
-          (active ? "text-gray-900" : "text-gray-500")
-        }
-      >
-        {label}
-      </Text>
-      <View
-        className={
-          "h-0.5 mt-1 rounded-full " +
-          (active ? "bg-azure-radiance-500" : "bg-transparent")
-        }
-      />
-    </Pressable>
-  );
-}
+export default TabButton;

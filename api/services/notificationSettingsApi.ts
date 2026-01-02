@@ -1,32 +1,10 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import API_ROUTES from "@/api/routes";
 import { baseQueryWithReAuth } from "./baseApi";
-
-export interface NotificationSettingsResponse {
-  id: string;
-  profileId: string;
-  jobInterviewScheduledSystem: boolean;
-  jobInterviewScheduledEmail: boolean;
-  connectionRequestSystem: boolean;
-  connectionRequestEmail: boolean;
-  newJobOpeningSystem: boolean;
-  newJobOpeningEmail: boolean;
-  interviewReminderSystem: boolean;
-  interviewReminderEmail: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface UpdateNotificationSettingsRequest {
-  jobInterviewScheduledSystem: boolean;
-  jobInterviewScheduledEmail: boolean;
-  connectionRequestSystem: boolean;
-  connectionRequestEmail: boolean;
-  newJobOpeningSystem: boolean;
-  newJobOpeningEmail: boolean;
-  interviewReminderSystem: boolean;
-  interviewReminderEmail: boolean;
-}
+import {
+  NotificationSettingsResponse,
+  UpdateNotificationSettingsRequest,
+} from "@/types/api/notification-settings";
 
 export const notificationSettingsApi = createApi({
   reducerPath: "notificationSettingsApi",

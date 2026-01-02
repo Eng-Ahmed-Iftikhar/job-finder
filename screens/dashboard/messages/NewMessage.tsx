@@ -3,7 +3,7 @@ import SendActions from "@/sections/new-message/SendActions";
 import ContactSuggestItem from "@/sections/new-message/ContactSuggestItem";
 import NewMessageHeader from "@/sections/new-message/NewMessageHeader";
 import SelectUsers from "@/sections/new-message/SelectUsers";
-import { selectUser, selectUserConnections } from "@/store/reducers/userSlice";
+import { selectUser } from "@/store/reducers/userSlice";
 import { ContactItem } from "@/types/api/message";
 import { useRouter } from "expo-router";
 import { useCallback, useMemo, useState } from "react";
@@ -20,6 +20,8 @@ import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { showErrorNotification } from "@/store/reducers/notificationSlice";
 import { addMessage, selectChats } from "@/store/reducers/chatSlice";
 import { SafeAreaView } from "react-native";
+import { selectConnections } from "@/store/reducers/connectionSlice";
+import { Connection } from "@/types/connection";
 
 function NewMessageScreen() {
   const [search, setSearch] = useState("");
@@ -28,43 +30,37 @@ function NewMessageScreen() {
 
   const chats = useAppSelector(selectChats);
 
-  const connections = useAppSelector(selectUserConnections);
+  const connections = useAppSelector(selectConnections);
   const user = useAppSelector(selectUser);
   const [createChat, { isLoading: creatingChat }] = useCreateChatMutation();
   const [selectedUsers, setSelectedUsers] = useState<
     { id: string; firstName: string; lastName: string; pictureUrl: string }[]
   >([]);
 
-  const filteredContacts = useMemo(
-    () =>
-      connections
-        .filter(
-          (item) =>
-            item.user.firstName.toLowerCase().includes(search.toLowerCase()) ||
-            item.user.lastName.toLowerCase().includes(search.toLowerCase())
-        )
-        .filter(
-          (item) => !selectedUsers.some((user) => user.id === item.user.id)
-        ),
-    [search, selectedUsers, connections]
+  const onSelectContact = useCallback(
+    (item: Connection) => {
+      const isSender = item.connectionRequest?.senderId === user?.id;
+      const contactUser = isSender
+        ? item.connectionRequest?.receiver
+        : item.connectionRequest?.sender;
+      if (!contactUser) return;
+      const isAlreadySelected = selectedUsers.some(
+        (user) => user.id === contactUser.profile.userId
+      );
+      if (!isAlreadySelected) {
+        setSelectedUsers((prevUsers) => [
+          ...prevUsers,
+          {
+            id: contactUser.profile.userId,
+            firstName: contactUser.profile.firstName,
+            lastName: contactUser.profile.lastName,
+            pictureUrl: contactUser.profile.pictureUrl || "",
+          },
+        ]);
+      }
+    },
+    [selectedUsers, user]
   );
-
-  const onSelectContact = (item: ContactItem) => {
-    const isAlreadySelected = selectedUsers.some(
-      (user) => user.id === item.user.id
-    );
-    if (!isAlreadySelected) {
-      setSelectedUsers((prevUsers) => [
-        ...prevUsers,
-        {
-          id: item.user.id,
-          firstName: item.user.firstName,
-          lastName: item.user.lastName,
-          pictureUrl: item.user.pictureUrl || "",
-        },
-      ]);
-    }
-  };
 
   const handleRemoveUser = (userId: string) => {
     setSelectedUsers((prevUsers) =>
@@ -242,7 +238,7 @@ function NewMessageScreen() {
         </View>
 
         <FlatList
-          data={filteredContacts}
+          data={connections}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <ContactSuggestItem

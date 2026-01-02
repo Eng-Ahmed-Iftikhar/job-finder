@@ -14,7 +14,7 @@ export default function ConnectionsLayout() {
     router.setParams({ ...searchParams, search: text });
   };
   return (
-    <View className="flex-1 bg-gray-50">
+    <View className="flex-1 bg-white">
       <View className="px-4 pt-4">
         <ConnectionsTabs />
         <View className="mt-3 w-[65%]">
@@ -26,7 +26,7 @@ export default function ConnectionsLayout() {
         </View>
       </View>
 
-      <View className="flex-1 mt-3">
+      <View className="flex-1 mt-3 ">
         <Suspense fallback={<AppLoader />}>
           <Stack>
             <Stack.Screen options={{ headerShown: false }} name="index" />

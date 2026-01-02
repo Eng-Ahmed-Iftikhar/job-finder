@@ -1,10 +1,11 @@
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { selectUserProfile } from "@/store/reducers/userSlice";
-import { UserProfile } from "@/types/api/auth";
+
 import {
   OnboardingSteps,
   OnboardingContextType,
   StepHeaderType,
+  OnboardingProfile,
 } from "@/types/onboarding";
 import { determineCurrentStep, getPreviousStep } from "@/utils";
 import { useRouter, usePathname } from "expo-router";
@@ -25,7 +26,9 @@ export const onboardingContext = createContext<OnboardingContextType>({
 const Provider = onboardingContext.Provider;
 
 function OnboardingProvider({ children }: { children: React.ReactNode }) {
-  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [userProfile, setUserProfile] = useState<OnboardingProfile | null>(
+    null
+  );
   const profile = useAppSelector(selectUserProfile);
   const [currentStep, setCurrentStep] = useState<string>(
     OnboardingSteps.GENERAL_INFO
@@ -39,7 +42,7 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleUserProfile = useCallback((profile: UserProfile) => {
+  const handleUserProfile = useCallback((profile: OnboardingProfile) => {
     setUserProfile((prev) => {
       return {
         ...prev,
@@ -69,7 +72,7 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
 
   // Function to determine which step should be current based on profile data
   const getCurrentStepFromProfile = useCallback(
-    (profile: UserProfile): string => {
+    (profile: OnboardingProfile): string => {
       return determineCurrentStep(profile);
     },
     []
@@ -78,17 +81,25 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!profile) return;
 
-    handleUserProfile({
-      generalInfo: profile.generalInfo,
-      location: profile.location,
-      phoneNumber: profile.phoneNumber,
+    const onboardingProfile: OnboardingProfile = {
+      generalInfo: {
+        firstName: profile.firstName,
+        lastName: profile.lastName,
+      },
+      location: {
+        address: profile.address || "",
+        city: profile.location?.city || "",
+        state: profile.location?.state || "",
+        country: profile.location?.country || "",
+      },
+      phoneNumber: profile.userPhoneNumbers[0].phoneNumber,
       pictureUrl: profile.pictureUrl,
       resumeUrl: profile.resumeUrl,
-    });
-    console.log({ profile });
+    };
+    handleUserProfile(onboardingProfile);
 
     // Set current step based on profile completion
-    const currentStepFromProfile = getCurrentStepFromProfile(profile);
+    const currentStepFromProfile = getCurrentStepFromProfile(onboardingProfile);
     setCurrentStep(currentStepFromProfile);
   }, [profile, handleUserProfile, getCurrentStepFromProfile]);
 

@@ -1,3 +1,5 @@
+import { Connection } from "../connection";
+
 // User list response types
 export interface UserListEmail {
   id: string;

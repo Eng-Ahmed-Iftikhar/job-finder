@@ -1,27 +1,7 @@
+import API_ROUTES from "@/api/routes";
+import { SearchPayload, SearchResponse } from "@/types/api/search";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReAuth } from "./baseApi";
-import API_ROUTES from "@/api/routes";
-import { SearchJob, SearchUser, SearchCompany } from "@/types/search";
-
-export interface SearchPayload {
-  text: string;
-  location?: string;
-}
-
-export interface SearchResponse {
-  jobs: {
-    data: SearchJob[];
-    total: number;
-  };
-  employees: {
-    data: SearchUser[];
-    total: number;
-  };
-  companies: {
-    data: SearchCompany[];
-    total: number;
-  };
-}
 
 export const searchApi = createApi({
   reducerPath: "searchApi",

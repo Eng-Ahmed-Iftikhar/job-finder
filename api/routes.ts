@@ -21,8 +21,14 @@ const API_ROUTES = {
   },
   connectionRequests: {
     me: "/connection-requests/me",
+    countMe: "/connection-requests/count/me",
     create: "/connection-requests",
     accept: "/connection-requests/:id/accept",
+    reject: "/connection-requests/:id/reject",
+  },
+  connections: {
+    me: "/connections/me",
+    countMe: "/connections/count/me",
   },
   document: {
     list: "/documents?page=:page&pageSize=:pageSize",
@@ -40,6 +46,7 @@ const API_ROUTES = {
     resume: "/users/me/resume",
     reauthenticate: "/users/me/reauthenticate",
     changePassword: "/users/me/change-password",
+    connections: "/users/me/connections",
   },
   users: {
     suggested: "/users/suggested",
@@ -64,7 +71,7 @@ const API_ROUTES = {
     detail: "/jobs/:id",
   },
   companies: {
-    followedIds: "/companies/followedIds",
+    followers: "/companies/followers",
     follow: "/companies/:id/follow",
     detail: "/companies/:id",
     all: "/companies",

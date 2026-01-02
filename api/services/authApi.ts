@@ -1,55 +1,25 @@
 import API_ROUTES from "@/api/routes";
-import { AuthMeResponse, SocialProvider, User } from "@/types/api/auth";
+import {
+  AuthLoginRequest,
+  AuthMeResponse,
+  AuthResponse,
+  AuthSignUpRequest,
+  ForgotPasswordRequest,
+  ForgotPasswordResponse,
+  ResetPasswordRequest,
+  ResetPasswordResponse,
+  VerifyResetCodeRequest,
+  VerifyResetCodeResponse,
+} from "@/types/api/auth";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReAuth } from "./baseApi";
-
-// Define the server auth response
-export interface AuthResponse {
-  user: User;
-  access_token: string;
-}
-
-// Define the refresh token response
-export interface RefreshTokenResponse {
-  access_token: string;
-}
-
-export interface ForgotPasswordRequest {
-  email: string;
-}
-
-export interface ForgotPasswordResponse {
-  message: string;
-}
-
-export interface VerifyResetCodeRequest {
-  code: string;
-  email: string;
-}
-
-export interface VerifyResetCodeResponse {
-  message: string;
-  verified: boolean;
-}
-
-export interface ResetPasswordRequest {
-  code: string;
-  newPassword: string;
-}
-
-export interface ResetPasswordResponse {
-  message: string;
-}
 
 export const authApi = createApi({
   reducerPath: "authApi",
   baseQuery: baseQueryWithReAuth, // Use baseQueryWithReAuth (it ignores auth endpoints)
   endpoints: (builder) => ({
     // sign in (no auth required) - but will use baseQueryWithReAuth for refresh logic
-    signIn: builder.mutation<
-      AuthResponse,
-      { email: string; password: string; rememberMe?: boolean }
-    >({
+    signIn: builder.mutation<AuthResponse, AuthLoginRequest>({
       query: (body) => ({
         url: API_ROUTES.auth.sign_in,
         method: "POST",
@@ -57,17 +27,7 @@ export const authApi = createApi({
       }),
     }),
     // sign up (no auth required) - handles both email and Google
-    signUp: builder.mutation<
-      AuthResponse,
-      {
-        email: string;
-        password?: string; // Optional for Google login
-        firstName: string;
-        lastName: string;
-        provider: SocialProvider;
-        profileImage?: string;
-      }
-    >({
+    signUp: builder.mutation<AuthResponse, AuthSignUpRequest>({
       query: (body) => ({
         url: API_ROUTES.auth.sign_up,
         method: "POST",
@@ -75,17 +35,7 @@ export const authApi = createApi({
       }),
     }),
     // social login (no auth required) - handles Google, Facebook, etc.
-    socialLogin: builder.mutation<
-      AuthResponse,
-      {
-        email: string;
-        firstName: string;
-        lastName: string;
-        provider: SocialProvider;
-        profileImage?: string;
-        accessToken?: string; // For additional verification if needed
-      }
-    >({
+    socialLogin: builder.mutation<AuthResponse, AuthSignUpRequest>({
       query: (body) => ({
         url: API_ROUTES.auth.social_login,
         method: "POST",

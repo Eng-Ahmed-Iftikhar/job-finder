@@ -3,6 +3,8 @@ import { Text, TouchableOpacity, View, Pressable } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import Icon from "react-native-vector-icons/Ionicons";
 import Avatar from "@/components/ui/Avatar";
+import { Follower } from "@/types/follower";
+import LocationText from "@/components/LocationText";
 
 export interface FollowedCompany {
   id: string;
@@ -17,7 +19,7 @@ export interface FollowedCompany {
 }
 
 interface FollowRowProps {
-  item: FollowedCompany;
+  item: Follower;
 }
 
 export function FollowRow({ item }: FollowRowProps) {
@@ -31,11 +33,6 @@ export function FollowRow({ item }: FollowRowProps) {
     setShowMenu(!showMenu);
   };
 
-  const locationText =
-    item.location?.city && item.location?.state
-      ? `${item.location.city}, ${item.location.state}`
-      : item.address || "";
-
   return (
     <TouchableOpacity
       onPress={handlePress}
@@ -43,8 +40,8 @@ export function FollowRow({ item }: FollowRowProps) {
       activeOpacity={0.7}
     >
       <View className="mr-3">
-        {item.pictureUrl ? (
-          <Avatar imageUrl={item.pictureUrl} size={48} />
+        {item.company?.profile?.pictureUrl ? (
+          <Avatar imageUrl={item.company.profile.pictureUrl} size={48} />
         ) : (
           <View className="w-12 h-12 rounded-full bg-azure-radiance-500 items-center justify-center">
             <Ionicons name="business" size={24} color="white" />
@@ -54,11 +51,9 @@ export function FollowRow({ item }: FollowRowProps) {
 
       <View className="flex-1">
         <Text className="text-base font-semibold text-gray-900">
-          {item.name}
+          {item.company?.name}
         </Text>
-        {locationText && (
-          <Text className="text-sm text-gray-600 mt-0.5">{locationText}</Text>
-        )}
+        <LocationText location={item.company?.profile.location} />
       </View>
 
       <Pressable onPress={handleMenu} className="p-2">

@@ -1,4 +1,4 @@
-import { User, UserProfile } from "./api/auth";
+import { Profile, User } from "./user";
 
 export enum CHAT_TYPE {
   PRIVATE = "PRIVATE",
@@ -38,16 +38,7 @@ export type ChatUser = {
   mutedUntil?: Date | null;
   chat: Chat;
   user: User & {
-    profile: {
-      firstName: string;
-      lastName: string;
-      location?: {
-        city: string;
-        state: string;
-        country: string;
-      };
-      pictureUrl?: string | null;
-    };
+    profile: Profile;
   };
 
   messageStatuses: MessageUserStatus[];

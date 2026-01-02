@@ -1,59 +1,29 @@
+import API_ROUTES from "@/api/routes";
+import { Company } from "@/types/company";
+import { SuggestedCompaniesResponse } from "@/types/search/suggestedCompanies";
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReAuth } from "./baseApi";
-import API_ROUTES from "@/api/routes";
-import { SuggestedJobResponse } from "./jobsApi";
-import { SuggestedCompaniesResponse } from "@/types/search/suggestedCompanies";
-
-export interface CompanyLocation {
-  id: string;
-  city?: string;
-  state?: string;
-  country?: string;
-}
-
-export interface CompanyProfile {
-  id: string;
-  employerId?: string;
-  companyId?: string;
-  locationId?: string;
-  address?: string;
-  status?: string;
-  websiteId?: string;
-  website?: {
-    id: string;
-    url?: string;
-    name?: string;
-  };
-  pictureUrl?: string;
-  about?: string;
-  location?: CompanyLocation;
-}
-
-export interface CompanyDetail {
-  id: string;
-  name: string;
-  profile?: CompanyProfile;
-  followers?: Array<{
-    id: string;
-    companyId: string;
-    followerId: string;
-    createdAt?: string;
-    updatedAt?: string;
-    deletedAt?: string | null;
-  }>;
-}
+import { SuggestedJobResponse } from "@/types/api/job";
+import {
+  CompanyFollowersRequest,
+  CompanyFollowersResponse,
+} from "@/types/api/company";
 
 export const companyApi = createApi({
   reducerPath: "companyApi",
   baseQuery: baseQueryWithReAuth,
   endpoints: (builder) => ({
-    getFollowedCompanyIds: builder.query<string[], void>({
-      query: () => ({
-        url: API_ROUTES.companies.followedIds,
+    getCompanyFollowers: builder.query<
+      CompanyFollowersResponse,
+      CompanyFollowersRequest
+    >({
+      query: ({ params }) => ({
+        url: API_ROUTES.companies.followers,
         method: "GET",
+        params,
       }),
     }),
-    getCompanyById: builder.query<CompanyDetail, { companyId: string }>({
+    getCompanyById: builder.query<Company, { companyId: string }>({
       query: ({ companyId }) => ({
         url: API_ROUTES.companies.detail.replace(":id", companyId),
         method: "GET",
@@ -101,7 +71,9 @@ export const companyApi = createApi({
 });
 
 export const {
-  useGetFollowedCompanyIdsQuery,
+  useGetCompanyFollowersQuery,
+  useLazyGetCompanyByIdQuery,
+  useLazyGetCompanyFollowersQuery,
   useGetCompanyByIdQuery,
   useGetCompanyJobsQuery,
   useFollowCompanyMutation,

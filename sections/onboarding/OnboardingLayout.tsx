@@ -66,7 +66,7 @@ function OnboardingLayout() {
         <Image source={Logo} className="h-[40px] w-[76px]" />
         <TouchableOpacity onPress={handleLogout} disabled={isLoggingOut}>
           <Text
-            className={`text-sm font-medium font-semibold ${isLoggingOut ? "text-gray-400" : "text-azure-radiance-500"}`}
+            className={`text-sm font-medium  ${isLoggingOut ? "text-gray-400" : "text-azure-radiance-500"}`}
           >
             {isLoggingOut ? "Logging out..." : "Logout"}
           </Text>
@@ -108,7 +108,7 @@ function OnboardingLayout() {
         confirmText="Logout"
         cancelText="Cancel"
         confirmButtonColor="bg-red-500"
-        icon="logout"
+        icon="log-out"
         iconColor="#EF4444"
       />
     </View>

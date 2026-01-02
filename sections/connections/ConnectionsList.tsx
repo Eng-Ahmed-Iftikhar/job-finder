@@ -1,62 +1,60 @@
+import { useLazyGetMeConnectionsQuery } from "@/api/services/connectionApi";
 import { useAppSelector } from "@/hooks/useAppSelector";
-import { selectUserConnections } from "@/store/reducers/userSlice";
+import { selectConnections } from "@/store/reducers/connectionSlice";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useMemo } from "react";
-import { FlatList } from "react-native";
-import { ConnectionItem, ConnectionRow } from "./ConnectionRow";
+import React, { useCallback, useEffect, useMemo } from "react";
+import { FlatList, RefreshControl } from "react-native";
+import { ConnectionRow } from "./ConnectionRow";
 import { EmptyState } from "./EmptyState";
 
-const AVATAR_COLORS = [
-  "#3b82f6",
-  "#f59e0b",
-  "#a855f7",
-  "#ec4899",
-  "#10b981",
-  "#ef4444",
-];
+const PAGE_SIZE = 10;
 
 function Connections() {
-  const connections = useAppSelector(selectUserConnections);
+  const connections = useAppSelector(selectConnections);
   const searchParams = useLocalSearchParams();
   const search = searchParams.search as string;
+  const [page, setPage] = React.useState(1);
+  const [isRefreshing, setIsRefreshing] = React.useState(false);
+
+  const [trigger, { data: dataResponse }] = useLazyGetMeConnectionsQuery();
   const router = useRouter();
-
-  const connectionsData: ConnectionItem[] = connections.map((conn, index) => ({
-    id: conn.id,
-    name: `${conn.user.firstName} ${conn.user.lastName}`,
-    location: [
-      conn.user.location?.city,
-      conn.user.location?.state,
-      conn.user.location?.country,
-    ]
-      .filter(Boolean)
-      .join(", "),
-    color: AVATAR_COLORS[index % AVATAR_COLORS.length],
-    pictureUrl: conn.user?.pictureUrl,
-    icon: "person" as const,
-  }));
-
-  const filteredConnections = useMemo(
-    () =>
-      connectionsData.filter(
-        (item) =>
-          item.name.toLowerCase().includes(search?.toLowerCase() ?? "") ||
-          item.location.toLowerCase().includes(search?.toLowerCase() ?? "")
-      ),
-    [connectionsData, search]
-  );
 
   const handleFindPeople = () => {
     router.push("/search");
   };
+  const dataPage = dataResponse?.page ?? 1;
+  const dataTotal = dataResponse?.total ?? 0;
+  const dataPageSize = dataResponse?.pageSize ?? PAGE_SIZE;
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    setPage(1);
+  }, []);
+
+  const handleReachEnd = useCallback(() => {
+    if (dataPage * dataPageSize < dataTotal) {
+      setPage((prevPage) => prevPage + 1);
+    }
+  }, [dataPage, dataPageSize, dataTotal]);
+
+  useEffect(() => {
+    trigger({ params: { page, pageSize: PAGE_SIZE, search } }).finally(() => {
+      setIsRefreshing(false);
+    });
+  }, [page, trigger, search]);
 
   return (
     <FlatList
-      data={filteredConnections}
+      data={connections}
+      className="flex-1"
       keyExtractor={(item) => item.id}
       renderItem={({ item }) => <ConnectionRow item={item} />}
       contentContainerStyle={{ paddingBottom: 24 }}
       showsVerticalScrollIndicator={false}
+      onEndReached={handleReachEnd}
+      refreshControl={
+        <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+      }
       ListEmptyComponent={
         <EmptyState
           icon="person"

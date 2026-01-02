@@ -1,24 +1,8 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 import { baseQueryWithReAuth } from "./baseApi";
 import API_ROUTES from "@/api/routes";
-
-export interface Skill {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
-
-export interface CreateSkillRequest {
-  name: string;
-}
-
-export interface CreateSkillResponse {
-  id: string;
-  name: string;
-  createdAt: string;
-  updatedAt: string;
-}
+import { Skill } from "@/types/skill";
+import { CreateSkillRequest, CreateSkillResponse } from "@/types/api/skill";
 
 export const skillApi = createApi({
   reducerPath: "skillApi",

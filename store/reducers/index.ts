@@ -8,6 +8,9 @@ import jobReducer from "./jobSlice";
 import uiSlice from "./uiSlice";
 import chatSlice from "./chatSlice";
 import socketSlice from "./socketSlice";
+import connectionSlice from "./connectionSlice";
+import connectionRequestSlice from "./connectionRequestSlice";
+import companySlice from "./companySlice";
 
 // ==============================|| COMBINE REDUCERS ||============================== //
 
@@ -19,6 +22,9 @@ const reducers = combineReducers({
   ui: uiSlice,
   chats: chatSlice,
   socket: socketSlice,
+  connection: connectionSlice,
+  connectionRequest: connectionRequestSlice,
+  company: companySlice,
   ...apiReducers,
 });
 
