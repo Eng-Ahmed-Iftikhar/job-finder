@@ -24,6 +24,7 @@ import {
   addConnection,
   updateConnectionCount,
 } from "@/store/reducers/connectionSlice";
+import { chatApi } from "@/api/services/chatApi";
 
 let socket: Socket | null = null;
 
@@ -52,19 +53,20 @@ export const socketMiddleware: Middleware =
         storeAPI.dispatch(socketDisconnected());
       });
 
-      socket.on(CHAT_SOCKET_EVENT.NEW_CHAT, (chat: Chat) => {
-        const state = storeAPI.getState();
-        const userId = state.user.user?.id;
-        if (userId === chat.userId) return;
-        storeAPI.dispatch(addChat(chat));
-      });
-
       socket.on(CHAT_SOCKET_EVENT.NEW_MESSAGE, async (message: ChatMessage) => {
         const state = storeAPI.getState() as RootState;
         const userId = state.user.user?.id;
         const chats = state.chats.chats || [];
-        const chat = chats.find((c) => c.id === message.chatId);
+        let chat = chats.find((c) => c.id === message.chatId);
+        if (!chat) {
+          chat = await storeAPI
+            .dispatch(chatApi.endpoints.getChat.initiate(message.chatId || ""))
+            .unwrap();
+
+          return;
+        }
         const currentChatUser = chat?.users?.find((cu) => cu.userId === userId);
+
         const chatUser = chat?.users?.find((cu) => cu.id === message.senderId);
         const mutedEntry = chat?.mutes.find(
           (mute) =>

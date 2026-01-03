@@ -85,6 +85,8 @@ const MessageDetailBody = () => {
       </View>
     );
   }
+  const messagesWithDates = chat?.messagesWithDates || [];
+
   return (
     <View className="flex-1 bg-white">
       {(isMessagesLoading || isMessagesFetching) && (
@@ -98,9 +100,7 @@ const MessageDetailBody = () => {
       <SectionList
         className="flex-1"
         sections={
-          chat?.messagesWithDates.filter(
-            (section) => section.data.length > 0
-          ) || []
+          messagesWithDates.filter((section) => section.data.length > 0) || []
         }
         keyExtractor={(item) => item.id}
         renderItem={renderItem}

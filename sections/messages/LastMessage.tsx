@@ -17,22 +17,21 @@ function LastMessage({
   lastMessage: ChatMessage;
   chatId: string;
 }) {
-  const user = useAppSelector(selectUser);
   const { chatGroup, chatUsers = [], currentChatUser } = useChat(chatId);
 
   if (!lastMessage) {
     return <Text>No messages yet.</Text>;
   }
   const isOwn = lastMessage.senderId === currentChatUser?.id;
-
+  const chatUserWithoutSender = chatUsers.filter(
+    (chatUser) => chatUser.id !== lastMessage?.senderId
+  );
   const receivedUsers =
-    lastMessage.userStatuses?.filter((status) => status.receivedAt) || [];
-  const seenUsers = lastMessage.userStatuses?.filter((status) => status.seenAt);
+    lastMessage?.userStatuses?.filter((status) => status.receivedAt) || [];
+  const seenUsers =
+    lastMessage?.userStatuses?.filter((status) => status.seenAt) || [];
 
-  const isSeen =
-    lastMessage?.userStatuses &&
-    lastMessage.userStatuses?.length !== 0 &&
-    seenUsers?.length === lastMessage.userStatuses?.length;
+  const isSeen = chatUserWithoutSender.length === seenUsers.length;
 
   const currentUserInChat = chatUsers.find(
     (userInChat) => userInChat.id === lastMessage.senderId
