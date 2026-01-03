@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo } from "react";
-import { FlatList, View } from "react-native";
+import { FlatList, RefreshControl, View } from "react-native";
 import { useAppSelector } from "@/hooks/useAppSelector";
 import { selectConnectionRequests } from "@/store/reducers/connectionRequestSlice";
 import { selectUser } from "@/store/reducers/userSlice";
@@ -21,9 +21,7 @@ function PendingOutbounds() {
   };
 
   const outboundRequests = useMemo(() => {
-    return connectionRequest.filter(
-      (request) => request.receiverId === user?.id
-    );
+    return connectionRequest.filter((request) => request.senderId === user?.id);
   }, [connectionRequest, user]);
   const dataPage = data?.page || 1;
   const dataTotal = data?.total || 1;
@@ -47,18 +45,18 @@ function PendingOutbounds() {
       }
     );
   }, [connectionRequests, page]);
-  console.log({ outboundRequests });
 
   return (
-    <View className="h-[320px] bg-white">
+    <View className=" bg-white">
       <FlatList
         data={outboundRequests}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => <PendingRow item={item} />}
         contentContainerStyle={{ paddingBottom: 24 }}
         showsVerticalScrollIndicator={false}
-        onRefresh={handleRefresh}
-        refreshing={isRefreshing}
+        refreshControl={
+          <RefreshControl refreshing={isRefreshing} onRefresh={handleRefresh} />
+        }
         onEndReached={handleReachEnd}
         onEndReachedThreshold={0.5}
         ListEmptyComponent={

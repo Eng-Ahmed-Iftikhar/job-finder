@@ -1,8 +1,8 @@
+import { connectionRequestsApi } from "@/api/services/connectionRequestsApi";
 import { ConnectionRequest } from "@/types/connection-request";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { RootState } from ".";
-import { connectionRequestsApi } from "@/api/services/connectionRequestsApi";
 import _ from "lodash";
+import { RootState } from ".";
 
 interface ConnectionRequestState {
   requests: ConnectionRequest[];
@@ -20,6 +20,15 @@ const connectionRequestSlice = createSlice({
   reducers: {
     addRequest(state, action: PayloadAction<ConnectionRequest>) {
       state.requests.push(action.payload);
+    },
+    updateRequestCount(state, action: PayloadAction<number>) {
+      state.count = action.payload;
+    },
+    removeRequest(state, action: PayloadAction<string>) {
+      state.requests = state.requests.filter(
+        (req) => req.id !== action.payload
+      );
+      state.count -= 1;
     },
   },
   extraReducers: (builder) => {
@@ -64,7 +73,8 @@ const connectionRequestSlice = createSlice({
   },
 });
 
-export const { addRequest } = connectionRequestSlice.actions;
+export const { addRequest, updateRequestCount, removeRequest } =
+  connectionRequestSlice.actions;
 
 export const selectConnectionRequests = (state: RootState) =>
   state.connectionRequest.requests;

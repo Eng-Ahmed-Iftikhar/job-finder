@@ -92,7 +92,7 @@ function OnboardingProvider({ children }: { children: React.ReactNode }) {
         state: profile.location?.state || "",
         country: profile.location?.country || "",
       },
-      phoneNumber: profile.userPhoneNumbers[0].phoneNumber,
+      phoneNumber: profile?.userPhoneNumbers[0]?.phoneNumber,
       pictureUrl: profile.pictureUrl,
       resumeUrl: profile.resumeUrl,
     };

@@ -1,19 +1,18 @@
-import { useRouter } from "expo-router";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { SuggestedCompany } from "@/types/search/suggestedCompanies";
-import { Image } from "react-native";
-import { useAppSelector } from "@/hooks/useAppSelector";
-import { selectFollowedCompanies } from "@/store/reducers/userSlice";
 import {
   useFollowCompanyMutation,
   useUnfollowCompanyMutation,
 } from "@/api/services/companyApi";
 import LocationText from "@/components/LocationText";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectCompanyFollowers } from "@/store/reducers/companySlice";
+import { SuggestedCompany } from "@/types/search/suggestedCompanies";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { ActivityIndicator, Image, Pressable, Text, View } from "react-native";
 
 function SearchSuggestionCompanyCard({ item }: { item: SuggestedCompany }) {
   const router = useRouter();
-  const followedCompanies = useAppSelector(selectFollowedCompanies);
+  const followedCompanies = useAppSelector(selectCompanyFollowers);
   const isFollowed = followedCompanies.find(
     (company) => company.id === item.id
   );

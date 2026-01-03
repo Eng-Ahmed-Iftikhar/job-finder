@@ -22,8 +22,7 @@ export interface AuthSignUpRequest {
   firstName: string;
   lastName: string;
   provider: SocialProvider;
-  profileImage?: string;
-  accessToken?: string; // For additional verification if needed
+  password: string;
 }
 
 // Define the refresh token response

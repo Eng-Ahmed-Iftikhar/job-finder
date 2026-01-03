@@ -1,7 +1,7 @@
 import { useSignUpMutation } from "@/api/services/authApi";
 import Button from "@/components/ui/Button";
 import Input from "@/components/ui/Input";
-import { SocialProvider } from "@/types/api/auth";
+import { SocialProvider } from "@/types/user";
 import { Link } from "expo-router";
 import { Formik } from "formik";
 import React, { useCallback } from "react";
@@ -161,7 +161,7 @@ function RegisterForm() {
             </View>
 
             <View className=" mt-6">
-              <Text className="text-sm font-medium text-gray-500 font-medium">
+              <Text className="text-sm font-medium text-gray-500 ">
                 By signing up, you confirm that you agree to{" "}
                 <Link
                   href="/terms-and-conditions"

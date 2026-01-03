@@ -6,7 +6,7 @@ import SelectUsers from "@/sections/new-message/SelectUsers";
 import { selectUser } from "@/store/reducers/userSlice";
 import { ContactItem } from "@/types/api/message";
 import { useRouter } from "expo-router";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FlatList, KeyboardAvoidingView, Platform, View } from "react-native";
 import { useCreateChatMutation } from "@/api/services/chatApi";
 import { CreateChatRequest } from "@/types/api/chat";
@@ -22,15 +22,19 @@ import { addMessage, selectChats } from "@/store/reducers/chatSlice";
 import { SafeAreaView } from "react-native";
 import { selectConnections } from "@/store/reducers/connectionSlice";
 import { Connection } from "@/types/connection";
+import { useLazyGetMeConnectionsQuery } from "@/api/services/connectionApi";
 
+let PAGE_SIZE = 20;
 function NewMessageScreen() {
   const [search, setSearch] = useState("");
   const router = useRouter();
   const dispatch = useAppDispatch();
 
   const chats = useAppSelector(selectChats);
-
   const connections = useAppSelector(selectConnections);
+  const [page, setPage] = useState<number>(1);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [trigger, { data: dataResponse }] = useLazyGetMeConnectionsQuery();
   const user = useAppSelector(selectUser);
   const [createChat, { isLoading: creatingChat }] = useCreateChatMutation();
   const [selectedUsers, setSelectedUsers] = useState<
@@ -220,6 +224,26 @@ function NewMessageScreen() {
     },
     [selectedUsers, user, handleCreateChat, handleExistingChat]
   );
+  const dataPage = dataResponse?.page || 1;
+  const dataTotal = dataResponse?.total || 0;
+  const dataPageSize = dataResponse?.pageSize || PAGE_SIZE;
+
+  const handleReachedEnd = useCallback(() => {
+    if (dataPage * dataPageSize >= dataTotal) {
+      setPage((prev) => prev + 1);
+    }
+  }, [dataPage, dataPageSize, dataTotal]);
+
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    setPage(1);
+  }, []);
+
+  useEffect(() => {
+    trigger({ params: { page, pageSize: PAGE_SIZE, search } }).then(() => {
+      setIsRefreshing(false);
+    });
+  }, [page, search, trigger]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
@@ -240,12 +264,16 @@ function NewMessageScreen() {
         <FlatList
           data={connections}
           keyExtractor={(item) => item.id}
+          refreshing={isRefreshing}
           renderItem={({ item }) => (
             <ContactSuggestItem
               item={item}
               onPress={() => onSelectContact(item)}
             />
           )}
+          onRefresh={handleRefresh}
+          onEndReached={handleReachedEnd}
+          onEndReachedThreshold={0.5}
           contentContainerStyle={{ paddingBottom: 24 }}
           showsVerticalScrollIndicator={false}
         />

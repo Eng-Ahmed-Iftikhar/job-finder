@@ -1,27 +1,27 @@
-import { useRouter } from "expo-router";
-import { ActivityIndicator, Pressable, Text, View } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { UserListItem } from "@/types/api/user";
-import LocationText from "@/components/LocationText";
 import {
   useAcceptConnectionRequestMutation,
   useCreateConnectionRequestMutation,
 } from "@/api/services/connectionRequestsApi";
-import { useAppSelector } from "@/hooks/useAppSelector";
-import { selectUser, selectUserConnections } from "@/store/reducers/userSlice";
-import { use, useEffect, useState } from "react";
+import LocationText from "@/components/LocationText";
+import Avatar from "@/components/ui/Avatar";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { useAppSelector } from "@/hooks/useAppSelector";
+import { selectConnections } from "@/store/reducers/connectionSlice";
 import {
   showErrorNotification,
   showSuccessNotification,
 } from "@/store/reducers/notificationSlice";
-import Avatar from "@/components/ui/Avatar";
-import { useLazyMeQuery } from "@/api/services/authApi";
+import { selectUser } from "@/store/reducers/userSlice";
+import { UserListItem } from "@/types/api/user";
+import { Ionicons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
+import { useEffect, useState } from "react";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 
 function SearchSuggestionUserCard({ item }: { item: UserListItem }) {
   const router = useRouter();
   const user = useAppSelector(selectUser);
-  const userConnections = useAppSelector(selectUserConnections);
+  const userConnections = useAppSelector(selectConnections);
 
   const [requestSent, setRequestSent] = useState<boolean>(false);
   const dispatch = useAppDispatch();

@@ -2,7 +2,7 @@ import { Connection } from "@/types/connection";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { RootState } from ".";
 import { connectionApi } from "@/api/services/connectionApi";
-import _ from "lodash";
+import _, { update } from "lodash";
 
 interface ConnectionState {
   connections: Connection[];
@@ -23,6 +23,17 @@ const connectionSlice = createSlice({
     },
     increaseConnectionsCount(state) {
       state.count += 1;
+    },
+    addConnection(state, action: PayloadAction<Connection>) {
+      const exists = state.connections.find(
+        (conn) => conn.id === action.payload.id
+      );
+      if (!exists) {
+        state.connections.unshift(action.payload);
+      }
+    },
+    updateConnectionCount(state, action: PayloadAction<number>) {
+      state.count = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -51,11 +62,16 @@ const connectionSlice = createSlice({
   },
 });
 
-export const { setConnections, increaseConnectionsCount } =
-  connectionSlice.actions;
+export const {
+  setConnections,
+  increaseConnectionsCount,
+  addConnection,
+  updateConnectionCount,
+} = connectionSlice.actions;
 
 export const selectConnections = (state: RootState) =>
   state.connection.connections;
 export const selectConnectionsCount = (state: RootState) =>
   state.connection.count;
+
 export default connectionSlice.reducer;

@@ -1,16 +1,29 @@
-// src/store/socketMiddleware.js
 import { Chat, ChatMessage } from "@/types/chat";
-import { CHAT_SOCKET_EVENT, CHAT_SOCKET_ROOM } from "@/types/socket";
+import {
+  CHAT_SOCKET_EVENT,
+  CHAT_SOCKET_ROOM,
+  CONNECTION_SOCKET_EVENT,
+} from "@/types/socket";
 import { initSocket } from "@/utils/socket";
 import { Middleware } from "@reduxjs/toolkit";
 import * as Notifications from "expo-notifications";
-
 import { Socket } from "socket.io-client";
 import { addChat, addUnreadCount, upsertMessage } from "../reducers/chatSlice";
 import { socketConnected, socketDisconnected } from "../reducers/socketSlice";
 import { router } from "expo-router";
 import { RootState } from "../reducers";
 import moment from "moment";
+import { ConnectionRequest } from "@/types/connection-request";
+import {
+  addRequest,
+  removeRequest,
+  updateRequestCount,
+} from "@/store/reducers/connectionRequestSlice";
+import { Connection } from "@/types/connection";
+import {
+  addConnection,
+  updateConnectionCount,
+} from "@/store/reducers/connectionSlice";
 
 let socket: Socket | null = null;
 
@@ -25,15 +38,17 @@ export const socketMiddleware: Middleware =
     if (action.type === "socket/connect") {
       const state = storeAPI.getState();
       const accessToken = state.auth?.access_token;
-      socket = initSocket("/chats", accessToken);
+      socket = initSocket(accessToken);
       socket.connect();
 
       socket.on("connect", () => {
+        console.log("connected to chat socket");
         storeAPI.dispatch(socketConnected(socket));
         socket?.emit(CHAT_SOCKET_ROOM.USERS);
       });
 
       socket.on("disconnect", () => {
+        console.log("disconnected from chat socket");
         storeAPI.dispatch(socketDisconnected());
       });
 
@@ -118,6 +133,47 @@ export const socketMiddleware: Middleware =
         if (currentChatUser?.id !== message.senderId) return;
         storeAPI.dispatch(upsertMessage(message));
       });
+
+      socket.on(
+        CONNECTION_SOCKET_EVENT.NEW_CONNECTION,
+        (message: { connectionRequest: ConnectionRequest; count: number }) => {
+          console.log({ message });
+          const { connectionRequest, count } = message;
+          const state = storeAPI.getState();
+          const userId = state.user.user?.id;
+          if (userId === connectionRequest.senderId) return;
+          storeAPI.dispatch(addRequest(connectionRequest));
+          storeAPI.dispatch(updateRequestCount(count));
+        }
+      );
+
+      socket.on(
+        CONNECTION_SOCKET_EVENT.CONNECTION_ACCEPTED,
+        ({ connection, count }: { connection: Connection; count: number }) => {
+          const state = storeAPI.getState();
+          const userId = state.user.user?.id;
+          if (userId === connection.connectionRequest?.receiverId) return;
+          storeAPI.dispatch(addConnection(connection));
+          storeAPI.dispatch(updateConnectionCount(count));
+          storeAPI.dispatch(removeRequest(connection.connectionRequest!.id));
+        }
+      );
+      socket.on(
+        CONNECTION_SOCKET_EVENT.CONNECTION_CANCELED,
+        ({
+          connectionRequest,
+          count,
+        }: {
+          connectionRequest: ConnectionRequest;
+          count: number;
+        }) => {
+          const state = storeAPI.getState();
+          const userId = state.user.user?.id;
+          if (userId === connectionRequest.receiverId) return;
+          storeAPI.dispatch(removeRequest(connectionRequest.id));
+          storeAPI.dispatch(updateRequestCount(count));
+        }
+      );
     }
 
     if (action.type === "socket/disconnect") {

@@ -17,6 +17,7 @@ import { Persistor } from "redux-persist/es/types";
 import { apiMiddlewares } from "../api/services";
 import { userNotificationMiddleware } from "./middleware/userNotificationMiddleware";
 import { socketMiddleware } from "./middleware/socketMiddleware";
+
 import { chatListenerMiddleware } from "./middleware/chatMiddleware";
 
 // ==============================|| REDUX PERSIST For Next.js SSR ||============================== //
@@ -51,8 +52,7 @@ const store = configureStore({
     })
       .prepend(userNotificationMiddleware.middleware)
       .prepend(chatListenerMiddleware.middleware)
-      .concat(...apiMiddlewares)
-      .concat(socketMiddleware);
+      .concat(...apiMiddlewares, socketMiddleware);
   },
 });
 

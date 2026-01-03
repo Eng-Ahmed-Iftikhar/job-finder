@@ -8,10 +8,7 @@ import AppLoader from "@/components/AppLoader";
 import EmptyState from "@/components/EmptyState";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { useAppSelector } from "@/hooks/useAppSelector";
-import {
-  selectFollowedCompanies,
-  selectUserConnections,
-} from "@/store/reducers/userSlice";
+
 import { showSuccessNotification } from "@/store/reducers/notificationSlice";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -20,6 +17,8 @@ import { Animated, Image, Pressable, Text, View } from "react-native";
 import CompanyOverviewTab from "./CompanyOverviewTab";
 import CompanyJobsTab from "./CompanyJobsTab";
 import CompanyPostsTab from "./CompanyPostsTab";
+import { selectCompanyFollowers } from "@/store/reducers/companySlice";
+import { selectConnections } from "@/store/reducers/connectionSlice";
 
 type TabKey = "overview" | "jobs" | "posts";
 
@@ -42,8 +41,8 @@ export default function CompanyDetailContent() {
     { skip: !id }
   );
 
-  const followedCompanies = useAppSelector(selectFollowedCompanies);
-  const connections = useAppSelector(selectUserConnections);
+  const followedCompanies = useAppSelector(selectCompanyFollowers);
+  const connections = useAppSelector(selectConnections);
   const [followCompany, { isLoading: isFollowing }] =
     useFollowCompanyMutation();
   const [unfollowCompany, { isLoading: isUnfollowing }] =

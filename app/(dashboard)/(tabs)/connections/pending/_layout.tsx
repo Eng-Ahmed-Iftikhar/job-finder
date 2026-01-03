@@ -5,8 +5,10 @@ import { View } from "react-native";
 
 function PendingLayout() {
   return (
-    <View className=" bg-white">
-      <PendingConnectionsTabs />
+    <View className="flex-1 bg-white">
+      <View>
+        <PendingConnectionsTabs />
+      </View>
       <Slot />
     </View>
   );

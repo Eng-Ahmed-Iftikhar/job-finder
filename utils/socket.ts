@@ -5,9 +5,9 @@ const BASE_URL = Constants.expoConfig?.extra?.BASE_URL;
 
 let socket: Socket | null = null;
 
-export const initSocket = (socketUrl: string, accessToken?: string) => {
+export const initSocket = (accessToken?: string) => {
   if (!socket) {
-    socket = io(BASE_URL + socketUrl, {
+    socket = io(BASE_URL, {
       transports: ["websocket"],
       autoConnect: false,
       auth: accessToken ? { token: accessToken } : undefined,

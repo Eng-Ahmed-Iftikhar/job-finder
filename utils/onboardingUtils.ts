@@ -1,9 +1,8 @@
-import { UserProfile } from "@/types/api/auth";
-import { OnboardingSteps } from "@/types/onboarding";
+import { OnboardingProfile, OnboardingSteps } from "@/types/onboarding";
 
 // Utility function to check step completion status
 export const checkStepCompletion = (
-  profile: UserProfile | null,
+  profile: OnboardingProfile | null,
   step: OnboardingSteps
 ): boolean => {
   if (!profile) return false;
@@ -23,7 +22,9 @@ export const checkStepCompletion = (
       );
 
     case OnboardingSteps.PHONE_NUMBER:
-      return !!(profile.phoneNumber?.number && profile.phoneNumber?.isVerified);
+      return !!(
+        profile?.phoneNumber?.number && profile?.phoneNumber?.isVerified
+      );
 
     case OnboardingSteps.PICTURE_URL:
       return !!profile.pictureUrl;
@@ -38,7 +39,7 @@ export const checkStepCompletion = (
 
 // Utility function to get the next incomplete step
 export const getNextIncompleteStep = (
-  profile: UserProfile | null
+  profile: OnboardingProfile | null
 ): OnboardingSteps => {
   if (!profile) return OnboardingSteps.GENERAL_INFO;
 
@@ -91,12 +92,14 @@ export const getPreviousStep = (
 };
 
 // Utility function to determine which step should be current based on profile data
-export const determineCurrentStep = (profile: UserProfile | null): string => {
+export const determineCurrentStep = (
+  profile: OnboardingProfile | null
+): string => {
   return getNextIncompleteStep(profile);
 };
 
 // Utility function to get step progress percentage
-export const getStepProgress = (profile: UserProfile | null): number => {
+export const getStepProgress = (profile: OnboardingProfile | null): number => {
   if (!profile) return 0;
 
   const totalSteps = Object.keys(OnboardingSteps).length;
@@ -116,7 +119,9 @@ export const getStepProgress = (profile: UserProfile | null): number => {
 };
 
 // Utility function to check if onboarding is complete
-export const isOnboardingComplete = (profile: UserProfile | null): boolean => {
+export const isOnboardingComplete = (
+  profile: OnboardingProfile | null
+): boolean => {
   if (!profile) return false;
 
   return getStepProgress(profile) === 100;
